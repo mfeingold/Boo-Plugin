@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooProject", "BooProject\BooProject.csproj", "{69C291FC-45BC-484D-971F-ABB0BC06D57C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooProject_IntegrationTests", "BooProject\BooProject_IntegrationTests\BooProject_IntegrationTests.csproj", "{2368971B-D203-461A-B5D7-B42F456F2671}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C7B0B327-160B-489E-A8B0-000EE9BB92A9}"
+	ProjectSection(SolutionItems) = preProject
+		BooProject.vsmdi = BooProject.vsmdi
+		IntegrationTests.testsettings = IntegrationTests.testsettings
+		UnitTests.testsettings = UnitTests.testsettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooProject_UnitTests", "BooProject\BooProject_UnitTests\BooProject_UnitTests.csproj", "{FCE2853E-11C9-4C68-9766-FF0A281831AF}"
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = BooProject.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69C291FC-45BC-484D-971F-ABB0BC06D57C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69C291FC-45BC-484D-971F-ABB0BC06D57C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69C291FC-45BC-484D-971F-ABB0BC06D57C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69C291FC-45BC-484D-971F-ABB0BC06D57C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2368971B-D203-461A-B5D7-B42F456F2671}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2368971B-D203-461A-B5D7-B42F456F2671}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2368971B-D203-461A-B5D7-B42F456F2671}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2368971B-D203-461A-B5D7-B42F456F2671}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCE2853E-11C9-4C68-9766-FF0A281831AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCE2853E-11C9-4C68-9766-FF0A281831AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCE2853E-11C9-4C68-9766-FF0A281831AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCE2853E-11C9-4C68-9766-FF0A281831AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
