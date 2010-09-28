@@ -6,6 +6,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,14 +21,26 @@
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
+
     <Reference Include="System.Core" />
+
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
+
+    <Reference Include="System.Data.DataSetExtensions" >
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+
+    <Reference Include="System.Xml" >
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+
+    <Reference Include="System.Xml.Linq" >
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class.boo">
+    <Compile Include="Program.boo">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

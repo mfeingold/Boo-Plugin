@@ -125,10 +125,15 @@
     <Compile Include="BooProjectPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PkgCmdID.cs" />
-    <None Include="Templates\ProjectItems\BooProject\Class.boo" />
-    <None Include="Templates\Projects\BooProject\Class.boo">
+    <Content Include="Templates\ProjectItems\BooProject\Program.boo">
       <IncludeInVSIX>true</IncludeInVSIX>
-    </None>
+    </Content>
+    <Content Include="Templates\Projects\BooProject\Program.boo">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Templates\Projects\BooProject\BooApplication.vstemplate">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
@@ -145,8 +150,9 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Templates\Projects\BooProject\BooProject.booproj">
+    <Content Include="Templates\Projects\BooProject\BooApplication.booproj">
       <IncludeInVSIX>true</IncludeInVSIX>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
