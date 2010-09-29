@@ -30,6 +30,8 @@ namespace Hill30.BooProject
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
+
+    [ProvideObject(typeof(Project.GeneralPropertyPage))]
     
     [ProvideProjectFactory(typeof(Project.Factory), "Boo Project", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj", @"Templates\Projects\BooProject", LanguageVsTemplate = "BooProject", NewProjectRequireNewFolderVsTemplate = false)]
     [ProvideProjectItem(typeof(Project.Factory), "Boo Items", @"Templates\ProjectItems\BooProject", 500)]

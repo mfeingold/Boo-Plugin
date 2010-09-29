@@ -8,6 +8,11 @@ namespace Hill30.BooProject.Project
 {
     public class Project : ProjectNode
     {
+        public Project()
+        {
+            SupportsProjectDesigner = true;
+        }
+
         internal const string ProjectName = "BooProject";
 
         public override Guid ProjectGuid
@@ -18,6 +23,13 @@ namespace Hill30.BooProject.Project
         public override string ProjectType
         {
             get { return ProjectName; }
+        }
+
+        protected override Guid[] GetConfigurationIndependentPropertyPages()
+        {
+            Guid[] result = new Guid[1];
+            result[0] = typeof(GeneralPropertyPage).GUID;
+            return result;
         }
     }
 }
