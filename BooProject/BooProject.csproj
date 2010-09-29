@@ -130,12 +130,14 @@
     <Content Include="Templates\ProjectItems\BooProject\Program.boo">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Templates\Projects\BooProject\Program.boo">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Templates\Projects\BooProject\BooApplication.vstemplate">
+    <Resource Include="Templates\Projects\Library\BooProject.ico" />
+    <ZipProject Include="Templates\Projects\Library\Library.vstemplate">
       <SubType>Designer</SubType>
-    </Content>
+    </ZipProject>
+    <ZipProject Include="Templates\Projects\ConsoleApplication\Program.boo" />
+    <ZipProject Include="Templates\Projects\ConsoleApplication\Application.vstemplate">
+      <SubType>Designer</SubType>
+    </ZipProject>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
@@ -147,13 +149,24 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ProjectTemplates\ConsoleApplication.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="ProjectTemplates\Library.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Templates\Projects\BooProject\BooApplication.booproj">
-      <IncludeInVSIX>true</IncludeInVSIX>
+    <ZipProject Include="Templates\Projects\Library\Class.boo" />
+    <ZipProject Include="Templates\Projects\Library\Library.booproj">
       <SubType>Designer</SubType>
-    </Content>
+    </ZipProject>
+    <ZipProject Include="Templates\Projects\ConsoleApplication\Application.booproj">
+      <SubType>Designer</SubType>
+    </ZipProject>
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
@@ -168,9 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Package.ico" />
-    <Content Include="Templates\Projects\BooProject\BooProject.ico">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
+    <ZipProject Include="Templates\Projects\ConsoleApplication\BooProject.ico" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
@@ -188,6 +199,9 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\VSSDK\Microsoft.VsSDK.targets" />
   <Import Project="..\..\MPF_Project\Dev10\Src\CSharp\ProjectBase.Files" />
+  <PropertyGroup>
+    <PostBuildEvent>copy ProjectTemplates\*.zip ..\..\ProjectTemplates</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

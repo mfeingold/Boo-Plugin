@@ -33,8 +33,8 @@ namespace Hill30.BooProject
 
     [ProvideObject(typeof(Project.GeneralPropertyPage))]
     
-    [ProvideProjectFactory(typeof(Project.Factory), "Boo Project", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj", @"Templates\Projects\BooProject", LanguageVsTemplate = "BooProject", NewProjectRequireNewFolderVsTemplate = false)]
-    [ProvideProjectItem(typeof(Project.Factory), "Boo Items", @"Templates\ProjectItems\BooProject", 500)]
+    [ProvideProjectFactory(typeof(Project.Factory), "Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj", @"Templates\Projects\Boo", LanguageVsTemplate = "Boo", NewProjectRequireNewFolderVsTemplate = false)]
+    [ProvideProjectItem(typeof(Project.Factory), "Boo Items", @"Templates\ProjectItems\Boo", 500)]
 
     [Guid(GuidList.guidBooProjectPkgString)]
     public sealed class BooProjectPackage : ProjectPackage
