@@ -128,9 +128,6 @@
       <SubType>Code</SubType>
     </Compile>
     <ZipItem Include="Templates\Items\Boo\BooProject.ico" />
-    <ZipProject Include="Templates\Projects\Boo Library\Library.vstemplate">
-      <SubType>Designer</SubType>
-    </ZipProject>
     <ZipProject Include="Templates\Projects\Boo Application\Program.boo" />
     <ZipProject Include="Templates\Projects\Boo Application\Application.vstemplate">
       <SubType>Designer</SubType>
@@ -149,10 +146,8 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
+    <ZipProject Include="Templates\Projects\Boo Library\Library.booproj" />
     <ZipProject Include="Templates\Projects\Boo Library\Class.boo" />
-    <ZipProject Include="Templates\Projects\Boo Library\Library.booproj">
-      <SubType>Designer</SubType>
-    </ZipProject>
     <ZipProject Include="Templates\Projects\Boo Application\Application.booproj">
       <SubType>Designer</SubType>
     </ZipProject>
@@ -170,6 +165,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Package.ico" />
+    <ZipProject Include="Templates\Projects\Boo Library\BooProject.ico" />
+    <ZipProject Include="Templates\Projects\Boo Library\Library.vstemplate" />
     <ZipItem Include="Templates\Items\Boo\File.vstemplate">
       <SubType>Designer</SubType>
     </ZipItem>
@@ -191,7 +188,7 @@
     <RegisterWithCodebase>true</RegisterWithCodebase>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\VSSDK\Microsoft.VsSDK.targets" />
-  <Import Project="..\..\MPF_Project\Dev10\Src\CSharp\ProjectBase.Files" />
+  <Import Project="..\..\..\MPF_Project\Dev10\Src\CSharp\ProjectBase.Files" />
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
