@@ -1,16 +1,16 @@
 ﻿<VSTemplate Version="2.0.0" Type="Project"
     xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
 	<TemplateData>
-		<Name>Class Library</Name>
-		<Description>A project for creating a Boo class Library</Description>
+		<Name>Console Application</Name>
+		<Description>Console Boo application(executable)</Description>
 		<Icon>BooProject.ico</Icon>
 		<ProjectType>Boo</ProjectType>
-		<DefaultName>Library</DefaultName>
+		<DefaultName>ConsoleApplication</DefaultName>
 		<ProvideDefaultName>true</ProvideDefaultName>
 	</TemplateData>
 	<TemplateContent>
-		<Project File="Library.booproj" ReplaceParameters="true">
-			<ProjectItem ReplaceParameters="true" TargetFileName="Class.boo">CLass.boo</ProjectItem>
+		<Project File="Application.booproj" ReplaceParameters="true">
+			<ProjectItem ReplaceParameters="true" TargetFileName="Program.boo">Program.boo</ProjectItem>
 		</Project>
 	</TemplateContent>
 </VSTemplate>

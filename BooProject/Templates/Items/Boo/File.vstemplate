@@ -1,0 +1,13 @@
+﻿<VSTemplate Version="2.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Boo code file</Name>
+    <Description>Boo code file</Description>
+    <Icon>BooProject.ico</Icon>
+    <ProjectType>Boo</ProjectType>
+    <SortOrder>180</SortOrder>
+    <DefaultName>File1.boo</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem>File.boo</ProjectItem>
+  </TemplateContent>
+</VSTemplate>
