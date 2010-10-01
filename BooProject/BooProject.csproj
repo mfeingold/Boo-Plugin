@@ -147,6 +147,7 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
+    <ZipProject Include="Templates\Projects\Boo Application\AssemblyInfo.boo" />
     <ZipProject Include="Templates\Projects\Boo Library\Library.booproj" />
     <ZipProject Include="Templates\Projects\Boo Library\Class.boo" />
     <ZipProject Include="Templates\Projects\Boo Application\Application.booproj">

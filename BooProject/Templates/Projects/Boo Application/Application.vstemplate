@@ -4,13 +4,14 @@
 		<Name>Console Application</Name>
 		<Description>Project for building a command-line application in Boo</Description>
 		<Icon>BooProject.ico</Icon>
-		<ProjectType>Boo</ProjectType>
+		<ProjectType>Visual Boo</ProjectType>
 		<DefaultName>ConsoleApplication</DefaultName>
 		<ProvideDefaultName>true</ProvideDefaultName>
 	</TemplateData>
 	<TemplateContent>
 		<Project File="Application.booproj" ReplaceParameters="true">
 			<ProjectItem ReplaceParameters="true" TargetFileName="Program.boo">Program.boo</ProjectItem>
-		</Project>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.boo">AssemblyInfo.boo</ProjectItem>
+    </Project>
 	</TemplateContent>
 </VSTemplate>

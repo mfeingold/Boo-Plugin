@@ -4,14 +4,14 @@
 		<Name>Class Library</Name>
 		<Description>Project for building a class library in Boo</Description>
 		<Icon>BooProject.ico</Icon>
-		<ProjectType>Boo</ProjectType>
+		<ProjectType>Visual Boo</ProjectType>
 		<DefaultName>ClassLibrary</DefaultName>
 		<ProvideDefaultName>true</ProvideDefaultName>
 	</TemplateData>
 	<TemplateContent>
 		<Project File="Library.booproj" ReplaceParameters="true">
-			<ProjectItem ReplaceParameters="true" TargetFileName="Class1.boo">Class.boo</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="AssemblyInfo.boo">AssemblyInfo.boo</ProjectItem>
+			<ProjectItem ReplaceParameters="true" TargetFileName="Class1.boo" OpenInEditor="true">Class.boo</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.boo">AssemblyInfo.boo</ProjectItem>
     </Project>
 	</TemplateContent>
 </VSTemplate>

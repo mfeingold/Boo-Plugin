@@ -1,4 +1,4 @@
-namespace boo_helloworld
+namespace $safeprojectname$
 
 import System
 

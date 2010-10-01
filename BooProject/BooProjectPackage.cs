@@ -34,7 +34,7 @@ namespace Hill30.BooProject
     [ProvideObject(typeof(Project.ProjectProperties.Application))]
     [ProvideObject(typeof(Project.ProjectProperties.Build))]
 
-    [ProvideProjectFactory(typeof(Project.Factory), "Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj",  @".\NullPath", LanguageVsTemplate = "Boo", NewProjectRequireNewFolderVsTemplate = false)]
+    [ProvideProjectFactory(typeof(Project.Factory), "Visual Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj",  @".\NullPath", LanguageVsTemplate = "Visual Boo", NewProjectRequireNewFolderVsTemplate = false)]
     [ProvideProjectItem(typeof(Project.Factory), "Boo Items", @"Templates\Items\Boo", 500)]
 
     [Guid(GuidList.guidBooProjectPkgString)]
