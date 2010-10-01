@@ -1,10 +1,10 @@
-namespace boo_helloworld
+namespace $safeprojectname$
 
 import System
 
-print "Hello, World!"
+class $safeitemname$:
+"""Description of $safeitemname$."""
+	
+	public def constructor():
+		pass
 
-// TODO: Implement Functionality Here
-
-print "Press any key to continue . . . "
-Console.ReadKey(true)

@@ -28,8 +28,16 @@ namespace Hill30.BooProject.Project
         protected override Guid[] GetConfigurationIndependentPropertyPages()
         {
             Guid[] result = new Guid[1];
-            result[0] = typeof(GeneralPropertyPage).GUID;
+            result[0] = typeof(ProjectProperties.Application).GUID;
             return result;
         }
+
+        protected override Guid[] GetConfigurationDependentPropertyPages()
+        {
+            Guid[] result = new Guid[1];
+            result[0] = typeof(ProjectProperties.Build).GUID;
+            return result;
+        }
+
     }
 }

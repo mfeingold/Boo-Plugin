@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -118,16 +118,17 @@
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesDescriptionAttribute.cs" />
     <Compile Include="Project\Factory.cs" />
-    <Compile Include="Project\GeneralPropertyPage.cs" />
+    <Compile Include="Project\ProjectProperties\Application.cs" />
     <Compile Include="Project\Project.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="BooProjectPackage.cs" />
+    <Compile Include="Project\ProjectProperties\Build.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PkgCmdID.cs" />
     <Compile Include="Resources.cs">
       <SubType>Code</SubType>
     </Compile>
-    <ZipItem Include="Templates\Items\Boo\BooProject.ico" />
+    <ZipItem Include="Templates\Items\Boo Class\BooProject.ico" />
     <ZipProject Include="Templates\Projects\Boo Application\Program.boo" />
     <ZipProject Include="Templates\Projects\Boo Application\Application.vstemplate">
       <SubType>Designer</SubType>
@@ -165,12 +166,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Package.ico" />
+    <ZipProject Include="Templates\Projects\Boo Library\AssemblyInfo.boo" />
     <ZipProject Include="Templates\Projects\Boo Library\BooProject.ico" />
     <ZipProject Include="Templates\Projects\Boo Library\Library.vstemplate" />
-    <ZipItem Include="Templates\Items\Boo\File.vstemplate">
+    <ZipItem Include="Templates\Items\Boo Class\File.vstemplate">
       <SubType>Designer</SubType>
     </ZipItem>
-    <ZipItem Include="Templates\Items\Boo\File.boo" />
+    <ZipItem Include="Templates\Items\Boo Class\File.boo" />
     <ZipProject Include="Templates\Projects\Boo Application\BooProject.ico" />
   </ItemGroup>
   <ItemGroup />
@@ -188,7 +190,7 @@
     <RegisterWithCodebase>true</RegisterWithCodebase>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\VSSDK\Microsoft.VsSDK.targets" />
-  <Import Project="..\..\..\MPF_Project\Dev10\Src\CSharp\ProjectBase.Files" />
+  <Import Project="..\..\MPF_Project\Dev10\Src\CSharp\ProjectBase.Files" />
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>

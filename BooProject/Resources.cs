@@ -14,7 +14,8 @@ namespace Hill30.BooProject
 		#region Constants
 		internal const string Application = "Application";
 		internal const string ApplicationCaption = "ApplicationCaption";
-		internal const string GeneralCaption = "GeneralCaption";
+        internal const string BuildCaption = "BuildCaption";
+        internal const string GeneralCaption = "GeneralCaption";
 		internal const string AssemblyName = "AssemblyName";
 		internal const string AssemblyNameDescription = "AssemblyNameDescription";
 		internal const string OutputType = "OutputType";
@@ -35,7 +36,21 @@ namespace Hill30.BooProject
 		internal const string TargetFrameworkMoniker = "TargetFrameworkMoniker";
 		internal const string TargetFrameworkMonikerDescription = "TargetFrameworkMonikerDescription";
 		internal const string NestedProjectFileAssemblyFilter = "NestedProjectFileAssemblyFilter";
-		//internal const string MsgFailedToLoadTemplateFile = "Failed to add template file to project";
+        internal const string ConditionalSymbols = "ConditionalSymbols";
+        internal const string ConditionalSymbolsDescription = "ConditionalSymbolsDescription";
+        internal const string DefineDebug = "DefineDebug";
+        internal const string DefineDebugDescription = "DefineDebugDescription";
+        internal const string DefineTrace = "DefineTrace";
+        internal const string DefineTraceDescription = "DefineTraceDescription";
+        internal const string AllowUnsafe = "AllowUnsafe";
+        internal const string AllowUnsafeDescription = "AllowUnsafeDescription";
+        internal const string UseDuckTyping = "UseDuckTyping";
+        internal const string UseDuckTypingDescription = "UseDuckTypingDescription";
+        internal const string OutputCaption = "Output";
+        internal const string OutputPath = "OutputPath";
+        internal const string OutputPathDescription = "OutputPathDescription";
+
+        //internal const string MsgFailedToLoadTemplateFile = "Failed to add template file to project";
 		#endregion Constants
 
         #region Fields

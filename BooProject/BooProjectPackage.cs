@@ -31,9 +31,10 @@ namespace Hill30.BooProject
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
 
-    [ProvideObject(typeof(Project.GeneralPropertyPage))]
+    [ProvideObject(typeof(Project.ProjectProperties.Application))]
+    [ProvideObject(typeof(Project.ProjectProperties.Build))]
 
-    [ProvideProjectFactory(typeof(Project.Factory), "Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj", @"Templates\Projects", LanguageVsTemplate = "Boo", NewProjectRequireNewFolderVsTemplate = false)]
+    [ProvideProjectFactory(typeof(Project.Factory), "Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj",  @".\NullPath", LanguageVsTemplate = "Boo", NewProjectRequireNewFolderVsTemplate = false)]
     [ProvideProjectItem(typeof(Project.Factory), "Boo Items", @"Templates\Items\Boo", 500)]
 
     [Guid(GuidList.guidBooProjectPkgString)]

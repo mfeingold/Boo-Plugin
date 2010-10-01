@@ -12,9 +12,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 using LocDisplayNameAttribute = Hill30.BooProject.Project.Attributes.LocDisplayNameAttribute;
 
-namespace Hill30.BooProject.Project
+namespace Hill30.BooProject.Project.ProjectProperties
 {
-	public class GeneralPropertyPage : SettingsPage
+	public class Application : SettingsPage
 	{
 
         #region Fields
@@ -24,15 +24,17 @@ namespace Hill30.BooProject.Project
         private string startupObject;
         private string applicationIcon;
         private FrameworkName targetFrameworkMoniker;
+        private bool allowUnsafe;
+        private bool useDuckTyping;
         #endregion Fields
 
         #region Constructors
         /// <summary>
         /// Explicitly defined default constructor.
         /// </summary>
-        public GeneralPropertyPage()
+        public Application()
         {
-            this.Name = Resources.GetString(Resources.GeneralCaption);
+            this.Name = Resources.GetString(Resources.ApplicationCaption);
         }
         #endregion
 
@@ -100,6 +102,32 @@ namespace Hill30.BooProject.Project
         {
             get { return this.applicationIcon; }
             set { this.applicationIcon = value; this.IsDirty = true; }
+        }
+
+        [ResourcesCategoryAttribute(Resources.GeneralCaption)]
+        [LocDisplayName(Resources.AllowUnsafe)]
+        [ResourcesDescriptionAttribute(Resources.AllowUnsafeDescription)]
+        /// <summary>
+        /// Gets or sets Assembly Name.
+        /// </summary>
+        /// <remarks>IsDirty flag was switched to true.</remarks>
+        public bool AllowUnsafe
+        {
+            get { return this.allowUnsafe; }
+            set { this.allowUnsafe = value; this.IsDirty = true; }
+        }
+
+        [ResourcesCategoryAttribute(Resources.GeneralCaption)]
+        [LocDisplayName(Resources.UseDuckTyping)]
+        [ResourcesDescriptionAttribute(Resources.UseDuckTypingDescription)]
+        /// <summary>
+        /// Gets or sets Assembly Name.
+        /// </summary>
+        /// <remarks>IsDirty flag was switched to true.</remarks>
+        public bool UseDuckTyping
+        {
+            get { return this.useDuckTyping; }
+            set { this.useDuckTyping = value; this.IsDirty = true; }
         }
 
         [ResourcesCategoryAttribute(Resources.Project)]
@@ -170,13 +198,6 @@ namespace Hill30.BooProject.Project
         #endregion
 
         #region Overriden Implementation
-        /// <summary>
-        /// Returns class FullName property value.
-        /// </summary>
-        public override string GetClassName()
-        {
-            return this.GetType().FullName;
-        }
 
         /// <summary>
         /// Bind properties.
@@ -206,6 +227,8 @@ namespace Hill30.BooProject.Project
             this.defaultNamespace = this.ProjectMgr.GetProjectProperty("RootNamespace", false);
             this.startupObject = this.ProjectMgr.GetProjectProperty("StartupObject", false);
             this.applicationIcon = this.ProjectMgr.GetProjectProperty("ApplicationIcon", false);
+            Boolean.TryParse(this.ProjectMgr.GetProjectProperty("AllowUnsafeBlocks", false), out this.allowUnsafe);
+            Boolean.TryParse(this.ProjectMgr.GetProjectProperty("Ducky", false), out this.useDuckTyping);
 
             try
             {
@@ -235,6 +258,8 @@ namespace Hill30.BooProject.Project
             this.ProjectMgr.SetProjectProperty("RootNamespace", this.defaultNamespace);
             this.ProjectMgr.SetProjectProperty("StartupObject", this.startupObject);
             this.ProjectMgr.SetProjectProperty("ApplicationIcon", this.applicationIcon);
+            this.ProjectMgr.SetProjectProperty("AllowUnsafeBlocks", this.allowUnsafe.ToString());
+            this.ProjectMgr.SetProjectProperty("Ducky", this.useDuckTyping.ToString());
 
             if (reloadRequired)
             {

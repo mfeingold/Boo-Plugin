@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
 	<TemplateData>
 		<Name>Console Application</Name>
-		<Description>Console Boo application(executable)</Description>
+		<Description>Project for building a command-line application in Boo</Description>
 		<Icon>BooProject.ico</Icon>
 		<ProjectType>Boo</ProjectType>
 		<DefaultName>ConsoleApplication</DefaultName>
