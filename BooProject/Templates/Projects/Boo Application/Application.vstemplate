@@ -10,7 +10,7 @@
 	</TemplateData>
 	<TemplateContent>
 		<Project File="Application.booproj" ReplaceParameters="true">
-			<ProjectItem ReplaceParameters="true" TargetFileName="Program.boo">Program.boo</ProjectItem>
+			<ProjectItem ReplaceParameters="true" TargetFileName="Program.boo" OpenInEditor="true">Program.boo</ProjectItem>
       <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.boo">AssemblyInfo.boo</ProjectItem>
     </Project>
 	</TemplateContent>

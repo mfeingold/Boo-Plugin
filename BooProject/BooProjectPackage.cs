@@ -31,13 +31,28 @@ namespace Hill30.BooProject
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
 
+    // Registers boo project factory
+    [ProvideProjectFactory(typeof(Project.Factory), "Visual Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj", @".\NullPath", LanguageVsTemplate = "Visual Boo", NewProjectRequireNewFolderVsTemplate = false)]
+    [ProvideProjectItem(typeof(Project.Factory), "Boo Items", @"Templates\Items\Boo", 500)]
+
+    // Registers property pages for boo project designer
     [ProvideObject(typeof(Project.ProjectProperties.Application))]
     [ProvideObject(typeof(Project.ProjectProperties.Build))]
 
-    [ProvideProjectFactory(typeof(Project.Factory), "Visual Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj",  @".\NullPath", LanguageVsTemplate = "Visual Boo", NewProjectRequireNewFolderVsTemplate = false)]
-    [ProvideProjectItem(typeof(Project.Factory), "Boo Items", @"Templates\Items\Boo", 500)]
+    // Registers the language service
+    [ProvideService(typeof(LanguageService.Service))]
+    [ProvideLanguageExtension(typeof(LanguageService.Service), ".boo")]
 
-    [Guid(GuidList.guidBooProjectPkgString)]
+    [ProvideLanguageServiceAttribute(typeof(LanguageService.Service),
+                             Constants.LanguageName,
+                             106,                           // resource ID of localized language name
+                             CodeSense = true,             // Supports IntelliSense
+                             RequestStockColors = true,     // Supplies custom colors
+                             EnableCommenting = true//,       // Supports commenting out code
+//                             EnableAsyncCompletion = true   // Supports background parsing
+                             )]
+
+    [Guid(Constants.guidBooProjectPkgString)]
     public sealed class BooProjectPackage : ProjectPackage
     {
         /// <summary>
@@ -69,15 +84,26 @@ namespace Hill30.BooProject
 
             RegisterProjectFactory(new Project.Factory(this));
 
+            LanguageService.Service.Register(this);
+
             // Add our command handlers for menu (commands must exist in the .vsct file)
             OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if ( null != mcs )
             {
                 // Create the command for the menu item.
-                CommandID menuCommandID = new CommandID(GuidList.guidBooProjectCmdSet, (int)PkgCmdIDList.cmdidMyCommand);
+                CommandID menuCommandID = new CommandID(Constants.guidBooProjectCmdSet, (int)PkgCmdIDList.cmdidMyCommand);
                 MenuCommand menuItem = new MenuCommand(MenuItemCallback, menuCommandID );
                 mcs.AddCommand( menuItem );
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                LanguageService.Service.Stop(this);
+            }
+            base.Dispose(disposing);
         }
         #endregion
 

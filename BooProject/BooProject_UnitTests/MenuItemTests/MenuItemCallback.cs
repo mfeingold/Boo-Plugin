@@ -43,7 +43,7 @@ namespace BooProject_UnitTests.MenuItemTests
             Assert.AreEqual(0, package.SetSite(serviceProvider), "SetSite did not return S_OK");
 
             //Verify that the menu command can be found
-            CommandID menuCommandID = new CommandID(Hill30.BooProject.GuidList.guidBooProjectCmdSet, (int)Hill30.BooProject.PkgCmdIDList.cmdidMyCommand);
+            CommandID menuCommandID = new CommandID(Hill30.BooProject.Constants.guidBooProjectCmdSet, (int)Hill30.BooProject.PkgCmdIDList.cmdidMyCommand);
             System.Reflection.MethodInfo info = typeof(Package).GetMethod("GetService", BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(info);
             OleMenuCommandService mcs = info.Invoke(package, new object[] { (typeof(IMenuCommandService)) }) as OleMenuCommandService;
