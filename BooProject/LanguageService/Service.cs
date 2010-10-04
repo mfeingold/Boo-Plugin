@@ -69,9 +69,11 @@ namespace Hill30.BooProject.LanguageService
             get { return Constants.LanguageName; }
         }
 
-        public override ParseRequest CreateParseRequest(Source s, int line, int idx, TokenInfo info, string sourceText, string fname, ParseReason reason, IVsTextView view)
+        public override Source CreateSource(IVsTextLines buffer)
         {
-            return base.CreateParseRequest(s, line, idx, info, sourceText, fname, reason, view);
+            var s = base.CreateSource(buffer);
+            s.LastParseTime = 0;
+            return s;
         }
 
         public class BooAuthoringScope : AuthoringScope
