@@ -3,7 +3,7 @@
 	<TemplateData>
 		<Name>Class Library</Name>
 		<Description>Project for building a class library in Boo</Description>
-		<Icon>BooProject.ico</Icon>
+		<Icon>Project.ico</Icon>
 		<ProjectType>Visual Boo</ProjectType>
 		<DefaultName>ClassLibrary</DefaultName>
 		<ProvideDefaultName>true</ProvideDefaultName>

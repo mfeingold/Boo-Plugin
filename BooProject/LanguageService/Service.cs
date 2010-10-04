@@ -42,7 +42,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override string GetFormatFilterList()
         {
-            throw new NotImplementedException();
+            return "Boo files(*.boo)|*.boo";
         }
 
         private LanguagePreferences m_preferences;
@@ -61,7 +61,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override IScanner GetScanner(IVsTextLines buffer)
         {
-            return new Parser(buffer);
+            return new Scanner();
         }
 
         public override string Name
@@ -74,9 +74,34 @@ namespace Hill30.BooProject.LanguageService
             return base.CreateParseRequest(s, line, idx, info, sourceText, fname, reason, view);
         }
 
+        public class BooAuthoringScope : AuthoringScope
+        {
+            public override string GetDataTipText(int line, int col, out TextSpan span)
+            {
+                span = new TextSpan();
+                return null;
+            }
+
+            public override Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)
+            {
+                return null;
+            }
+
+            public override Methods GetMethods(int line, int col, string name)
+            {
+                return null;
+            }
+
+            public override string Goto(Microsoft.VisualStudio.VSConstants.VSStd97CmdID cmd, IVsTextView textView, int line, int col, out TextSpan span)
+            {
+                span = new TextSpan();
+                return null;
+            }
+        }
+
         public override AuthoringScope ParseSource(ParseRequest req)
         {
-            throw new NotImplementedException();
+            return new BooAuthoringScope();
         }
 
         private void start()

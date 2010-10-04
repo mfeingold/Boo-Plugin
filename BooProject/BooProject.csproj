@@ -22,6 +22,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +34,13 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Boo\bin\Boo.Lang.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Parser">
+      <HintPath>..\..\..\Program Files (x86)\Boo\bin\Boo.Lang.Parser.dll</HintPath>
+    </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -116,7 +124,7 @@
   </ItemGroup>-->
   <ItemGroup>
     <Compile Include="Constants.cs" />
-    <Compile Include="LanguageService\Parser.cs" />
+    <Compile Include="LanguageService\Scanner.cs" />
     <Compile Include="LanguageService\Service.cs" />
     <Compile Include="Project\Attributes\LocDisplayNameAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
@@ -171,9 +179,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Package.ico" />
+    <ZipProject Include="Templates\Projects\Boo Library\Project.ico" />
     <ZipProject Include="Templates\Projects\Boo Library\AssemblyInfo.boo" />
-    <ZipProject Include="Templates\Projects\Boo Library\BooProject.ico" />
-    <ZipProject Include="Templates\Projects\Boo Library\Library.vstemplate" />
+    <ZipProject Include="Templates\Projects\Boo Library\Library.vstemplate">
+      <SubType>Designer</SubType>
+    </ZipProject>
     <ZipItem Include="Templates\Items\Boo Class\File.vstemplate">
       <SubType>Designer</SubType>
     </ZipItem>
