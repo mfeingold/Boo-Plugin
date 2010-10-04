@@ -22,7 +22,9 @@ namespace Hill30.BooProject.Project
         {
             get
             {
-                return Project.ImageOffset + (int)Project.ProjectIcons.File;
+                if (System.IO.Path.GetExtension(FileName) == ".boo")
+                    return Project.ImageOffset + (int)Project.ProjectIcons.File;
+                return base.ImageIndex;
             }
         }
 

@@ -116,6 +116,13 @@ namespace Hill30.BooProject.Project
             return node;
         }
 
+        public override bool IsCodeFile(string fileName)
+        {
+            if (System.IO.Path.GetExtension(fileName) == ".boo")
+                return true;
+            return base.IsCodeFile(fileName);
+        }
+
         #region Properties
 
         public static int ImageOffset { get { return imageOffset; } }
