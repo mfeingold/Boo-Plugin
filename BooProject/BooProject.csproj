@@ -34,12 +34,11 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Program Files (x86)\Boo\bin\Boo.Lang.Compiler.dll</HintPath>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>$(BooBinPath)\Boo.Lang.Compiler.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang.Parser">
-      <HintPath>..\..\..\Program Files (x86)\Boo\bin\Boo.Lang.Parser.dll</HintPath>
+      <HintPath>$(BooBinPath)\Boo.Lang.Parser.dll</HintPath>
     </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -75,53 +74,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <COMReference Include="EnvDTE">
-      <Guid>{80CC9F66-E7D8-4DDD-85B6-D9E6CD0E93E2}</Guid>
-      <VersionMajor>8</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="EnvDTE100">
-      <Guid>{26AD1324-4B7C-44BC-84F8-B86AED45729F}</Guid>
-      <VersionMajor>10</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="EnvDTE90">
-      <Guid>{2CE2370E-D744-4936-A090-3FFFE667B0E1}</Guid>
-      <VersionMajor>9</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="Microsoft.VisualStudio.CommandBars">
-      <Guid>{1CBA492E-7263-47BB-87FE-639000619B15}</Guid>
-      <VersionMajor>8</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="stdole">
-      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>-->
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="LanguageService\Scanner.cs" />
@@ -130,6 +82,7 @@
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesDescriptionAttribute.cs" />
     <Compile Include="Project\Factory.cs" />
+    <Compile Include="Project\File.cs" />
     <Compile Include="Project\ProjectProperties\Application.cs" />
     <Compile Include="Project\Project.cs" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -140,7 +93,6 @@
     <Compile Include="Resources.cs">
       <SubType>Code</SubType>
     </Compile>
-    <ZipItem Include="Templates\Items\Boo Class\BooProject.ico" />
     <ZipProject Include="Templates\Projects\Boo Application\Program.boo" />
     <ZipProject Include="Templates\Projects\Boo Application\Application.vstemplate">
       <SubType>Designer</SubType>
@@ -159,6 +111,8 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
+    <ZipItem Include="Templates\Items\Text File\Text.ico" />
+    <ZipItem Include="Templates\Items\Text File\Text.txt" />
     <ZipProject Include="Templates\Projects\Boo Application\AssemblyInfo.boo" />
     <ZipProject Include="Templates\Projects\Boo Library\Library.booproj" />
     <ZipProject Include="Templates\Projects\Boo Library\Class.boo" />
@@ -178,17 +132,23 @@
     <None Include="Resources\Images_32bit.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ZipItem Include="Templates\Items\Text File\Text.vstemplate">
+      <SubType>Designer</SubType>
+    </ZipItem>
+    <ZipItem Include="Templates\Items\Boo Class\Class.ico" />
+    <ZipProject Include="Templates\Projects\Boo Application\ConsoleApplication.ico" />
+    <ZipProject Include="Templates\Projects\Boo Library\ClassLibrary.ico" />
+    <EmbeddedResource Include="Resources\BooFileNode.bmp" />
+    <EmbeddedResource Include="Resources\BooProjectNode.bmp" />
     <Content Include="Resources\Package.ico" />
-    <ZipProject Include="Templates\Projects\Boo Library\Project.ico" />
     <ZipProject Include="Templates\Projects\Boo Library\AssemblyInfo.boo" />
     <ZipProject Include="Templates\Projects\Boo Library\Library.vstemplate">
       <SubType>Designer</SubType>
     </ZipProject>
-    <ZipItem Include="Templates\Items\Boo Class\File.vstemplate">
+    <ZipItem Include="Templates\Items\Boo Class\Class.vstemplate">
       <SubType>Designer</SubType>
     </ZipItem>
-    <ZipItem Include="Templates\Items\Boo Class\File.boo" />
-    <ZipProject Include="Templates\Projects\Boo Application\BooProject.ico" />
+    <ZipItem Include="Templates\Items\Boo Class\Class.boo" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

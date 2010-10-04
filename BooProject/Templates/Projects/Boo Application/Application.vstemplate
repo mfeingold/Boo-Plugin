@@ -3,7 +3,7 @@
 	<TemplateData>
 		<Name>Console Application</Name>
 		<Description>Project for building a command-line application in Boo</Description>
-		<Icon>BooProject.ico</Icon>
+		<Icon>ConsoleApplication.ico</Icon>
 		<ProjectType>Visual Boo</ProjectType>
 		<DefaultName>ConsoleApplication</DefaultName>
 		<ProvideDefaultName>true</ProvideDefaultName>

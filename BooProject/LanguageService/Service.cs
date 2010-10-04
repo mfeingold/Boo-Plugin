@@ -72,7 +72,7 @@ namespace Hill30.BooProject.LanguageService
         public override Source CreateSource(IVsTextLines buffer)
         {
             var s = base.CreateSource(buffer);
-            s.LastParseTime = 0;
+//            s.LastParseTime = 0;
             return s;
         }
 
@@ -103,6 +103,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override AuthoringScope ParseSource(ParseRequest req)
         {
+//            req.TokenInfo.Color = TokenColor.Comment;
             return new BooAuthoringScope();
         }
 

@@ -33,7 +33,7 @@ namespace Hill30.BooProject
 
     // Registers boo project factory
     [ProvideProjectFactory(typeof(Project.Factory), "Visual Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj", @".\NullPath", LanguageVsTemplate = "Visual Boo", NewProjectRequireNewFolderVsTemplate = false)]
-    [ProvideProjectItem(typeof(Project.Factory), "Boo Items", @"Templates\Items\Boo", 500)]
+    [ProvideProjectItem(typeof(Project.Factory), "Boo", @"Templates\Items\Boo", 500)]
 
     // Registers property pages for boo project designer
     [ProvideObject(typeof(Project.ProjectProperties.Application))]

@@ -95,7 +95,7 @@ namespace Hill30.BooProject.LanguageService
 
         public void SetSource(string source, int offset)
         {
-            this.offset = offset;
+            current = this.offset = offset;
             lexer = BooParser.CreateBooLexer(1, "Line Scanner", new StringReader(source.Substring(offset)));
         }
 
