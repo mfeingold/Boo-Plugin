@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Boo.Lang.Compiler.Steps;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
 using System.ComponentModel.Design;
 using Microsoft.VisualStudio.OLE.Interop;
 using System.Runtime.InteropServices;
+using Boo.Lang.Compiler;
+using Boo.Lang.Parser;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -21,23 +21,23 @@ namespace Hill30.BooProject.LanguageService
             container.AddService(typeof(Service),
                                         langService,
                                         true);
-            langService.start();
+            langService.Start();
         }
 
         internal static void Stop(IServiceContainer container)
         {
             var service = container.GetService(typeof(Service))
                                       as Service;
-            if (service == null || service.m_componentID == 0)
+            if (service == null || service.mComponentID == 0)
                 return;
 
-            IOleComponentManager mgr = container.GetService(typeof(SOleComponentManager))
+            var mgr = container.GetService(typeof(SOleComponentManager))
                                        as IOleComponentManager;
             if (mgr != null)
             {
-                int hr = mgr.FRevokeComponent(service.m_componentID);
+                mgr.FRevokeComponent(service.mComponentID);
             }
-            service.m_componentID = 0;
+            service.mComponentID = 0;
         }
 
         public override string GetFormatFilterList()
@@ -45,18 +45,16 @@ namespace Hill30.BooProject.LanguageService
             return "Boo files(*.boo)|*.boo";
         }
 
-        private LanguagePreferences m_preferences;
+        private LanguagePreferences mPreferences;
 
         public override LanguagePreferences GetLanguagePreferences()
         {
-            if (m_preferences == null)
+            if (mPreferences == null)
             {
-                m_preferences = new LanguagePreferences(this.Site,
-                                                        typeof(Service).GUID,
-                                                        this.Name );
-                m_preferences.Init();
+                mPreferences = new LanguagePreferences(Site, typeof(Service).GUID, Name );
+                mPreferences.Init();
             }
-            return m_preferences;
+            return mPreferences;
         }
 
         public override IScanner GetScanner(IVsTextLines buffer)
@@ -72,7 +70,7 @@ namespace Hill30.BooProject.LanguageService
         public override Source CreateSource(IVsTextLines buffer)
         {
             var s = base.CreateSource(buffer);
-//            s.LastParseTime = 0;
+            s.LastParseTime = 0;
             return s;
         }
 
@@ -103,20 +101,26 @@ namespace Hill30.BooProject.LanguageService
 
         public override AuthoringScope ParseSource(ParseRequest req)
         {
-//            req.TokenInfo.Color = TokenColor.Comment;
+            var compiler = new BooCompiler(
+                new CompilerParameters(true)
+                        {
+                            Pipeline = CompilerPipeline.GetPipeline("compile")
+                        }
+                );
+            var context = compiler.Run(BooParser.ParseString("code", req.Text));
+
             return new BooAuthoringScope();
         }
 
-        private void start()
+        private void Start()
         {
             // Register a timer to call our language service during
             // idle periods.
-            IOleComponentManager mgr = Site.GetService(typeof(SOleComponentManager))
-                                       as IOleComponentManager;
+            var mgr = Site.GetService(typeof(SOleComponentManager)) as IOleComponentManager;
 
-            if (m_componentID == 0 && mgr != null)
+            if (mComponentID == 0 && mgr != null)
             {
-                OLECRINFO[] crinfo = new OLECRINFO[1];
+                var crinfo = new OLECRINFO[1];
                 crinfo[0].cbSize = (uint)Marshal.SizeOf(typeof(OLECRINFO));
                 crinfo[0].grfcrf = (uint)_OLECRF.olecrfNeedIdleTime |
                                               (uint)_OLECRF.olecrfNeedPeriodicIdleTime;
@@ -124,11 +128,11 @@ namespace Hill30.BooProject.LanguageService
                                               (uint)_OLECADVF.olecadvfRedrawOff |
                                               (uint)_OLECADVF.olecadvfWarningsOff;
                 crinfo[0].uIdleTimeInterval = 1000;
-                int hr = mgr.FRegisterComponent(this, crinfo, out m_componentID);
+                mgr.FRegisterComponent(this, crinfo, out mComponentID);
             }
         }
 
-        private uint m_componentID;
+        private uint mComponentID;
 
         #region IOleComponent Members
 

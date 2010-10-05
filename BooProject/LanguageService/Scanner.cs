@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Package;
-using Microsoft.VisualStudio.TextManager.Interop;
 using Boo.Lang.Parser;
 using System.IO;
 
@@ -12,7 +8,7 @@ namespace Hill30.BooProject.LanguageService
     class Scanner : IScanner
     {
         antlr.TokenStream lexer;
-        antlr.IToken stashed_token = null;
+        antlr.IToken stashedToken;
         int offset;
         int current;
 
@@ -20,7 +16,7 @@ namespace Hill30.BooProject.LanguageService
 
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
         {
-            var token = stashed_token;
+            var token = stashedToken;
             if (token == null)
                 try
                 {
@@ -38,11 +34,11 @@ namespace Hill30.BooProject.LanguageService
                 tokenInfo.Type = TokenType.Comment;
                 tokenInfo.Color = TokenColor.Comment;
                 current = tokenInfo.EndIndex + 1;
-                stashed_token = token;
+                stashedToken = token;
                 return true;
             }
 
-            stashed_token = null;
+            stashedToken = null;
             int quotes = 0;
             switch (token.Type)
             {
@@ -93,7 +89,9 @@ namespace Hill30.BooProject.LanguageService
             return true;
         }
 
+// ReSharper disable ParameterHidesMember
         public void SetSource(string source, int offset)
+// ReSharper restore ParameterHidesMember
         {
             current = this.offset = offset;
             lexer = BooParser.CreateBooLexer(1, "Line Scanner", new StringReader(source.Substring(offset)));
