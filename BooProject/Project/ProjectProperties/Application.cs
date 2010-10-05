@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Project;
 using System.Runtime.Versioning;
 using Hill30.BooProject.Project.Attributes;
@@ -34,165 +31,165 @@ namespace Hill30.BooProject.Project.ProjectProperties
         /// </summary>
         public Application()
         {
-            this.Name = Resources.GetString(Resources.ApplicationCaption);
+            Name = Resources.GetString(Resources.ApplicationCaption);
         }
         #endregion
 
         #region Properties
-        [ResourcesCategoryAttribute(Resources.AssemblyName)]
-        [LocDisplayName(Resources.AssemblyName)]
-        [ResourcesDescriptionAttribute(Resources.AssemblyNameDescription)]
         /// <summary>
         /// Gets or sets Assembly Name.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.AssemblyName)]
+        [LocDisplayName(Resources.AssemblyName)]
+        [ResourcesDescriptionAttribute(Resources.AssemblyNameDescription)]
         public string AssemblyName
         {
-            get { return this.assemblyName; }
-            set { this.assemblyName = value; this.IsDirty = true; }
+            get { return assemblyName; }
+            set { assemblyName = value; IsDirty = true; }
         }
 
-        [ResourcesCategoryAttribute(Resources.Application)]
-        [LocDisplayName(Resources.OutputType)]
-        [ResourcesDescriptionAttribute(Resources.OutputTypeDescription)]
         /// <summary>
         /// Gets or sets OutputType.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.Application)]
+        [LocDisplayName(Resources.OutputType)]
+        [ResourcesDescriptionAttribute(Resources.OutputTypeDescription)]
         public OutputType OutputType
         {
-            get { return this.outputType; }
-            set { this.outputType = value; this.IsDirty = true; }
+            get { return outputType; }
+            set { outputType = value; IsDirty = true; }
         }
 
-        [ResourcesCategoryAttribute(Resources.Application)]
-        [LocDisplayName(Resources.DefaultNamespace)]
-        [ResourcesDescriptionAttribute(Resources.DefaultNamespaceDescription)]
         /// <summary>
         /// Gets or sets Default Namespace.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.Application)]
+        [LocDisplayName(Resources.DefaultNamespace)]
+        [ResourcesDescriptionAttribute(Resources.DefaultNamespaceDescription)]
         public string DefaultNamespace
         {
-            get { return this.defaultNamespace; }
-            set { this.defaultNamespace = value; this.IsDirty = true; }
+            get { return defaultNamespace; }
+            set { defaultNamespace = value; IsDirty = true; }
         }
 
-        [ResourcesCategoryAttribute(Resources.Application)]
-        [LocDisplayName(Resources.StartupObject)]
-        [ResourcesDescriptionAttribute(Resources.StartupObjectDescription)]
         /// <summary>
         /// Gets or sets Startup Object.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.Application)]
+        [LocDisplayName(Resources.StartupObject)]
+        [ResourcesDescriptionAttribute(Resources.StartupObjectDescription)]
         public string StartupObject
         {
-            get { return this.startupObject; }
-            set { this.startupObject = value; this.IsDirty = true; }
+            get { return startupObject; }
+            set { startupObject = value; IsDirty = true; }
         }
 
-        [ResourcesCategoryAttribute(Resources.Application)]
-        [LocDisplayName(Resources.ApplicationIcon)]
-        [ResourcesDescriptionAttribute(Resources.ApplicationIconDescription)]
         /// <summary>
         /// Gets or sets Application Icon.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.Application)]
+        [LocDisplayName(Resources.ApplicationIcon)]
+        [ResourcesDescriptionAttribute(Resources.ApplicationIconDescription)]
         public string ApplicationIcon
         {
-            get { return this.applicationIcon; }
-            set { this.applicationIcon = value; this.IsDirty = true; }
+            get { return applicationIcon; }
+            set { applicationIcon = value; IsDirty = true; }
         }
 
+        /// <summary>
+        /// Gets or sets Assembly Name.
+        /// </summary>
+        /// <remarks>IsDirty flag was switched to true.</remarks>
         [ResourcesCategoryAttribute(Resources.GeneralCaption)]
         [LocDisplayName(Resources.AllowUnsafe)]
         [ResourcesDescriptionAttribute(Resources.AllowUnsafeDescription)]
+        public bool AllowUnsafe
+        {
+            get { return allowUnsafe; }
+            set { allowUnsafe = value; IsDirty = true; }
+        }
+
         /// <summary>
         /// Gets or sets Assembly Name.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
-        public bool AllowUnsafe
-        {
-            get { return this.allowUnsafe; }
-            set { this.allowUnsafe = value; this.IsDirty = true; }
-        }
-
         [ResourcesCategoryAttribute(Resources.GeneralCaption)]
         [LocDisplayName(Resources.UseDuckTyping)]
         [ResourcesDescriptionAttribute(Resources.UseDuckTypingDescription)]
-        /// <summary>
-        /// Gets or sets Assembly Name.
-        /// </summary>
-        /// <remarks>IsDirty flag was switched to true.</remarks>
         public bool UseDuckTyping
         {
-            get { return this.useDuckTyping; }
-            set { this.useDuckTyping = value; this.IsDirty = true; }
+            get { return useDuckTyping; }
+            set { useDuckTyping = value; IsDirty = true; }
         }
 
-        [ResourcesCategoryAttribute(Resources.Project)]
-        [LocDisplayName(Resources.ProjectFile)]
-        [ResourcesDescriptionAttribute(Resources.ProjectFileDescription)]
         /// <summary>
         /// Gets the path to the project file.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.Project)]
+        [LocDisplayName(Resources.ProjectFile)]
+        [ResourcesDescriptionAttribute(Resources.ProjectFileDescription)]
         public string ProjectFile
         {
-            get { return Path.GetFileName(this.ProjectMgr.ProjectFile); }
+            get { return Path.GetFileName(ProjectMgr.ProjectFile); }
         }
 
-        [ResourcesCategoryAttribute(Resources.Project)]
-        [LocDisplayName(Resources.ProjectFolder)]
-        [ResourcesDescriptionAttribute(Resources.ProjectFolderDescription)]
         /// <summary>
         /// Gets the path to the project folder.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.Project)]
+        [LocDisplayName(Resources.ProjectFolder)]
+        [ResourcesDescriptionAttribute(Resources.ProjectFolderDescription)]
         public string ProjectFolder
         {
-            get { return Path.GetDirectoryName(this.ProjectMgr.ProjectFolder); }
+            get { return Path.GetDirectoryName(ProjectMgr.ProjectFolder); }
         }
 
-        [ResourcesCategoryAttribute(Resources.Project)]
-        [LocDisplayName(Resources.OutputFile)]
-        [ResourcesDescriptionAttribute(Resources.OutputFileDescription)]
         /// <summary>
         /// Gets the output file name depending on current OutputType.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.Project)]
+        [LocDisplayName(Resources.OutputFile)]
+        [ResourcesDescriptionAttribute(Resources.OutputFileDescription)]
         public string OutputFile
         {
             get
             {
-                switch (this.outputType)
+                switch (outputType)
                 {
                     case OutputType.Exe:
                     case OutputType.WinExe:
                         {
-                            return this.assemblyName + ".exe";
+                            return assemblyName + ".exe";
                         }
 
                     default:
                         {
-                            return this.assemblyName + ".dll";
+                            return assemblyName + ".dll";
                         }
                 }
             }
         }
 
-        [ResourcesCategoryAttribute(Resources.Project)]
-        [LocDisplayName(Resources.TargetFrameworkMoniker)]
-        [ResourcesDescriptionAttribute(Resources.TargetFrameworkMonikerDescription)]
-        [PropertyPageTypeConverter(typeof(FrameworkNameConverter))]
         /// <summary>
         /// Gets or sets Target Platform PlatformType.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
+        [ResourcesCategoryAttribute(Resources.Project)]
+        [LocDisplayName(Resources.TargetFrameworkMoniker)]
+        [ResourcesDescriptionAttribute(Resources.TargetFrameworkMonikerDescription)]
+        [PropertyPageTypeConverter(typeof(FrameworkNameConverter))]
         public FrameworkName TargetFrameworkMoniker
         {
-            get { return this.targetFrameworkMoniker; }
-            set { this.targetFrameworkMoniker = value; IsDirty = true; }
+            get { return targetFrameworkMoniker; }
+            set { targetFrameworkMoniker = value; IsDirty = true; }
         }
 
         #endregion
@@ -204,35 +201,35 @@ namespace Hill30.BooProject.Project.ProjectProperties
         /// </summary>
         protected override void BindProperties()
         {
-            if (this.ProjectMgr == null)
+            if (ProjectMgr == null)
             {
                 return;
             }
 
-            this.assemblyName = this.ProjectMgr.GetProjectProperty("AssemblyName", true);
+            assemblyName = ProjectMgr.GetProjectProperty("AssemblyName", true);
 
-            string outputType = this.ProjectMgr.GetProjectProperty("OutputType", false);
+            var temp = ProjectMgr.GetProjectProperty("OutputType", false);
 
-            if (outputType != null && outputType.Length > 0)
+            if (!string.IsNullOrEmpty(temp))
             {
                 try
                 {
-                    this.outputType = (OutputType)Enum.Parse(typeof(OutputType), outputType);
+                    outputType = (OutputType)Enum.Parse(typeof(OutputType), temp);
                 }
                 catch (ArgumentException)
                 {
                 }
             }
 
-            this.defaultNamespace = this.ProjectMgr.GetProjectProperty("RootNamespace", false);
-            this.startupObject = this.ProjectMgr.GetProjectProperty("StartupObject", false);
-            this.applicationIcon = this.ProjectMgr.GetProjectProperty("ApplicationIcon", false);
-            Boolean.TryParse(this.ProjectMgr.GetProjectProperty("AllowUnsafeBlocks", false), out this.allowUnsafe);
-            Boolean.TryParse(this.ProjectMgr.GetProjectProperty("Ducky", false), out this.useDuckTyping);
+            defaultNamespace = ProjectMgr.GetProjectProperty("RootNamespace", false);
+            startupObject = ProjectMgr.GetProjectProperty("StartupObject", false);
+            applicationIcon = ProjectMgr.GetProjectProperty("ApplicationIcon", false);
+            Boolean.TryParse(ProjectMgr.GetProjectProperty("AllowUnsafeBlocks", false), out allowUnsafe);
+            Boolean.TryParse(ProjectMgr.GetProjectProperty("Ducky", false), out useDuckTyping);
 
             try
             {
-                this.targetFrameworkMoniker = this.ProjectMgr.TargetFrameworkMoniker;
+                targetFrameworkMoniker = ProjectMgr.TargetFrameworkMoniker;
             }
             catch (ArgumentException)
             {
@@ -245,37 +242,37 @@ namespace Hill30.BooProject.Project.ProjectProperties
         /// <returns>E_INVALIDARG if internal ProjectMgr is null, otherwise applies changes and return S_OK.</returns>
         protected override int ApplyChanges()
         {
-            if (this.ProjectMgr == null)
+            if (ProjectMgr == null)
             {
                 return VSConstants.E_INVALIDARG;
             }
 
-            IVsPropertyPageFrame propertyPageFrame = (IVsPropertyPageFrame)this.ProjectMgr.Site.GetService((typeof(SVsPropertyPageFrame)));
-            bool reloadRequired = this.ProjectMgr.TargetFrameworkMoniker != this.targetFrameworkMoniker;
+            var propertyPageFrame = (IVsPropertyPageFrame)ProjectMgr.Site.GetService((typeof(SVsPropertyPageFrame)));
+            bool reloadRequired = ProjectMgr.TargetFrameworkMoniker != targetFrameworkMoniker;
 
-            this.ProjectMgr.SetProjectProperty("AssemblyName", this.assemblyName);
-            this.ProjectMgr.SetProjectProperty("OutputType", this.outputType.ToString());
-            this.ProjectMgr.SetProjectProperty("RootNamespace", this.defaultNamespace);
-            this.ProjectMgr.SetProjectProperty("StartupObject", this.startupObject);
-            this.ProjectMgr.SetProjectProperty("ApplicationIcon", this.applicationIcon);
-            this.ProjectMgr.SetProjectProperty("AllowUnsafeBlocks", this.allowUnsafe.ToString());
-            this.ProjectMgr.SetProjectProperty("Ducky", this.useDuckTyping.ToString());
+            ProjectMgr.SetProjectProperty("AssemblyName", assemblyName);
+            ProjectMgr.SetProjectProperty("OutputType", outputType.ToString());
+            ProjectMgr.SetProjectProperty("RootNamespace", defaultNamespace);
+            ProjectMgr.SetProjectProperty("StartupObject", startupObject);
+            ProjectMgr.SetProjectProperty("ApplicationIcon", applicationIcon);
+            ProjectMgr.SetProjectProperty("AllowUnsafeBlocks", allowUnsafe.ToString());
+            ProjectMgr.SetProjectProperty("Ducky", useDuckTyping.ToString());
 
             if (reloadRequired)
             {
                 if (MessageBox.Show(SR.GetString(SR.ReloadPromptOnTargetFxChanged), SR.GetString(SR.ReloadPromptOnTargetFxChangedCaption), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    this.ProjectMgr.TargetFrameworkMoniker = this.targetFrameworkMoniker;
+                    ProjectMgr.TargetFrameworkMoniker = targetFrameworkMoniker;
                 }
             }
 
-            this.IsDirty = false;
+            IsDirty = false;
 
             if (reloadRequired)
             {
                 // This prevents the property page from displaying bad data from the zombied (unloaded) project
                 propertyPageFrame.HideFrame();
-                propertyPageFrame.ShowFrame(this.GetType().GUID);
+                propertyPageFrame.ShowFrame(GetType().GUID);
             }
 
             return VSConstants.S_OK;

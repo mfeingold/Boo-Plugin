@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using Microsoft.VisualStudio.Project;
 
 namespace Hill30.BooProject.Project.Attributes
 {

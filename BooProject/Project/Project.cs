@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Project;
 using System.Windows.Forms;
 using System.Drawing;
@@ -11,7 +8,7 @@ using Microsoft.VisualStudio.Project.Automation;
 
 namespace Hill30.BooProject.Project
 {
-    public class Project : ProjectNode
+    public sealed class Project : ProjectNode
     {
         #region Enum for image list
         internal enum ProjectIcons
@@ -21,16 +18,14 @@ namespace Hill30.BooProject.Project
         }
         #endregion
 
-        private static ImageList imageList;
-        internal static int imageOffset;
-        private VSLangProj.VSProject vsProject;
+        private static readonly ImageList imageList;
+        private static int imageOffset;
+        private VSProject vsProject;
 
         static Project()
         {
-            imageList = new ImageList();
+            imageList = new ImageList {ColorDepth = ColorDepth.Depth24Bit, ImageSize = new Size(16, 16)};
 
-            imageList.ColorDepth = ColorDepth.Depth24Bit;
-            imageList.ImageSize = new Size(16, 16);
             imageList.Images.AddStrip(GetIcon("BooProjectNode"));
             imageList.Images.AddStrip(GetIcon("BooFileNode"));
             imageList.TransparentColor = Color.Magenta;
@@ -48,17 +43,18 @@ namespace Hill30.BooProject.Project
         {
             SupportsProjectDesigner = true;
             CanProjectDeleteItems = true;
-            InitializeImageList();
+            imageOffset = InitializeImageList();
         }
 
-        private void InitializeImageList()
+        private int InitializeImageList()
         {
-            imageOffset = this.ImageHandler.ImageList.Images.Count;
+            var result = ImageHandler.ImageList.Images.Count;
 
             foreach (Image img in imageList.Images)
             {
-                this.ImageHandler.AddImage(img);
+                ImageHandler.AddImage(img);
             }
+            return result;
         }
 
         internal const string ProjectName = "BooProject";
@@ -75,14 +71,14 @@ namespace Hill30.BooProject.Project
 
         protected override Guid[] GetConfigurationIndependentPropertyPages()
         {
-            Guid[] result = new Guid[1];
+            var result = new Guid[1];
             result[0] = typeof(ProjectProperties.Application).GUID;
             return result;
         }
 
         protected override Guid[] GetConfigurationDependentPropertyPages()
         {
-            Guid[] result = new Guid[1];
+            var result = new Guid[1];
             result[0] = typeof(ProjectProperties.Build).GUID;
             return result;
         }
@@ -107,11 +103,11 @@ namespace Hill30.BooProject.Project
         /// <returns></returns>
         public override FileNode CreateFileNode(ProjectElement item)
         {
-            File node = new File(this, item);
+            var node = new File(this, item);
 
-            node.OleServiceProvider.AddService(typeof(EnvDTE.Project), new OleServiceProvider.ServiceCreatorCallback(this.CreateServices), false);
+            node.OleServiceProvider.AddService(typeof(EnvDTE.Project), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
             node.OleServiceProvider.AddService(typeof(ProjectItem), node.ServiceCreator, false);
-            node.OleServiceProvider.AddService(typeof(VSProject), new OleServiceProvider.ServiceCreatorCallback(this.CreateServices), false);
+            node.OleServiceProvider.AddService(typeof(VSProject), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
 
             return node;
         }
@@ -127,30 +123,24 @@ namespace Hill30.BooProject.Project
 
         public static int ImageOffset { get { return imageOffset; } }
 
-        protected internal VSLangProj.VSProject VSProject
+// ReSharper disable InconsistentNaming
+        internal VSProject VSProject
+// ReSharper restore InconsistentNaming
         {
-            get
-            {
-                if (vsProject == null)
-                {
-                    vsProject = new OAVSProject(this);
-                }
-
-                return vsProject;
-            }
+            get { return vsProject ?? (vsProject = new OAVSProject(this)); }
         }
         #endregion
 
         private object CreateServices(Type serviceType)
         {
             object service = null;
-            if (typeof(VSLangProj.VSProject) == serviceType)
+            if (typeof(VSProject) == serviceType)
             {
-                service = this.VSProject;
+                service = VSProject;
             }
             else if (typeof(EnvDTE.Project) == serviceType)
             {
-                service = this.GetAutomationObject();
+                service = GetAutomationObject();
             }
             return service;
         }

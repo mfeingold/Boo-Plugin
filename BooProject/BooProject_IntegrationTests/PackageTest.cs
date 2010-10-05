@@ -49,7 +49,7 @@ namespace BooProject_IntegrationTests
 
                 //Validate package load
                 IVsPackage package;
-                Guid packageGuid = new Guid(Hill30.BooProject.Constants.guidBooProjectPkgString);
+                Guid packageGuid = new Guid(Hill30.BooProject.Constants.GuidBooProjectPkgString);
                 Assert.IsTrue(0 == shellService.LoadPackage(ref packageGuid, out package));
                 Assert.IsNotNull(package, "Package failed to load");
 

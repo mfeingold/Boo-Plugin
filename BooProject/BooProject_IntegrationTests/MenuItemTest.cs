@@ -42,7 +42,7 @@ namespace BooProject_IntegrationTests
         {
             UIThreadInvoker.Invoke((ThreadInvoker)delegate()
             {
-                CommandID menuItemCmd = new CommandID(Hill30.BooProject.Constants.guidBooProjectCmdSet, (int)Hill30.BooProject.PkgCmdIDList.cmdidMyCommand);
+                CommandID menuItemCmd = new CommandID(Hill30.BooProject.Constants.GuidBooProjectCmdSet, (int)Hill30.BooProject.PkgCmdIDList.cmdidMyCommand);
 
                 // Create the DialogBoxListener Thread.
                 string expectedDialogBoxText = string.Format(CultureInfo.CurrentCulture, "{0}\n\nInside {1}.MenuItemCallback()", "BooProject", "Hill30.BooProject.BooProjectPackage");

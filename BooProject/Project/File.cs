@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Project;
 
 namespace Hill30.BooProject.Project
@@ -31,7 +28,7 @@ namespace Hill30.BooProject.Project
         #region Private implementation
         internal OleServiceProvider.ServiceCreatorCallback ServiceCreator
         {
-            get { return new OleServiceProvider.ServiceCreatorCallback(this.CreateServices); }
+            get { return CreateServices; }
         }
 
         private object CreateServices(Type serviceType)

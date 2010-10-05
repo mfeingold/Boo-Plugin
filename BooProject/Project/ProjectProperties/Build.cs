@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Hill30.BooProject.Project.Attributes;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Project;
 
 using LocDisplayNameAttribute = Hill30.BooProject.Project.Attributes.LocDisplayNameAttribute;
-using Hill30.BooProject.Project.Attributes;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Hill30.BooProject.Project.ProjectProperties
 {
@@ -27,49 +24,49 @@ namespace Hill30.BooProject.Project.ProjectProperties
         /// </summary>
         public Build()
         {
-            this.Name = Resources.GetString(Resources.BuildCaption);
+            Name = Resources.GetString(Resources.BuildCaption);
         }
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets Assembly Name.
+        /// </summary>
+        /// <remarks>IsDirty flag was switched to true.</remarks>
         [ResourcesCategoryAttribute(Resources.GeneralCaption)]
         [LocDisplayName(Resources.ConditionalSymbols)]
         [ResourcesDescriptionAttribute(Resources.ConditionalSymbolsDescription)]
+        public string ConditionalSymbols
+        {
+            get { return conditionalSymbols; }
+            set { conditionalSymbols = value; IsDirty = true; }
+        }
+
         /// <summary>
         /// Gets or sets Assembly Name.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
-        public string ConditionalSymbols
-        {
-            get { return this.conditionalSymbols; }
-            set { this.conditionalSymbols = value; this.IsDirty = true; }
-        }
-
         [ResourcesCategoryAttribute(Resources.GeneralCaption)]
         [LocDisplayName(Resources.DefineDebug)]
         [ResourcesDescriptionAttribute(Resources.DefineDebugDescription)]
+        public bool DefineDebug
+        {
+            get { return defineDebug; }
+            set { defineDebug = value; IsDirty = true; }
+        }
+
         /// <summary>
         /// Gets or sets Assembly Name.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
-        public bool DefineDebug
-        {
-            get { return this.defineDebug; }
-            set { this.defineDebug = value; this.IsDirty = true; }
-        }
-
         [ResourcesCategoryAttribute(Resources.GeneralCaption)]
         [LocDisplayName(Resources.DefineTrace)]
         [ResourcesDescriptionAttribute(Resources.DefineTraceDescription)]
-        /// <summary>
-        /// Gets or sets Assembly Name.
-        /// </summary>
-        /// <remarks>IsDirty flag was switched to true.</remarks>
         public bool DefineTrace
         {
-            get { return this.defineTrace; }
-            set { this.defineTrace = value; this.IsDirty = true; }
+            get { return defineTrace; }
+            set { defineTrace = value; IsDirty = true; }
         }
 
         [ResourcesCategoryAttribute(Resources.OutputCaption)]
@@ -77,35 +74,33 @@ namespace Hill30.BooProject.Project.ProjectProperties
         [SRDescriptionAttribute(Resources.OutputPathDescription)]
         public string OutputPath
         {
-            get { return this.outputPath; }
-            set { this.outputPath = value; this.IsDirty = true; }
+            get { return outputPath; }
+            set { outputPath = value; IsDirty = true; }
         }
 
         #endregion
 
         protected override void BindProperties()
         {
-            if (this.ProjectMgr == null)
+            if (ProjectMgr == null)
             {
                 return;
             }
 
-            var conditionalSymbols = "";
-            foreach (var c in this.GetConfigProperty("DefineConstants"))
-                if (Char.IsLetterOrDigit(c) || c == '_' || c == ';')
-                    conditionalSymbols += c;
+            var tempConditionalSymbols = GetConfigProperty("DefineConstants")
+                .Where(c => Char.IsLetterOrDigit(c) || c == '_' || c == ';').Aggregate("", (current, c) => current + c);
 
-            conditionalSymbols = parse_symbol(conditionalSymbols, "DEBUG", out defineDebug);
+            tempConditionalSymbols = ParseSymbol(tempConditionalSymbols, "DEBUG", out defineDebug);
 
-            conditionalSymbols = parse_symbol(conditionalSymbols, "TRACE", out defineTrace);
+            tempConditionalSymbols = ParseSymbol(tempConditionalSymbols, "TRACE", out defineTrace);
 
-            this.conditionalSymbols = conditionalSymbols;
+            conditionalSymbols = tempConditionalSymbols;
 
-            outputPath = this.GetConfigProperty("OutputPath");
+            outputPath = GetConfigProperty("OutputPath");
 
         }
 
-        private string parse_symbol(string symbols, string symbol, out bool flag)
+        private static string ParseSymbol(string symbols, string symbol, out bool flag)
         {
             var result = symbols;
             flag = false;
@@ -138,31 +133,28 @@ namespace Hill30.BooProject.Project.ProjectProperties
 
         protected override int ApplyChanges()
         {
-            if (this.ProjectMgr == null)
+            if (ProjectMgr == null)
             {
                 return VSConstants.E_INVALIDARG;
             }
 
-            string conditional_symbols;
+            string tempConditionalSymbols;
             if (defineTrace)
-                if (defineDebug)
-                    conditional_symbols = "DEBUG;TRACE";
-                else
-                    conditional_symbols = "TRACE";
+                tempConditionalSymbols = defineDebug ? "DEBUG;TRACE" : "TRACE";
             else
                 if (defineDebug)
-                    conditional_symbols = "DEBUG";
+                    tempConditionalSymbols = "DEBUG";
                 else
-                    conditional_symbols = "";
-            if (this.conditionalSymbols != "")
-                if (conditional_symbols != "")
-                    conditional_symbols = conditional_symbols + ";" + this.conditionalSymbols;
+                    tempConditionalSymbols = "";
+            if (conditionalSymbols != "")
+                if (tempConditionalSymbols != "")
+                    tempConditionalSymbols = tempConditionalSymbols + ";" + conditionalSymbols;
                 else
-                    conditional_symbols = this.conditionalSymbols;
-            this.SetConfigProperty("DefineConstants", conditional_symbols);
-            this.SetConfigProperty("OutputPath", outputPath);
+                    tempConditionalSymbols = conditionalSymbols;
+            SetConfigProperty("DefineConstants", tempConditionalSymbols);
+            SetConfigProperty("OutputPath", outputPath);
 
-            this.IsDirty = false;
+            IsDirty = false;
             return VSConstants.S_OK;
         }
     }

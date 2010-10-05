@@ -11,7 +11,7 @@ namespace Hill30.BooProject.Project.Attributes
 	internal sealed class LocDisplayNameAttribute : DisplayNameAttribute
 	{
 		#region Fields
-		private string name;
+		private readonly string name;
 		#endregion Fields
 
 		#region Constructors
@@ -33,14 +33,7 @@ namespace Hill30.BooProject.Project.Attributes
 		{
 			get
 			{
-				string result = Resources.GetString(this.name);
-
-				if(result == null)
-				{
-					result = this.name;
-				}
-
-				return result;
+				return Resources.GetString(name) ?? name;
 			}
 		}
 		#endregion
