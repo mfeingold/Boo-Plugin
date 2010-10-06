@@ -102,7 +102,7 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.CONTINUE:
                     case BooLexer.DEF:
                     case BooLexer.DO:
-                    case BooLexer.DOUBLE:
+                    //case BooLexer.DOUBLE:
                     case BooLexer.ELIF:
                     case BooLexer.ELSE:
                     case BooLexer.ENUM:
@@ -110,7 +110,7 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.EXCEPT:
                     case BooLexer.FALSE:
                     case BooLexer.FINAL:
-                    case BooLexer.FLOAT:
+                    //case BooLexer.FLOAT:
                     case BooLexer.FOR:
                     case BooLexer.FROM:
                     case BooLexer.GET:
@@ -118,12 +118,13 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.IF:
                     case BooLexer.IMPORT:
                     case BooLexer.IN:
-                    case BooLexer.INT:
+                    //case BooLexer.INT:
                     case BooLexer.INTERFACE:
                     case BooLexer.INTERNAL:
                     case BooLexer.IS:
                     case BooLexer.LONG:
                     case BooLexer.NAMESPACE:
+                    case BooLexer.NULL:
                     case BooLexer.OF:
                     case BooLexer.OVERRIDE:
                     case BooLexer.PARTIAL:
