@@ -59,7 +59,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override IScanner GetScanner(IVsTextLines buffer)
         {
-            return new Scanner();
+            return new Scanner(this, buffer);
         }
 
         public override string Name
@@ -69,47 +69,38 @@ namespace Hill30.BooProject.LanguageService
 
         public override Source CreateSource(IVsTextLines buffer)
         {
-            var s = base.CreateSource(buffer);
+            var s = new BooSource(this, buffer, GetColorizer(buffer));
             s.LastParseTime = 0;
             return s;
         }
 
-        public class BooAuthoringScope : AuthoringScope
+        public override ParseRequest CreateParseRequest(Source s, int line, int idx, TokenInfo info, string sourceText, string fname, ParseReason reason, IVsTextView view)
         {
-            public override string GetDataTipText(int line, int col, out TextSpan span)
-            {
-                span = new TextSpan();
-                return null;
-            }
-
-            public override Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)
-            {
-                return null;
-            }
-
-            public override Methods GetMethods(int line, int col, string name)
-            {
-                return null;
-            }
-
-            public override string Goto(Microsoft.VisualStudio.VSConstants.VSStd97CmdID cmd, IVsTextView textView, int line, int col, out TextSpan span)
-            {
-                span = new TextSpan();
-                return null;
-            }
+            return new BooParseRequest((BooSource)s, line, idx, info, sourceText, fname, reason, view, s.CreateAuthoringSink(reason, line, idx), !Preferences.EnableAsyncCompletion);
         }
+
+        public override Colorizer GetColorizer(IVsTextLines buffer)
+        {
+            return new BooColorizer(this, buffer, GetScanner(buffer));
+        }
+
+        BooCompiler compiler;
 
         public override AuthoringScope ParseSource(ParseRequest req)
         {
-            var compiler = new BooCompiler(
-                new CompilerParameters(true)
-                        {
-                            Pipeline = CompilerPipeline.GetPipeline("compile")
-                        }
-                );
-            var context = compiler.Run(BooParser.ParseString("code", req.Text));
+            if (req.Reason == ParseReason.Check)
+            {
+                if (compiler == null)
+                    compiler = new BooCompiler(
+                            new CompilerParameters(true)
+                            {
+                                Pipeline = CompilerPipeline.GetPipeline("compile")
+                            }
+                        );
 
-            return new BooAuthoringScope();
+                ((BooParseRequest)req).Source.CompileResult = compiler.Run(BooParser.ParseString("code", req.Text));
+            }
+            return new BooAuthoringScope(req, ((BooParseRequest)req).Source.CompileResult);
         }
 
         private void Start()
