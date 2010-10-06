@@ -94,11 +94,59 @@ namespace Hill30.BooProject.LanguageService
                         tokenInfo.Color = TokenColor.Identifier;
                         break;
 
-                    case BooLexer.PUBLIC:
-                    case BooLexer.DEF:
+                    case BooLexer.ABSTRACT:
+                    case BooLexer.AS:
+                    case BooLexer.BREAK:
                     case BooLexer.CLASS:
+                    case BooLexer.CONSTRUCTOR:
+                    case BooLexer.CONTINUE:
+                    case BooLexer.DEF:
+                    case BooLexer.DO:
+                    case BooLexer.DOUBLE:
+                    case BooLexer.ELIF:
+                    case BooLexer.ELSE:
+                    case BooLexer.ENUM:
+                    case BooLexer.EVENT:
+                    case BooLexer.EXCEPT:
+                    case BooLexer.FALSE:
+                    case BooLexer.FINAL:
+                    case BooLexer.FLOAT:
+                    case BooLexer.FOR:
+                    case BooLexer.FROM:
+                    case BooLexer.GET:
+                    case BooLexer.GOTO:
+                    case BooLexer.IF:
                     case BooLexer.IMPORT:
+                    case BooLexer.IN:
+                    case BooLexer.INT:
+                    case BooLexer.INTERFACE:
+                    case BooLexer.INTERNAL:
+                    case BooLexer.IS:
+                    case BooLexer.LONG:
                     case BooLexer.NAMESPACE:
+                    case BooLexer.OF:
+                    case BooLexer.OVERRIDE:
+                    case BooLexer.PARTIAL:
+                    case BooLexer.PASS:
+                    case BooLexer.PRIVATE:
+                    case BooLexer.PROTECTED:
+                    case BooLexer.PUBLIC:
+                    case BooLexer.RAISE:
+                    case BooLexer.REF:
+                    case BooLexer.RETURN:
+                    case BooLexer.SELF:
+                    case BooLexer.SET:
+                    case BooLexer.STATIC:
+                    case BooLexer.STRUCT:
+                    case BooLexer.THEN:
+                    case BooLexer.TRUE:
+                    case BooLexer.TRY:
+                    case BooLexer.TYPEOF:
+                    case BooLexer.UNLESS:
+                    case BooLexer.VIRTUAL:
+                    case BooLexer.WHILE:
+                    case BooLexer.YIELD:
+
                         tokenInfo.Type = TokenType.Keyword;
                         tokenInfo.Color = TokenColor.Keyword;
                         break;
@@ -136,7 +184,7 @@ namespace Hill30.BooProject.LanguageService
         {
             if (source == null)
                 return false;
-            return ((BooSource)source).IsBlockComment(token);
+            return ((BooSource)source).IsBlockComment(lineNumber+1, token);
         }
 
     }
