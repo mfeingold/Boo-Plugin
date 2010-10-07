@@ -1,0 +1,49 @@
+Preambule:
+
+BooProject setup - is just a single .vsix file.
+Naturally, VSIX file is a common zip with a bunch of content files. Some of these files are necessary for installing an extension, such as extension.vsixmanifest or [Content_Types].xml.
+You can learn more about packaging a vsix here:
+http://msdn.microsoft.com/en-us/library/ff407026.aspx
+
+When you execute a vsix file, the vsixinstaller utility unzips all files into a special extensions folder and adds a registry value that indicates that this extension is enabled. All other necessary registry actions are stored in a pkgdef file and will be implemented while launching an instance of the VS2010.
+ 
+
+How to package BooProject.vsix:
+
+1) Rebuild the project. Check in your project's properties page that vsix will be generated after a build.
+2) Find just generated vsix file in bin/debug folder
+3) Rename its extension to zip.
+4) Unzip it to some temp folder
+5) Add the following boo-files to that folder:
+-Boo.Lang.dll
+-Boo.Lang.Compiler.dll
+-Boo.Lang.Parser.dll
+-Boo.Microsoft.Build.targets
+-Boo.Microsoft.Build.Tasks.dll
+-booc.exe 
+WARNING!!!
+Make sure that you got this file from SharpDevelop source. 
+OR 
+if you got this from the of. site -> process it with coreflags.exe utility. with /32BIT+ /Force flags. Corfalgs.exe can be found in "c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\CorFlags.exe" folder
+6)Make sure that these files already exist:
+-extension.vsixmanifest
+-boo.ico
+-BooProject.pkgdef
+-BooProject.dll
+-[Content_Types].xml
+-ProjectTemplates and ItemTemplates folders with templates inside
+7)Replace [Content_Types].xml with file with the same name in SetupFiles folder.
+8)Make sure that 
+$(BooBinPath) 
+is replaced by 
+$(LocalAppData)\Microsoft\VisualStudio\10.0\Extensions\Hill30\BooProject\1.0\
+in following files:
+-Application.booproj (inside template)
+-Library.booproj (inside template)
+-Boo.Microsoft.Build.targets
+9) Final step - zip this folder again and rename it back to .vsix extension.
+
+Done!
+
+
+
