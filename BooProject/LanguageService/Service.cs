@@ -94,7 +94,7 @@ namespace Hill30.BooProject.LanguageService
                     compiler = new BooCompiler(
                             new CompilerParameters(true)
                             {
-                                Pipeline = CompilerPipeline.GetPipeline("compile")
+                                Pipeline = CompilerPipeline.GetPipeline("parse")
                             }
                         );
                 ((BooParseRequest)req).Source.Compile(compiler, req);

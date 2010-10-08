@@ -12,6 +12,7 @@ namespace Hill30.BooProject.LanguageService
         antlr.IToken stashedToken;
         int offset;
         int current;
+        int endIndex;
         private Service service;
         private IVsTextLines buffer;
 
@@ -28,6 +29,61 @@ namespace Hill30.BooProject.LanguageService
             this.buffer = buffer;
         }
 
+        class DummyToken : antlr.IToken
+        {
+            public int Type
+            {
+                get
+                {
+                    return BooLexer.EOF;
+                }
+                set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public int getColumn()
+            {
+                return 0;
+            }
+
+            public string getFilename()
+            {
+                throw new NotImplementedException();
+            }
+
+            public int getLine()
+            {
+                throw new NotImplementedException();
+            }
+
+            public string getText()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void setColumn(int c)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void setFilename(string name)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void setLine(int l)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void setText(string t)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         #region IScanner Members
 
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
@@ -41,16 +97,22 @@ namespace Hill30.BooProject.LanguageService
                 }
                 catch (Exception)
                 {
-                    return false;
+                    tokenInfo.StartIndex = current;
+                    tokenInfo.EndIndex = endIndex ;
+                    tokenInfo.Type = TokenType.Comment;
+                    tokenInfo.Color = TokenColor.Comment;
+                    current = tokenInfo.EndIndex + 1;
+                    stashedToken = new DummyToken();
+                    return true;
                 }
 
-            if (current < token.getColumn() - 1)
+            if (current < token.getColumn()-1)
             {
                 tokenInfo.StartIndex = current;
-                tokenInfo.EndIndex = offset + token.getColumn() - 2;
+                tokenInfo.EndIndex = Math.Min(endIndex, offset + token.getColumn() - 2);
                 tokenInfo.Type = TokenType.Comment;
                 tokenInfo.Color = TokenColor.Comment;
-                current = tokenInfo.EndIndex + 1;
+                current = tokenInfo.EndIndex + 2;
                 stashedToken = token;
                 return true;
             }
@@ -67,10 +129,6 @@ namespace Hill30.BooProject.LanguageService
             else
                 switch (token.Type)
                 {
-                    //case BooLexer.EOL:
-                    //case BooLexer.EOF:
-                    //    return false;
-
                     case BooLexer.TRIPLE_QUOTED_STRING:
                         quotes = 6;
                         tokenInfo.Type = TokenType.String;
@@ -158,7 +216,7 @@ namespace Hill30.BooProject.LanguageService
                 }
 
             tokenInfo.StartIndex = offset + token.getColumn() - 1;
-            tokenInfo.EndIndex = offset + quotes + token.getColumn() - 1 + token.getText().Length - 1;
+            tokenInfo.EndIndex = Math.Min(endIndex, offset + quotes + token.getColumn() - 1 + token.getText().Length - 1);
             current = tokenInfo.EndIndex + 1;
             return true;
         }
@@ -167,8 +225,10 @@ namespace Hill30.BooProject.LanguageService
         public void SetSource(string source, int offset)
 // ReSharper restore ParameterHidesMember
         {
+            endIndex = source.Length;
             current = this.offset = offset;
-            lexer = BooParser.CreateBooLexer(1, "Line Scanner", new StringReader(source.Substring(offset)));
+//            current = offset - 1;
+            lexer = BooParser.CreateBooLexer(1, "Line Scanner", new StringReader(source.Substring(offset) + " "));
         }
 
         #endregion
