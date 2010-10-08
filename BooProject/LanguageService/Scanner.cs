@@ -99,7 +99,7 @@ namespace Hill30.BooProject.LanguageService
                 {
                     tokenInfo.StartIndex = current;
                     tokenInfo.EndIndex = endIndex ;
-                    tokenInfo.Type = TokenType.Text;
+                    tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notofication for the typing inside the token
                     tokenInfo.Color = TokenColor.Comment;
                     current = tokenInfo.EndIndex + 1;
                     stashedToken = new DummyToken();
@@ -110,7 +110,7 @@ namespace Hill30.BooProject.LanguageService
             {
                 tokenInfo.StartIndex = current;
                 tokenInfo.EndIndex = Math.Min(endIndex, offset + token.getColumn() - 2);
-                tokenInfo.Type = TokenType.Text;
+                tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notofication for the typing inside the token
                 tokenInfo.Color = TokenColor.Comment;
                 current = tokenInfo.EndIndex + 2;
                 stashedToken = token;
@@ -123,7 +123,7 @@ namespace Hill30.BooProject.LanguageService
             int quotes = 0;
             if (IsBlockComment(token))
             {
-                tokenInfo.Type = TokenType.Text;
+                tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notofication for the typing inside the token
                 tokenInfo.Color = TokenColor.Comment;
             }
             else
@@ -150,6 +150,7 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.ID:
                         tokenInfo.Type = TokenType.Identifier;
                         tokenInfo.Color = TokenColor.Identifier;
+                        tokenInfo.Trigger = TokenTriggers.MemberSelect;
                         break;
 
                     case BooLexer.ABSTRACT:
