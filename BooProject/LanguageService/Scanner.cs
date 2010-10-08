@@ -99,7 +99,7 @@ namespace Hill30.BooProject.LanguageService
                 {
                     tokenInfo.StartIndex = current;
                     tokenInfo.EndIndex = endIndex ;
-                    tokenInfo.Type = TokenType.Comment;
+                    tokenInfo.Type = TokenType.Text;
                     tokenInfo.Color = TokenColor.Comment;
                     current = tokenInfo.EndIndex + 1;
                     stashedToken = new DummyToken();
@@ -110,7 +110,7 @@ namespace Hill30.BooProject.LanguageService
             {
                 tokenInfo.StartIndex = current;
                 tokenInfo.EndIndex = Math.Min(endIndex, offset + token.getColumn() - 2);
-                tokenInfo.Type = TokenType.Comment;
+                tokenInfo.Type = TokenType.Text;
                 tokenInfo.Color = TokenColor.Comment;
                 current = tokenInfo.EndIndex + 2;
                 stashedToken = token;
@@ -123,7 +123,7 @@ namespace Hill30.BooProject.LanguageService
             int quotes = 0;
             if (IsBlockComment(token))
             {
-                tokenInfo.Type = TokenType.Comment;
+                tokenInfo.Type = TokenType.Text;
                 tokenInfo.Color = TokenColor.Comment;
             }
             else

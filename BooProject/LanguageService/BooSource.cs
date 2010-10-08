@@ -71,13 +71,13 @@ namespace Hill30.BooProject.LanguageService
             {
                 if (compileResult == null)
                     return false; // do not know yet
-                //foreach (var t in tokens)
-                //    if (t.getColumn() == token.getColumn()
-                //        && t.getLine() == line
-                //        && t.getText() == token.getText()
-                //        )
+                foreach (var t in tokens)
+                    if (t.getColumn() == token.getColumn()
+                        && t.getLine() == line
+                        && t.getText() == token.getText()
+                        )
                         return false;
-                //return true;
+                return true;
             }
         }
 
@@ -90,9 +90,13 @@ namespace Hill30.BooProject.LanguageService
                 tokens.Clear();
                 IToken token;
                 var lexer = BooParser.CreateBooLexer(1, "code stream", new StringReader(req.Text));
-                while ((token = lexer.nextToken()).Type != BooLexer.EOF)
-                    tokens.Add(token);
-
+                try
+                {
+                    while ((token = lexer.nextToken()).Type != BooLexer.EOF)
+                        tokens.Add(token);
+                }
+                catch 
+                {}
                 compileResult = compiler.Run(BooParser.ParseString("code", req.Text));
 
                 nodes.Clear();
