@@ -14,17 +14,13 @@ How to package BooProject.vsix:
 2) Find just generated vsix file in bin/debug folder
 3) Rename its extension to zip.
 4) Unzip it to some temp folder
-5) Add the following boo-files to that folder:
--Boo.Lang.dll
--Boo.Lang.Compiler.dll
--Boo.Lang.Parser.dll
--Boo.Microsoft.Build.targets
--Boo.Microsoft.Build.Tasks.dll
--booc.exe 
+5) Add all necessary boo files to that folder:
+ 
 WARNING!!!
-Make sure that you got this file from SharpDevelop source. 
+Make sure that you got booc.exe file from SharpDevelop source. 
 OR 
-if you got this from the of. site -> process it with coreflags.exe utility. with /32BIT+ /Force flags. Corfalgs.exe can be found in "c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\CorFlags.exe" folder
+if you got this from the official site -> process it with coreflags.exe utility with /32BIT+ /Force flags. Corfalgs.exe can be found in "c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\CorFlags.exe" folder
+
 6)Make sure that these files already exist:
 -extension.vsixmanifest
 -boo.ico
@@ -33,15 +29,7 @@ if you got this from the of. site -> process it with coreflags.exe utility. with
 -[Content_Types].xml
 -ProjectTemplates and ItemTemplates folders with templates inside
 7)Replace [Content_Types].xml with file with the same name in SetupFiles folder.
-8)Make sure that 
-$(BooBinPath) 
-is replaced by 
-$(LocalAppData)\Microsoft\VisualStudio\10.0\Extensions\Hill30\BooProject\1.0\
-in following files:
--Application.booproj (inside template)
--Library.booproj (inside template)
--Boo.Microsoft.Build.targets
-9) Final step - zip this folder again and rename it back to .vsix extension.
+8) Final step - zip this folder again and rename it back to .vsix extension.
 
 Done!
 
