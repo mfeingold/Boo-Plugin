@@ -14,5 +14,6 @@ namespace Hill30.BooProject.LanguageService
         { Source = source; }
 
         public BooSource Source { get; private set; }
+
     }
 }

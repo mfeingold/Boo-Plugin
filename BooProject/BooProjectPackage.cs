@@ -45,8 +45,9 @@ namespace Hill30.BooProject
                              106,                           // resource ID of localized language name
                              CodeSense = true,             // Supports IntelliSense
                              RequestStockColors = true,     // Supplies custom colors
-                             EnableCommenting = true//,       // Supports commenting out code
-//                             EnableAsyncCompletion = true   // Supports background parsing
+                             EnableCommenting = true,       // Supports commenting out code
+                             EnableAsyncCompletion = true   // Supports background parsing
+                             
                              )]
 
     [Guid(Constants.GuidBooProjectPkgString)]

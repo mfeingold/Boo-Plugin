@@ -11,20 +11,16 @@ namespace Hill30.BooProject.LanguageService
 {
     public class BooAuthoringScope : AuthoringScope
     {
-        private ParseRequest req;
-        private CompilerContext compilerContext;
+        private BooParseRequest req;
 
-        public BooAuthoringScope(ParseRequest req, Boo.Lang.Compiler.CompilerContext compilerContext)
+        public BooAuthoringScope(BooParseRequest req)
         {
-            Debug.Assert(compilerContext != null);
-            // TODO: Complete member initialization
             this.req = req;
-            this.compilerContext = compilerContext;
         }
+
         public override string GetDataTipText(int line, int col, out TextSpan span)
         {
-            span = new TextSpan();
-            return null;
+            return req.Source.GetDataTipText(line, col, out span);
         }
 
         public override Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)

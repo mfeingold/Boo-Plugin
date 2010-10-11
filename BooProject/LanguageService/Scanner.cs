@@ -142,6 +142,13 @@ namespace Hill30.BooProject.LanguageService
                         tokenInfo.Color = TokenColor.String;
                         break;
 
+                    case BooLexer.DOT:
+                        tokenInfo.Type = TokenType.Text;
+                        tokenInfo.Color = TokenColor.Text;
+                        tokenInfo.Trigger = TokenTriggers.MemberSelect;
+                        break;
+
+
                     case BooLexer.WS:
                         tokenInfo.Type = TokenType.WhiteSpace;
                         tokenInfo.Color = TokenColor.Text;
@@ -150,7 +157,6 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.ID:
                         tokenInfo.Type = TokenType.Identifier;
                         tokenInfo.Color = TokenColor.Identifier;
-                        tokenInfo.Trigger = TokenTriggers.MemberSelect;
                         break;
 
                     case BooLexer.ABSTRACT:

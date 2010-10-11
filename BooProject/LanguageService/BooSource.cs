@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.Package;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using System.IO;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -52,18 +53,18 @@ namespace Hill30.BooProject.LanguageService
             }
         }
 
-        //internal IEnumerable<Node> GetNodes(int line, int pos)
-        //{
-        //    foreach (var node in nodes)
-        //    {
-        //        if (node.LexicalInfo == null) continue;
-        //        if (node.LexicalInfo.Line > line) continue;
-        //        if (node.LexicalInfo.Line == line && node.LexicalInfo.Column > pos) continue;
-        //        if (node.EndSourceLocation.Line < line) continue;
-        //        if (node.EndSourceLocation.Line == line && node.EndSourceLocation.Column < pos) continue;
-        //        yield return node;
-        //    }
-        //}
+        internal IEnumerable<Node> GetNodes(int line, int pos)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.LexicalInfo == null) continue;
+                if (node.LexicalInfo.Line > line) continue;
+                if (node.LexicalInfo.Line == line && node.LexicalInfo.Column > pos) continue;
+                if (node.EndSourceLocation.Line < line) continue;
+                if (node.EndSourceLocation.Line == line && node.EndSourceLocation.Column < pos) continue;
+                yield return node;
+            }
+        }
 
         internal bool IsBlockComment(int line, IToken token)
         {
@@ -88,21 +89,33 @@ namespace Hill30.BooProject.LanguageService
             lock (this)
             {
                 tokens.Clear();
-                IToken token;
                 var lexer = BooParser.CreateBooLexer(1, "code stream", new StringReader(req.Text));
                 try
                 {
+                    IToken token;
                     while ((token = lexer.nextToken()).Type != BooLexer.EOF)
                         tokens.Add(token);
                 }
-                catch 
+                catch (Exception)
                 {}
                 compileResult = compiler.Run(BooParser.ParseString("code", req.Text));
 
                 nodes.Clear();
                 new AstWalker(this).Visit(compileResult.CompileUnit);
             }
-            Recolorize(0, this.GetLineCount()-1);
+            Recolorize(0, GetLineCount()-1);
+        }
+
+        internal string GetDataTipText(int line, int col, out Microsoft.VisualStudio.TextManager.Interop.TextSpan span)
+        {
+            foreach (var node in GetNodes(line+1, col+1))
+            {
+                if (node.NodeType == NodeType.CallableTypeReference)
+                    break;
+            }
+            span = new TextSpan { iStartLine = line, iStartIndex = col, iEndLine = line, iEndIndex = col + 10 };
+
+            return "";
         }
     }
 }

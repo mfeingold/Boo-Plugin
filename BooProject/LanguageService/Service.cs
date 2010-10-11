@@ -100,7 +100,7 @@ namespace Hill30.BooProject.LanguageService
                 ((BooParseRequest)req).Source.Compile(compiler, req);
                 //((BooParseRequest)req).Source.CompileResult = compiler.Run(BooParser.ParseString("code", req.Text));
             }
-            return new BooAuthoringScope(req, ((BooParseRequest)req).Source.CompileResult);
+            return new BooAuthoringScope((BooParseRequest)req);
         }
 
         private void Start()
