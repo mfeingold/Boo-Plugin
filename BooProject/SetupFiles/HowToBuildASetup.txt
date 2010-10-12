@@ -10,26 +10,7 @@ When you execute a vsix file, the vsixinstaller utility unzips all files into a 
 
 How to package BooProject.vsix:
 
-1) Rebuild the project. Check in your project's properties page that vsix will be generated after a build.
-2) Find just generated vsix file in bin/debug folder
-3) Rename its extension to zip.
-4) Unzip it to some temp folder
-5) Add all necessary boo files to that folder:
- 
-WARNING!!!
-Make sure that you got booc.exe file from SharpDevelop source. 
-OR 
-if you got this from the official site -> process it with coreflags.exe utility with /32BIT+ /Force flags. Corfalgs.exe can be found in "c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\CorFlags.exe" folder
-
-6)Make sure that these files already exist:
--extension.vsixmanifest
--boo.ico
--BooProject.pkgdef
--BooProject.dll
--[Content_Types].xml
--ProjectTemplates and ItemTemplates folders with templates inside
-7)Replace [Content_Types].xml with file with the same name in SetupFiles folder.
-8) Final step - zip this folder again and rename it back to .vsix extension.
+1) Rebuild the project - that's all you need :)
 
 Done!
 
