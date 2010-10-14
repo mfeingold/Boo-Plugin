@@ -1,11 +1,17 @@
 ﻿using System;
 using Microsoft.VisualStudio.Project;
+using Microsoft.VisualStudio.Project.Automation;
+using Hill30.BooProject.Project.Automation;
 
 namespace Hill30.BooProject.Project
 {
-    public class File : FileNode
+    public class BooFileNode : FileNode
     {
-		internal File(ProjectNode root, ProjectElement e)
+        #region Fields
+        private BooOAFileItem automationObject;
+        #endregion
+
+        public BooFileNode(ProjectNode root, ProjectElement e)
 			: base(root, e)
 		{
 		}
@@ -20,10 +26,28 @@ namespace Hill30.BooProject.Project
             get
             {
                 if (System.IO.Path.GetExtension(FileName) == ".boo")
-                    return Project.ImageOffset + (int)Project.ProjectIcons.File;
+                    return BooProjectNode.ImageOffset + (int)BooProjectNode.ProjectIcons.File;
                 return base.ImageIndex;
             }
         }
+
+        #region Overriden implementation
+        /// <summary>
+        /// Gets the automation object for the file node.
+        /// </summary>
+        /// <returns></returns>
+        public override object GetAutomationObject()
+        {
+            if (automationObject == null)
+            {
+                automationObject = new BooOAFileItem(ProjectMgr.GetAutomationObject() as OAProject, this);
+            }
+
+            return automationObject;
+        }
+        #endregion
+
+
 
         #region Private implementation
         internal OleServiceProvider.ServiceCreatorCallback ServiceCreator

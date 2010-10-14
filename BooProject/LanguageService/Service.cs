@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.OLE.Interop;
 using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
+using Microsoft.VisualStudio;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -98,9 +99,28 @@ namespace Hill30.BooProject.LanguageService
                             }
                         );
                 ((BooParseRequest)req).Source.Compile(compiler, req);
-                //((BooParseRequest)req).Source.CompileResult = compiler.Run(BooParser.ParseString("code", req.Text));
             }
             return new BooAuthoringScope((BooParseRequest)req);
+        }
+
+        public override int GetItemCount(out int count)
+        {
+            count = BooColorizer.ColorableItems.Length;
+            return VSConstants.S_OK;
+        }
+
+        public override int GetColorableItem(int index, out IVsColorableItem item)
+        {
+            if (index < BooColorizer.ColorableItems.Length)
+            {
+                item = BooColorizer.ColorableItems[index];
+                return VSConstants.S_OK;
+            }
+            else
+            {
+                item = BooColorizer.ColorableItems[0];
+                return VSConstants.S_OK;
+            }
         }
 
         private void Start()
@@ -118,7 +138,7 @@ namespace Hill30.BooProject.LanguageService
                 crinfo[0].grfcadvf = (uint)_OLECADVF.olecadvfModal |
                                               (uint)_OLECADVF.olecadvfRedrawOff |
                                               (uint)_OLECADVF.olecadvfWarningsOff;
-                crinfo[0].uIdleTimeInterval = 1000;
+                crinfo[0].uIdleTimeInterval = 300;
                 mgr.FRegisterComponent(this, crinfo, out mComponentID);
             }
         }

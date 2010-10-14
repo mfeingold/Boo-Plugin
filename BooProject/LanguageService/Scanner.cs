@@ -145,9 +145,8 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.DOT:
                         tokenInfo.Type = TokenType.Text;
                         tokenInfo.Color = TokenColor.Text;
-                        tokenInfo.Trigger = TokenTriggers.MemberSelect;
+//                        tokenInfo.Trigger = TokenTriggers.MemberSelect;
                         break;
-
 
                     case BooLexer.WS:
                         tokenInfo.Type = TokenType.WhiteSpace;
@@ -156,7 +155,7 @@ namespace Hill30.BooProject.LanguageService
 
                     case BooLexer.ID:
                         tokenInfo.Type = TokenType.Identifier;
-                        tokenInfo.Color = TokenColor.Identifier;
+                        tokenInfo.Color = GetColorForID(token);
                         break;
 
                     case BooLexer.ABSTRACT:
@@ -204,6 +203,7 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.SET:
                     case BooLexer.STATIC:
                     case BooLexer.STRUCT:
+                    case BooLexer.SUPER:
                     case BooLexer.THEN:
                     case BooLexer.TRUE:
                     case BooLexer.TRY:
@@ -246,6 +246,13 @@ namespace Hill30.BooProject.LanguageService
             lineNumber = line;
             if (source == null)
                 source = service.GetSource(buffer);
+        }
+
+        private TokenColor GetColorForID(antlr.IToken token)
+        {
+            if (source == null)
+                return TokenColor.Identifier;
+            return ((BooSource)source).GetColorForID(lineNumber + 1, token);
         }
 
         private bool IsBlockComment(antlr.IToken token)

@@ -21,7 +21,7 @@ namespace Hill30.BooProject.Project
 
         protected override ProjectNode CreateProject()
         {
-            var result = new Project();
+            var result = new BooProjectNode();
             result.SetSite((IOleServiceProvider)((IServiceProvider)this.package).GetService(typeof(IOleServiceProvider)));
             return result;
         }

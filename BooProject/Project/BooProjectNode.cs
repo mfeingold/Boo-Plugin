@@ -1,4 +1,5 @@
 ﻿using System;
+using Hill30.BooProject.Project.Automation;
 using Microsoft.VisualStudio.Project;
 using System.Windows.Forms;
 using System.Drawing;
@@ -8,7 +9,7 @@ using Microsoft.VisualStudio.Project.Automation;
 
 namespace Hill30.BooProject.Project
 {
-    public sealed class Project : ProjectNode
+    public sealed class BooProjectNode : ProjectNode
     {
         #region Enum for image list
         internal enum ProjectIcons
@@ -22,7 +23,7 @@ namespace Hill30.BooProject.Project
         private static int imageOffset;
         private VSProject vsProject;
 
-        static Project()
+        static BooProjectNode()
         {
             imageList = new ImageList {ColorDepth = ColorDepth.Depth24Bit, ImageSize = new Size(16, 16)};
 
@@ -34,12 +35,12 @@ namespace Hill30.BooProject.Project
         static Bitmap GetIcon(string name)
         {
             return new Bitmap(
-                typeof(Project).Assembly.GetManifestResourceStream(
+                typeof(BooProjectNode).Assembly.GetManifestResourceStream(
                     "Hill30.BooProject.Resources." + name + ".bmp")            
                 );
         }
 
-        public Project()
+        public BooProjectNode()
         {
             SupportsProjectDesigner = true;
             CanProjectDeleteItems = true;
@@ -103,7 +104,7 @@ namespace Hill30.BooProject.Project
         /// <returns></returns>
         public override FileNode CreateFileNode(ProjectElement item)
         {
-            var node = new File(this, item);
+            var node = new BooFileNode(this, item);
 
             node.OleServiceProvider.AddService(typeof(EnvDTE.Project), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
             node.OleServiceProvider.AddService(typeof(ProjectItem), node.ServiceCreator, false);
@@ -117,6 +118,11 @@ namespace Hill30.BooProject.Project
             if (System.IO.Path.GetExtension(fileName) == ".boo")
                 return true;
             return base.IsCodeFile(fileName);
+        }
+
+        public override object GetAutomationObject()
+        {
+            return new BooOAProject(this);
         }
 
         #region Properties
