@@ -1,5 +1,4 @@
 ﻿using System;
-using Hill30.BooProject.Project.Automation;
 using Microsoft.VisualStudio.Project;
 using System.Windows.Forms;
 using System.Drawing;
@@ -118,11 +117,6 @@ namespace Hill30.BooProject.Project
             if (System.IO.Path.GetExtension(fileName) == ".boo")
                 return true;
             return base.IsCodeFile(fileName);
-        }
-
-        public override object GetAutomationObject()
-        {
-            return new BooOAProject(this);
         }
 
         #region Properties

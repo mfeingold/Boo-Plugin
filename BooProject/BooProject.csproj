@@ -89,8 +89,6 @@
     <Compile Include="Project\Attributes\LocDisplayNameAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesDescriptionAttribute.cs" />
-    <Compile Include="Project\Automation\BooOAFileItem.cs" />
-    <Compile Include="Project\Automation\BooOAProject.cs" />
     <Compile Include="Project\Factory.cs" />
     <Compile Include="Project\BooFileNode.cs" />
     <Compile Include="Project\ProjectProperties\Application.cs" />
