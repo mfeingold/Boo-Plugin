@@ -43,17 +43,27 @@ namespace Hill30.BooProject.LanguageService
 
             public override void OnClassDefinition(ClassDefinition node)
             {
-                var name = node.BaseTypes;
+                RegisterType(node);
                 base.OnClassDefinition(node);
             }
 
-            public override void OnSimpleTypeReference(SimpleTypeReference node)
+            private void RegisterType(Node node)
             {
                 List<Node> list;
                 if (!source.types.TryGetValue(node.LexicalInfo.Line, out list))
                     source.types[node.LexicalInfo.Line] = list = new List<Node>();
                 list.Add(node);
+            }
+
+            public override void OnSimpleTypeReference(SimpleTypeReference node)
+            {
+                RegisterType(node);
                 base.OnSimpleTypeReference(node);
+            }
+
+            public override void OnModule(Module node)
+            {
+                base.OnModule(node);
             }
 
             public override void OnField(Field node)
