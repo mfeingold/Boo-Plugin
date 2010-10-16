@@ -15,7 +15,7 @@ namespace Hill30.BooProject.Project
             : base(package)
         {
             if (Environment.GetEnvironmentVariable("BooBinPath", EnvironmentVariableTarget.User) == null)
-               BuildEngine.SetGlobalProperty("BooBinPath", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Microsoft\VisualStudio\10.0\Extensions\Hill30\BooLanguage\1.0\Boo_files");
+                BuildEngine.SetGlobalProperty("BooBinPath", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Microsoft\VisualStudio\10.0\Extensions\Hill30\Visual Studio Boo plugin\0.5.0.3\Boo_files");
             this.package = package;
         }
 

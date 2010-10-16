@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
@@ -24,7 +23,7 @@ namespace Hill30.BooProject
     [PackageRegistration(UseManagedResourcesOnly = true)]
     // This attribute is used to register the informations needed to show the this package
     // in the Help/About dialog of Visual Studio.
-    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", "0.5.0.2", IconResourceID = 400)]
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
 
@@ -99,21 +98,21 @@ namespace Hill30.BooProject
         private void MenuItemCallback(object sender, EventArgs e)
         {
             // Show a Message Box to prove we were here
-            var uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
-            Guid clsid = Guid.Empty;
-            int result;
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
-                       0,
-                       ref clsid,
-                       "BooProject",
-                       string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.ToString()),
-                       string.Empty,
-                       0,
-                       OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                       OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-                       OLEMSGICON.OLEMSGICON_INFO,
-                       0,        // false
-                       out result));
+            //var uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
+            //Guid clsid = Guid.Empty;
+            //int result;
+            //Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
+            //           0,
+            //           ref clsid,
+            //           "BooProject",
+            //           string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", ToString()),
+            //           string.Empty,
+            //           0,
+            //           OLEMSGBUTTON.OLEMSGBUTTON_OK,
+            //           OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
+            //           OLEMSGICON.OLEMSGICON_INFO,
+            //           0,        // false
+            //           out result));
         }
 
         public override string ProductUserContext

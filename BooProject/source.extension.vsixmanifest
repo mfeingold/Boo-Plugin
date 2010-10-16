@@ -2,8 +2,8 @@
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
   <Identifier Id="3ed37b82-3194-4ca8-96b4-d4e3feb8a35d">
     <Name>Visual Studio Boo plugin</Name>
-    <Author>Michael Feingold</Author>
-    <Version>0.5.0.0</Version>
+    <Author>Hill30</Author>
+    <Version>0.5.0.3</Version>
     <Description xml:space="preserve">Allows using Visual Studio as an IDE for programming in Boo. 
 </Description>
     <Locale>1033</Locale>

@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.Package;
+﻿using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Boo.Lang.Compiler;
-using System.Diagnostics;
 
 namespace Hill30.BooProject.LanguageService
 {
     public class BooAuthoringScope : AuthoringScope
     {
-        private BooParseRequest req;
+        private readonly BooParseRequest req;
 
         public BooAuthoringScope(BooParseRequest req)
         {

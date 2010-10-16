@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
 
@@ -9,12 +6,9 @@ namespace Hill30.BooProject.LanguageService
 {
     public class BooColorizer : Colorizer
     {
-        BooSource source;
-
         public BooColorizer(Service service, IVsTextLines buffer, IScanner scanner)
             : base(service, buffer, scanner)
         {
-            source = (BooSource)service.GetSource(buffer);
         }
 
         public override int ColorizeLine(int line, int length, IntPtr ptr, int state, uint[] attrs)

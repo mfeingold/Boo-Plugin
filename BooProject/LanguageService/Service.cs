@@ -111,16 +111,8 @@ namespace Hill30.BooProject.LanguageService
 
         public override int GetColorableItem(int index, out IVsColorableItem item)
         {
-            //if (index < BooColorizer.ColorableItems.Length)
-            //{
-                item = BooColorizer.ColorableItems[index];
-                return VSConstants.S_OK;
-            //}
-            //else
-            //{
-            //    item = BooColorizer.ColorableItems[0];
-            //    return VSConstants.S_OK;
-            //}
+            item = BooColorizer.ColorableItems[index];
+            return VSConstants.S_OK;
         }
 
         private void Start()

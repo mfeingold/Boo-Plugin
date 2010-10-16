@@ -67,6 +67,7 @@
       <Button guid="guidBooProjectCmdSet" id="cmdidMyCommand" priority="0x0100" type="Button">
         <Parent guid="guidBooProjectCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <CommandName>cmdidMyCommand</CommandName>
           <ButtonText>Open Reflector</ButtonText>

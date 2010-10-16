@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using antlr;
-using Boo.Lang.Parser;
-using Microsoft.VisualStudio.Package;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
-using System.IO;
+using Boo.Lang.Parser;
+using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Hill30.BooProject.LanguageService
 {
     public class BooSource : Source
     {
-        public BooSource(Service service, Microsoft.VisualStudio.TextManager.Interop.IVsTextLines buffer, Colorizer colorizer)
+        public BooSource(Service service, IVsTextLines buffer, Colorizer colorizer)
             : base(service, buffer, colorizer)
         { }
 
@@ -61,17 +61,6 @@ namespace Hill30.BooProject.LanguageService
                 base.OnSimpleTypeReference(node);
             }
 
-            public override void OnModule(Module node)
-            {
-                base.OnModule(node);
-            }
-
-            public override void OnField(Field node)
-            {
-                var name = node.Name;
-                base.OnField(node);
-            }
-
             protected override void OnError(Node node, Exception error)
             {
                 // Do Nothing
@@ -115,7 +104,7 @@ namespace Hill30.BooProject.LanguageService
             Recolorize(0, GetLineCount()-1);
         }
 
-        internal string GetDataTipText(int line, int col, out Microsoft.VisualStudio.TextManager.Interop.TextSpan span)
+        internal string GetDataTipText(int line, int col, out TextSpan span)
         {
             //foreach (var node in GetNodes(line + 1, col + 1))
             //{
