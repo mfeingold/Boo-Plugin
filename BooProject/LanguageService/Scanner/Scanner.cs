@@ -4,12 +4,12 @@ using Boo.Lang.Parser;
 using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 
-namespace Hill30.BooProject.LanguageService
+namespace Hill30.BooProject.LanguageService.Scanner
 {
     class Scanner : IScanner
     {
-        antlr.TokenStream lexer;
-        antlr.IToken stashedToken;
+        ScanningLexer lexer;
+        ScanningLexer.MappedToken stashedToken;
         int offset;
         int current;
         int endIndex;
@@ -29,61 +29,6 @@ namespace Hill30.BooProject.LanguageService
             this.buffer = buffer;
         }
 
-        class DummyToken : antlr.IToken
-        {
-            public int Type
-            {
-                get
-                {
-                    return BooLexer.EOF;
-                }
-                set
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public int getColumn()
-            {
-                return 0;
-            }
-
-            public string getFilename()
-            {
-                throw new NotImplementedException();
-            }
-
-            public int getLine()
-            {
-                throw new NotImplementedException();
-            }
-
-            public string getText()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void setColumn(int c)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void setFilename(string name)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void setLine(int l)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void setText(string t)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         #region IScanner Members
 
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
@@ -99,18 +44,18 @@ namespace Hill30.BooProject.LanguageService
                 {
                     tokenInfo.StartIndex = current;
                     tokenInfo.EndIndex = endIndex ;
-                    tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notofication for the typing inside the token
+                    tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notification for the typing inside the token
                     tokenInfo.Color = TokenColor.Comment;
                     current = tokenInfo.EndIndex + 1;
-                    stashedToken = new DummyToken();
+                    stashedToken = null;//  new DummyToken();
                     return true;
                 }
 
-            if (current < token.getColumn()-1)
+            if (current < token.getMappedColumn()-1)
             {
                 tokenInfo.StartIndex = current;
-                tokenInfo.EndIndex = Math.Min(endIndex, offset + token.getColumn() - 2);
-                tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notofication for the typing inside the token
+                tokenInfo.EndIndex = Math.Min(endIndex, offset + token.getMappedColumn() - 2);
+                tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notification for the typing inside the token
                 tokenInfo.Color = TokenColor.Comment;
                 current = tokenInfo.EndIndex + 2;
                 stashedToken = token;
@@ -123,7 +68,7 @@ namespace Hill30.BooProject.LanguageService
             int quotes = 0;
             if (IsBlockComment(token))
             {
-                tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notofication for the typing inside the token
+                tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notification for the typing inside the token
                 tokenInfo.Color = TokenColor.Comment;
             }
             else
@@ -145,7 +90,6 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.DOT:
                         tokenInfo.Type = TokenType.Text;
                         tokenInfo.Color = TokenColor.Text;
-//                        tokenInfo.Trigger = TokenTriggers.MemberSelect;
                         break;
 
                     case BooLexer.WS:
@@ -166,7 +110,6 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.CONTINUE:
                     case BooLexer.DEF:
                     case BooLexer.DO:
-                    //case BooLexer.DOUBLE:
                     case BooLexer.ELIF:
                     case BooLexer.ELSE:
                     case BooLexer.ENUM:
@@ -174,7 +117,6 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.EXCEPT:
                     case BooLexer.FALSE:
                     case BooLexer.FINAL:
-                    //case BooLexer.FLOAT:
                     case BooLexer.FOR:
                     case BooLexer.FROM:
                     case BooLexer.GET:
@@ -182,7 +124,6 @@ namespace Hill30.BooProject.LanguageService
                     case BooLexer.IF:
                     case BooLexer.IMPORT:
                     case BooLexer.IN:
-                    //case BooLexer.INT:
                     case BooLexer.INTERFACE:
                     case BooLexer.INTERNAL:
                     case BooLexer.IS:
@@ -222,8 +163,8 @@ namespace Hill30.BooProject.LanguageService
                         break;
                 }
 
-            tokenInfo.StartIndex = offset + token.getColumn() - 1;
-            tokenInfo.EndIndex = Math.Min(endIndex, offset + quotes + token.getColumn() - 1 + token.getText().Length - 1);
+            tokenInfo.StartIndex = offset + token.getMappedColumn() - 1;
+            tokenInfo.EndIndex = Math.Min(endIndex, offset + quotes + token.getMappedColumn() - 1 + token.getText().Length - 1);
             current = tokenInfo.EndIndex + 1;
             return true;
         }
@@ -234,8 +175,7 @@ namespace Hill30.BooProject.LanguageService
         {
             endIndex = source.Length;
             current = this.offset = offset;
-//            current = offset - 1;
-            lexer = BooParser.CreateBooLexer(1, "Line Scanner", new StringReader(source.Substring(offset) + " "));
+            lexer = new ScanningLexer(service.GetLanguagePreferences().TabSize, source.Substring(offset));
         }
 
         #endregion
