@@ -13,17 +13,17 @@ namespace Hill30.BooProject.LanguageService
 
         public override int ColorizeLine(int line, int length, IntPtr ptr, int state, uint[] attrs)
         {
-            ((Scanner)Scanner).SetLineNumber(line);
+            ((Scanner.Scanner)Scanner).SetLineNumber(line);
             var result = base.ColorizeLine(line, length, ptr, state, attrs);
-            ((Scanner)Scanner).SetLineNumber(-1);
+            ((Scanner.Scanner)Scanner).SetLineNumber(-1);
             return result;
         }
 
         public override TokenInfo[] GetLineInfo(IVsTextLines buffer, int line, IVsTextColorState colorState)
         {
-            ((Scanner)Scanner).SetLineNumber(line);
+            ((Scanner.Scanner)Scanner).SetLineNumber(line);
             var result = base.GetLineInfo(buffer, line, colorState);
-            ((Scanner)Scanner).SetLineNumber(-1);
+            ((Scanner.Scanner)Scanner).SetLineNumber(-1);
             return result;
         }
 

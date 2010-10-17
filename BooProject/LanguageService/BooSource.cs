@@ -15,9 +15,10 @@ namespace Hill30.BooProject.LanguageService
     {
         public BooSource(Service service, IVsTextLines buffer, Colorizer colorizer)
             : base(service, buffer, colorizer)
-        { }
+        { this.service = service; }
 
         private CompilerContext compileResult;
+        private Service service;
 
         public CompilerContext CompileResult
         {
@@ -87,19 +88,18 @@ namespace Hill30.BooProject.LanguageService
             lock (this)
             {
                 tokens.Clear();
-                var lexer = BooParser.CreateBooLexer(1, "code stream", new StringReader(req.Text));
+                types.Clear();
+                var lexer = BooParser.CreateBooLexer(service.GetLanguagePreferences().TabSize, "code stream", new StringReader(req.Text));
                 try
                 {
                     IToken token;
                     while ((token = lexer.nextToken()).Type != BooLexer.EOF)
                         tokens.Add(token);
+                    compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, "code", new StringReader(req.Text)));
+                    new AstWalker(this).Visit(compileResult.CompileUnit);
                 }
                 catch (Exception)
                 {}
-                compileResult = compiler.Run(BooParser.ParseString("code", req.Text));
-
-                types.Clear();
-                new AstWalker(this).Visit(compileResult.CompileUnit);
             }
             Recolorize(0, GetLineCount()-1);
         }
