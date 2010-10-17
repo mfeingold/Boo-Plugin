@@ -61,7 +61,7 @@ namespace Hill30.BooProject.Project
 
         public override Guid ProjectGuid
         {
-            get { return typeof(Factory).GUID; }
+            get { return typeof(BooProjectFactory).GUID; }
         }
 
         public override string ProjectType

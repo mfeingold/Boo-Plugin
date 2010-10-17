@@ -28,8 +28,8 @@ namespace Hill30.BooProject
     [ProvideMenuResource("Menus.ctmenu", 1)]
 
     // Registers boo project factory
-    [ProvideProjectFactory(typeof(Project.Factory), "Visual Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj", @".\NullPath", LanguageVsTemplate = "Visual Boo", NewProjectRequireNewFolderVsTemplate = false)]
-    [ProvideProjectItem(typeof(Project.Factory), "Boo", @"Templates\Items\Boo", 500)]
+    [ProvideProjectFactory(typeof(Project.BooProjectFactory), "Visual Boo", "Boo Project Files (*.booproj);*.booproj", "booproj", "booproj", @".\NullPath", LanguageVsTemplate = "Visual Boo", NewProjectRequireNewFolderVsTemplate = false)]
+    [ProvideProjectItem(typeof(Project.BooProjectFactory), "Boo", @"Templates\Items\Boo", 500)]
 
     // Registers property pages for boo project designer
     [ProvideObject(typeof(Project.ProjectProperties.Application))]
@@ -65,7 +65,7 @@ namespace Hill30.BooProject
         {
             base.Initialize();
 
-            RegisterProjectFactory(new Project.Factory(this));
+            RegisterProjectFactory(new Project.BooProjectFactory(this));
 
             LanguageService.Service.Register(this);
 
