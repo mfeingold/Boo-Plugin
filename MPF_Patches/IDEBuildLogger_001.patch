@@ -1,0 +1,92 @@
+Index: IDEBuildLogger.cs
+===================================================================
+--- IDEBuildLogger.cs	(revision 57411)
++++ IDEBuildLogger.cs	(working copy)
+@@ -27,6 +27,7 @@
+ using Microsoft.VisualStudio.TextManager.Interop;
+ using Microsoft.Win32;
+ using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
++using System.IO;
+ 
+ namespace Microsoft.VisualStudio.Project
+ {
+@@ -416,6 +417,7 @@
+                 task.Text = errorEvent.Message;
+                 task.Category = TaskCategory.BuildCompile;
+                 task.HierarchyItem = hierarchy;
++                task.Navigate += new EventHandler(task_Navigate);
+ 
+                 return task;
+             });
+@@ -424,6 +426,71 @@
+             // call ReportQueuedTasks here. We do this when the build finishes.
+         }
+ 
++        void task_Navigate(object sender, EventArgs e)
++        {
++            var task = sender as Microsoft.VisualStudio.Shell.ErrorTask;
++            if (task == null)
++                throw new ArgumentException("Sender is not a Microsoft.VisualStudio.Shell.ErrorTask", "sender");
++
++            // Get the doc data for the task's document
++            if (String.IsNullOrEmpty(task.Document))
++                return;
++
++            var path = task.Document;
++            Url url;
++            if (Path.IsPathRooted(path))
++            {
++                // Use absolute path
++                url = new Microsoft.VisualStudio.Shell.Url(path);
++            }
++            else
++            {
++                // Path is relative, so make it relative to the project path
++                object value;
++                task.HierarchyItem.GetProperty((uint)VSConstants.VSITEMID.Root, (int)__VSHPROPID.VSHPROPID_ProjectDir, out value);
++                url = new Url(new Url(value.ToString() + "\\"), path);
++            }
++
++            IVsUIShellOpenDocument openDoc = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(IVsUIShellOpenDocument)) as IVsUIShellOpenDocument;
++            if (openDoc == null)
++                return;
++
++            IVsWindowFrame frame;
++            Microsoft.VisualStudio.OLE.Interop.IServiceProvider sp;
++            IVsUIHierarchy hier;
++            uint itemid;
++            Guid logicalView = VSConstants.LOGVIEWID_Code;
++
++            if (Microsoft.VisualStudio.ErrorHandler.Failed(openDoc.OpenDocumentViaProject(url.AbsoluteUrl, ref logicalView, out sp, out hier, out itemid, out frame)) || frame == null)
++                return;
++
++            object docData;
++            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocData, out docData));
++
++            // Get the VsTextBuffer
++            VsTextBuffer buffer = docData as VsTextBuffer;
++            if (buffer == null)
++            {
++                IVsTextBufferProvider bufferProvider = docData as IVsTextBufferProvider;
++                if (bufferProvider != null)
++                {
++                    IVsTextLines lines;
++                    Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(bufferProvider.GetTextBuffer(out lines));
++                    buffer = lines as VsTextBuffer;
++                    System.Diagnostics.Debug.Assert(buffer != null, "IVsTextLines does not implement IVsTextBuffer");
++                    if (buffer == null)
++                        return;
++                }
++            }
++
++            // Finally, perform the navigation.
++            IVsTextManager mgr = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(VsTextManagerClass)) as IVsTextManager; ;
++            if (mgr == null)
++                return;
++
++            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(mgr.NavigateToLineAndColumn(buffer, ref logicalView, task.Line, task.Column, task.Line, task.Column));
++        }
++
+         private void ReportQueuedTasks()
+         {
+             // NOTE: This may run on a background thread!
