@@ -3,3 +3,5 @@
 */obj
 */*/bin
 */*/obj
+*.user
+_ReSharper.BooProject/*

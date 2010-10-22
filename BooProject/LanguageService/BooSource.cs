@@ -35,30 +35,24 @@ namespace Hill30.BooProject.LanguageService
 
         private class AstWalker : DepthFirstVisitor
         {
-            public AstWalker(BooSource source)
+            private readonly Action<Node, int> registerType;
+            public AstWalker(BooSource source, Action<Node, int> registerType)
             {
                 this.source = source;
+                this.registerType = registerType;
             }
 
             private readonly BooSource source;
 
             public override void OnClassDefinition(ClassDefinition node)
             {
-                RegisterType(node);
+                registerType(node, node.Name.Length);
                 base.OnClassDefinition(node);
-            }
-
-            private void RegisterType(Node node)
-            {
-                List<Node> list;
-                if (!source.types.TryGetValue(node.LexicalInfo.Line, out list))
-                    source.types[node.LexicalInfo.Line] = list = new List<Node>();
-                list.Add(node);
             }
 
             public override void OnSimpleTypeReference(SimpleTypeReference node)
             {
-                RegisterType(node);
+                registerType(node, node.Name.Length);
                 base.OnSimpleTypeReference(node);
             }
 
@@ -83,10 +77,13 @@ namespace Hill30.BooProject.LanguageService
 
         private readonly List<IToken> tokens = new List<IToken>();
 
+        private TokenMapper mapper;
+
         internal void Compile(BooCompiler compiler, ParseRequest req)
         {
             lock (this)
             {
+                mapper = new TokenMapper(service.GetLanguagePreferences().TabSize, req.Text);
                 tokens.Clear();
                 types.Clear();
                 var lexer = BooParser.CreateBooLexer(service.GetLanguagePreferences().TabSize, "code stream", new StringReader(req.Text));
@@ -96,7 +93,15 @@ namespace Hill30.BooProject.LanguageService
                     while ((token = lexer.nextToken()).Type != BooLexer.EOF)
                         tokens.Add(token);
                     compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, "code", new StringReader(req.Text)));
-                    new AstWalker(this).Visit(compileResult.CompileUnit);
+                    new AstWalker(this,
+                        (Node node, int length) => {                
+                                List<Node> list;
+                                if (!types.TryGetValue(node.LexicalInfo.Line, out list))
+                                    types[node.LexicalInfo.Line] = list = new List<Node>();
+                                list.Add(node);
+                                mapper.MapNode(node, length);
+                            }
+                        ).Visit(compileResult.CompileUnit);
                 }
                 catch (Exception)
                 {}
@@ -111,6 +116,7 @@ namespace Hill30.BooProject.LanguageService
             //    if (node.NodeType == NodeType.CallableTypeReference)
             //        break;
             //}
+            var node = mapper.GetNode(line, col);
             span = new TextSpan { iStartLine = line, iStartIndex = col, iEndLine = line, iEndIndex = col + 10 };
 
             return "";
