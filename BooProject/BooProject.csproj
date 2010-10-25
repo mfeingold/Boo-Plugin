@@ -87,7 +87,10 @@
     <Compile Include="LanguageService\Scanner\Scanner.cs" />
     <Compile Include="LanguageService\Scanner\ScanningLexer.cs" />
     <Compile Include="LanguageService\Service.cs" />
-    <Compile Include="LanguageService\TokenMapper.cs" />
+    <Compile Include="LanguageService\NodeMapping\ASTWalker.cs" />
+    <Compile Include="LanguageService\NodeMapping\MappedNode.cs" />
+    <Compile Include="LanguageService\NodeMapping\MappedTypeNode.cs" />
+    <Compile Include="LanguageService\NodeMapping\Mapper.cs" />
     <Compile Include="Project\Attributes\LocDisplayNameAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesDescriptionAttribute.cs" />
