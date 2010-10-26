@@ -90,6 +90,7 @@ namespace Hill30.BooProject.LanguageService.Scanner
                     case BooLexer.DOT:
                         tokenInfo.Type = TokenType.Text;
                         tokenInfo.Color = TokenColor.Text;
+                        tokenInfo.Trigger = TokenTriggers.MemberSelect;
                         break;
 
                     case BooLexer.WS:
@@ -165,6 +166,7 @@ namespace Hill30.BooProject.LanguageService.Scanner
 
             tokenInfo.StartIndex = offset + token.getMappedColumn() - 1;
             tokenInfo.EndIndex = Math.Min(endIndex, offset + quotes + token.getMappedColumn() - 1 + token.getText().Length - 1);
+
             current = tokenInfo.EndIndex + 1;
             return true;
         }

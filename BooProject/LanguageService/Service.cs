@@ -8,12 +8,12 @@ using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
 using Microsoft.VisualStudio;
+using System.ComponentModel.Composition;
 
 namespace Hill30.BooProject.LanguageService
 {
     public class Service : Microsoft.VisualStudio.Package.LanguageService, IOleComponent
     {
-        
         internal static void Register(IServiceContainer container)
         {
             // Proffer the service.
@@ -80,7 +80,7 @@ namespace Hill30.BooProject.LanguageService
             return new BooParseRequest((BooSource)s, line, idx, info, sourceText, fname, reason, view, s.CreateAuthoringSink(reason, line, idx), !Preferences.EnableAsyncCompletion);
         }
 
-        public override Colorizer GetColorizer(IVsTextLines buffer)
+        public override Microsoft.VisualStudio.Package.Colorizer GetColorizer(IVsTextLines buffer)
         {
             return new BooColorizer(this, buffer, GetScanner(buffer));
         }

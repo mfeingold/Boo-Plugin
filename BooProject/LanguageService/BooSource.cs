@@ -17,7 +17,7 @@ namespace Hill30.BooProject.LanguageService
         private readonly List<IToken> tokens = new List<IToken>();
         private Mapper mapper;
 
-        public BooSource(Service service, IVsTextLines buffer, Colorizer colorizer)
+        public BooSource(Service service, IVsTextLines buffer, Microsoft.VisualStudio.Package.Colorizer colorizer)
             : base(service, buffer, colorizer)
         { this.service = service; }
 
@@ -36,7 +36,7 @@ namespace Hill30.BooProject.LanguageService
                     compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, "code", new StringReader(req.Text)));
                     new AstWalker(this, mapper).Visit(compileResult.CompileUnit);
                 }
-                catch (Exception)
+                catch
                 {}
             }
             Recolorize(0, GetLineCount()-1);

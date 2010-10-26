@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Hill30.BooProject.LanguageService
 {
-    public class BooColorizer : Colorizer
+    public class BooColorizer : Microsoft.VisualStudio.Package.Colorizer
     {
         public BooColorizer(Service service, IVsTextLines buffer, IScanner scanner)
             : base(service, buffer, scanner)
