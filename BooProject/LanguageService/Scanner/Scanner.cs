@@ -66,12 +66,12 @@ namespace Hill30.BooProject.LanguageService.Scanner
                 return false;
 
             int quotes = 0;
-            if (IsBlockComment(token))
-            {
-                tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notification for the typing inside the token
-                tokenInfo.Color = TokenColor.Comment;
-            }
-            else
+            //if (IsBlockComment(token))
+            //{
+            //    tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notification for the typing inside the token
+            //    tokenInfo.Color = TokenColor.Comment;
+            //}
+            //else
                 switch (token.Type)
                 {
                     case BooLexer.TRIPLE_QUOTED_STRING:

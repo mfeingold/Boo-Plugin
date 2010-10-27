@@ -1,6 +1,7 @@
 ﻿using System;
 using Boo.Lang.Compiler.Steps;
 using Microsoft.VisualStudio.Package;
+using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.TextManager.Interop;
 using System.ComponentModel.Design;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -9,19 +10,29 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
 using Microsoft.VisualStudio;
 using System.ComponentModel.Composition;
+using Microsoft.VisualStudio.Editor;
+using Microsoft.VisualStudio.ComponentModelHost;
 
 namespace Hill30.BooProject.LanguageService
 {
     public class Service : Microsoft.VisualStudio.Package.LanguageService, IOleComponent
     {
+        [Import]
+        public IVsEditorAdaptersFactoryService BufferAdapterService { get; private set; }
+
+        [Import]
+        public IClassificationTypeRegistryService ClassificationTypeRegistry { get; private set; }
+
         internal static void Register(IServiceContainer container)
         {
             // Proffer the service.
             var langService = new Service();
             langService.SetSite(container);
-            container.AddService(typeof(Service),
-                                        langService,
-                                        true);
+
+            var m = ((IComponentModel)langService.GetService(typeof(SComponentModel))).DefaultCompositionService;
+            m.SatisfyImportsOnce(langService);
+
+            container.AddService(typeof(Service), langService, true);
             langService.Start();
         }
 

@@ -54,6 +54,7 @@
     <Reference Include="Microsoft.Build.Engine" />
     <Reference Include="Microsoft.Build.Tasks.v4.0" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.VisualStudio.ComponentModelHost, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.CoreUtility, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Designer.Interfaces, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -94,6 +95,7 @@
     <Compile Include="LanguageService\Colorizer\Classifier.cs" />
     <Compile Include="LanguageService\Colorizer\ClassifierProvider.cs" />
     <Compile Include="LanguageService\Colorizer\Formats.cs" />
+    <Compile Include="LanguageService\Colorizer\TokenMap.cs" />
     <Compile Include="LanguageService\Scanner\Scanner.cs" />
     <Compile Include="LanguageService\Scanner\ScanningLexer.cs" />
     <Compile Include="LanguageService\Service.cs" />

@@ -11,16 +11,6 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 {
     class Formats
     {
-        //[Export]
-        //[Name("Boo")]
-        //[BaseDefinition("code")]
-        //[BaseDefinition("projection")]
-        //internal static ContentTypeDefinition BooContentTypeDefinition;
-
-        //[Export]
-        //[FileExtension(".boo")]
-        //[ContentType("Boo")]
-        //internal static ContentTypeDefinition BooFileExtensionDefinition;
 
         internal const string BooKeyword = "boo.keyword";
         [Export]
@@ -37,6 +27,27 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         {
             public BooKeywordFormat()
             {
+                ForegroundColor = Colors.Blue;
+//                BackgroundColor = Colors.Yellow;
+            }
+        }
+
+        internal const string BooBlockComment = "boo.blockcomment";
+        [Export]
+        [Name(BooBlockComment)]
+        private static ClassificationTypeDefinition booBlockComment;
+
+        [Export(typeof(EditorFormatDefinition))]
+        [Name("boo.blockcomment.format")]
+        [DisplayName("Boo Blockcomment Format")]
+        [UserVisible(true)]
+        [ClassificationType(ClassificationTypeNames = BooBlockComment)]
+        [Order]
+        internal sealed class BooBlockCommentFormat : ClassificationFormatDefinition
+        {
+            public BooBlockCommentFormat()
+            {
+                ForegroundColor = Colors.Green;
                 BackgroundColor = Colors.Yellow;
             }
         }

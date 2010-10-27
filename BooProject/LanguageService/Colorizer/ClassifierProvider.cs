@@ -12,25 +12,21 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Hill30.BooProject.LanguageService.Colorizer
 {
-   
     [Export(typeof(IClassifierProvider))]
     [ContentType("Visual Boo")]
     [Name("Boo Classifier")]
     internal class ClassifierProvider : IClassifierProvider
     {
-        [Import]
+        [Import] 
         private IVsEditorAdaptersFactoryService bufferAdapterService;
 
-        [Import]
-        private SVsServiceProvider serviceProvider;
-
-        [Import] private IClassificationTypeRegistryService classificationTypeRegistry;
+        [Import(typeof(SVsServiceProvider))]
+        private IServiceProvider serviceProvider;
 
         public IClassifier GetClassifier(ITextBuffer textBuffer)
         {
             return new Classifier(
                 (Service)serviceProvider.GetService(typeof(Service)), 
-                classificationTypeRegistry,
                 (IVsTextLines)bufferAdapterService.GetBufferAdapter(textBuffer));
         }
     }
