@@ -15,6 +15,6 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         {
         }
 
-        public override BooColorizer.TokenColor NodeColor { get { return BooColorizer.TokenColor.Type; } }
+//        public override BooColorizer.TokenColor NodeColor { get { return BooColorizer.TokenColor.Type; } }
     }
 }

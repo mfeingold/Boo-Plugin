@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using antlr;
 using Boo.Lang.Compiler;
@@ -8,8 +7,6 @@ using Hill30.BooProject.LanguageService.NodeMapping;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Hill30.BooProject.LanguageService.Colorizer;
-using Microsoft.VisualStudio.ComponentModelHost;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -17,9 +14,7 @@ namespace Hill30.BooProject.LanguageService
     {
         private CompilerContext compileResult;
         private readonly Service service;
-        private readonly List<IToken> tokens = new List<IToken>();
-        private Mapper mapper;
-        public TokenMap TokenMap { get; private set; }
+        public Mapper Mapper { get; private set; }
         private readonly ITextBuffer buffer;
 
         public BooSource(Service service, IVsTextLines buffer, Microsoft.VisualStudio.Package.Colorizer colorizer)
@@ -33,24 +28,20 @@ namespace Hill30.BooProject.LanguageService
         {
             lock (this)
             {
-                mapper = new Mapper(service.GetLanguagePreferences().TabSize, req.Text);
-                TokenMap = new TokenMap(service.ClassificationTypeRegistry, buffer);
-                tokens.Clear();
+                Mapper = new Mapper(service.ClassificationTypeRegistry, buffer, service.GetLanguagePreferences().TabSize);
                 var lexer = BooParser.CreateBooLexer(service.GetLanguagePreferences().TabSize, "code stream", new StringReader(req.Text));
                 try
                 {
                     IToken token;
                     while ((token = lexer.nextToken()).Type != BooLexer.EOF)
-                    {
-                        TokenMap.MapToken(token);
-                        tokens.Add(token);
-                    }
-                    TokenMap.CompleteComments();
+                        Mapper.MapToken(token);
+
                     compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, "code", new StringReader(req.Text)));
-                    new AstWalker(this, mapper).Visit(compileResult.CompileUnit);
+                    new AstWalker(this, Mapper).Visit(compileResult.CompileUnit);
                 }
                 catch
                 {}
+                Mapper.CompleteComments();
             }
             if (Recompiled != null)
                 Recompiled(this, EventArgs.Empty);
@@ -60,9 +51,9 @@ namespace Hill30.BooProject.LanguageService
 
         internal string GetDataTipText(int line, int col, out TextSpan span)
         {
-            if (mapper != null)
+            if (Mapper != null)
             {
-                var node = mapper.GetNode(line, col);
+                var node = Mapper.GetNode(line, col);
                 if (node != null)
                 {
                     span = new TextSpan
@@ -75,31 +66,5 @@ namespace Hill30.BooProject.LanguageService
             return "";
         }
 
-        internal bool IsBlockComment(int line, IToken token)
-        {
-            lock (this)
-            {
-                if (compileResult == null)
-                    return false; // do not know yet
-                foreach (var t in tokens)
-                    if (t.getColumn() == token.getColumn()
-                        && t.getLine() == line
-                        && t.getText() == token.getText()
-                        )
-                        return false;
-                return true;
-            }
-        }
-
-        internal TokenColor GetColorForID(int line, IToken token)
-        {
-            if (mapper != null)
-            {
-                var node = mapper.GetNode(line, token);
-                if (node != null)
-                    return (TokenColor)node.NodeColor;
-            }
-            return TokenColor.Identifier;
-        }
     }
 }

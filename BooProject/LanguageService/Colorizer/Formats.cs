@@ -48,7 +48,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
             public BooBlockCommentFormat()
             {
                 ForegroundColor = Colors.Green;
-                BackgroundColor = Colors.Yellow;
+//                BackgroundColor = Colors.Yellow;
             }
         }
     }

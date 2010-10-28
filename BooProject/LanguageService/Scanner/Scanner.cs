@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.Package;
 using Boo.Lang.Parser;
 using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Hill30.BooProject.LanguageService.Colorizer;
+using Hill30.BooProject.LanguageService.NodeMapping;
 
 namespace Hill30.BooProject.LanguageService.Scanner
 {
@@ -66,103 +68,46 @@ namespace Hill30.BooProject.LanguageService.Scanner
                 return false;
 
             int quotes = 0;
-            //if (IsBlockComment(token))
-            //{
-            //    tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notification for the typing inside the token
-            //    tokenInfo.Color = TokenColor.Comment;
-            //}
-            //else
-                switch (token.Type)
-                {
-                    case BooLexer.TRIPLE_QUOTED_STRING:
-                        quotes = 6;
-                        tokenInfo.Type = TokenType.String;
-                        tokenInfo.Color = TokenColor.String;
-                        break;
 
-                    case BooLexer.DOUBLE_QUOTED_STRING:
-                    case BooLexer.SINGLE_QUOTED_STRING:
-                        quotes = 2;
-                        tokenInfo.Type = TokenType.String;
-                        tokenInfo.Color = TokenColor.String;
-                        break;
+            switch (Mapper.GetTokenType(token))
+            {
+                case Mapper.TokenType.DocumentString:
+                    quotes = 6;
+                    tokenInfo.Type = TokenType.String;
+                    tokenInfo.Color = TokenColor.String;
+                    break;
 
-                    case BooLexer.DOT:
-                        tokenInfo.Type = TokenType.Text;
-                        tokenInfo.Color = TokenColor.Text;
-                        tokenInfo.Trigger = TokenTriggers.MemberSelect;
-                        break;
+                case Mapper.TokenType.String:
+                    quotes = 2;
+                    tokenInfo.Type = TokenType.String;
+                    tokenInfo.Color = TokenColor.String;
+                    break;
 
-                    case BooLexer.WS:
-                        tokenInfo.Type = TokenType.WhiteSpace;
-                        tokenInfo.Color = TokenColor.Text;
-                        break;
+                case Mapper.TokenType.MemberSelector:
+                    tokenInfo.Type = TokenType.Text;
+                    tokenInfo.Color = TokenColor.Text;
+                    tokenInfo.Trigger = TokenTriggers.MemberSelect;
+                    break;
 
-                    case BooLexer.ID:
-                        tokenInfo.Type = TokenType.Identifier;
-                        tokenInfo.Color = GetColorForID(token);
-                        break;
+                case Mapper.TokenType.WhiteSpace:
+                    tokenInfo.Type = TokenType.WhiteSpace;
+                    tokenInfo.Color = TokenColor.Text;
+                    break;
 
-                    case BooLexer.ABSTRACT:
-                    case BooLexer.AS:
-                    case BooLexer.BREAK:
-                    case BooLexer.CLASS:
-                    case BooLexer.CONSTRUCTOR:
-                    case BooLexer.CONTINUE:
-                    case BooLexer.DEF:
-                    case BooLexer.DO:
-                    case BooLexer.ELIF:
-                    case BooLexer.ELSE:
-                    case BooLexer.ENUM:
-                    case BooLexer.EVENT:
-                    case BooLexer.EXCEPT:
-                    case BooLexer.FALSE:
-                    case BooLexer.FINAL:
-                    case BooLexer.FOR:
-                    case BooLexer.FROM:
-                    case BooLexer.GET:
-                    case BooLexer.GOTO:
-                    case BooLexer.IF:
-                    case BooLexer.IMPORT:
-                    case BooLexer.IN:
-                    case BooLexer.INTERFACE:
-                    case BooLexer.INTERNAL:
-                    case BooLexer.IS:
-                    case BooLexer.LONG:
-                    case BooLexer.NAMESPACE:
-                    case BooLexer.NULL:
-                    case BooLexer.OF:
-                    case BooLexer.OVERRIDE:
-                    case BooLexer.PARTIAL:
-                    case BooLexer.PASS:
-                    case BooLexer.PRIVATE:
-                    case BooLexer.PROTECTED:
-                    case BooLexer.PUBLIC:
-                    case BooLexer.RAISE:
-                    case BooLexer.REF:
-                    case BooLexer.RETURN:
-                    case BooLexer.SELF:
-                    case BooLexer.SET:
-                    case BooLexer.STATIC:
-                    case BooLexer.STRUCT:
-                    case BooLexer.SUPER:
-                    case BooLexer.THEN:
-                    case BooLexer.TRUE:
-                    case BooLexer.TRY:
-                    case BooLexer.TYPEOF:
-                    case BooLexer.UNLESS:
-                    case BooLexer.VIRTUAL:
-                    case BooLexer.WHILE:
-                    case BooLexer.YIELD:
+                case Mapper.TokenType.Identifier:
+                    tokenInfo.Type = TokenType.Identifier;
+                    tokenInfo.Color = TokenColor.Text;
+                    break;
 
-                        tokenInfo.Type = TokenType.Keyword;
-                        tokenInfo.Color = TokenColor.Keyword;
-                        break;
+                case Mapper.TokenType.Keyword:
+                    tokenInfo.Type = TokenType.Keyword;
+                    tokenInfo.Color = TokenColor.Keyword;
+                    break;
 
-                    default:
-                        tokenInfo.Color = TokenColor.Text;
-                        break;
-                }
+                default:
+                    tokenInfo.Color = TokenColor.Text;
+                    break;
+            }
 
             tokenInfo.StartIndex = offset + token.getMappedColumn() - 1;
             tokenInfo.EndIndex = Math.Min(endIndex, offset + quotes + token.getMappedColumn() - 1 + token.getText().Length - 1);
@@ -181,28 +126,6 @@ namespace Hill30.BooProject.LanguageService.Scanner
         }
 
         #endregion
-
-        int lineNumber = -1;
-        internal void SetLineNumber(int line)
-        {
-            lineNumber = line;
-            if (source == null)
-                source = service.GetSource(buffer);
-        }
-
-        private TokenColor GetColorForID(antlr.IToken token)
-        {
-            if (source == null)
-                return TokenColor.Identifier;
-            return ((BooSource)source).GetColorForID(lineNumber + 1, token);
-        }
-
-        private bool IsBlockComment(antlr.IToken token)
-        {
-            if (source == null)
-                return false;
-            return ((BooSource)source).IsBlockComment(lineNumber+1, token);
-        }
 
     }
 }

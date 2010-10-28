@@ -91,11 +91,6 @@ namespace Hill30.BooProject.LanguageService
             return new BooParseRequest((BooSource)s, line, idx, info, sourceText, fname, reason, view, s.CreateAuthoringSink(reason, line, idx), !Preferences.EnableAsyncCompletion);
         }
 
-        public override Microsoft.VisualStudio.Package.Colorizer GetColorizer(IVsTextLines buffer)
-        {
-            return new BooColorizer(this, buffer, GetScanner(buffer));
-        }
-
         BooCompiler compiler;
 
         public override AuthoringScope ParseSource(ParseRequest req)
@@ -112,18 +107,6 @@ namespace Hill30.BooProject.LanguageService
                 ((BooParseRequest)req).Source.Compile(compiler, req);
             }
             return new BooAuthoringScope((BooParseRequest)req);
-        }
-
-        public override int GetItemCount(out int count)
-        {
-            count = BooColorizer.ColorableItems.Length-1;
-            return VSConstants.S_OK;
-        }
-
-        public override int GetColorableItem(int index, out IVsColorableItem item)
-        {
-            item = BooColorizer.ColorableItems[index];
-            return VSConstants.S_OK;
         }
 
         private void Start()

@@ -43,7 +43,7 @@ namespace Hill30.BooProject
                              Constants.LanguageName,
                              106,                           // resource ID of localized language name
                              CodeSense = true,             // Supports IntelliSense
-                             RequestStockColors = false,     // Supplies custom colors
+                             RequestStockColors = true,     // Does not supply custom colors
                              EnableCommenting = true,       // Supports commenting out code
                              EnableAsyncCompletion = true   // Supports background parsing
                              

@@ -21,7 +21,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         public int Start { get; private set; }
         public int End { get; private set; }
         public string QuickInfoTip { get; private set; }
-        public virtual BooColorizer.TokenColor NodeColor { get { return BooColorizer.TokenColor.Identifier; } }
+//        public virtual BooColorizer.TokenColor NodeColor { get { return BooColorizer.TokenColor.Identifier; } }
 
     }
 }
