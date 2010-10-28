@@ -1,17 +1,16 @@
 ﻿using System;
-using Boo.Lang.Compiler.Steps;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Design;
+using System.Runtime.InteropServices;
+using Boo.Lang.Compiler;
+using Hill30.BooProject.LanguageService.Colorizer;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Editor;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.TextManager.Interop;
-using System.ComponentModel.Design;
-using Microsoft.VisualStudio.OLE.Interop;
-using System.Runtime.InteropServices;
-using Boo.Lang.Compiler;
-using Boo.Lang.Parser;
-using Microsoft.VisualStudio;
-using System.ComponentModel.Composition;
-using Microsoft.VisualStudio.Editor;
-using Microsoft.VisualStudio.ComponentModelHost;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -107,6 +106,18 @@ namespace Hill30.BooProject.LanguageService
                 ((BooParseRequest)req).Source.Compile(compiler, req);
             }
             return new BooAuthoringScope((BooParseRequest)req);
+        }
+
+        public override int GetItemCount(out int count)
+        {
+            count = Formats.ColorableItems.Length - 1;
+            return VSConstants.S_OK;
+        }
+
+        public override int GetColorableItem(int index, out IVsColorableItem item)
+        {
+            item = Formats.ColorableItems[index];
+            return VSConstants.S_OK;
         }
 
         private void Start()

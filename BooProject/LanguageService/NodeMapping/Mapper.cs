@@ -144,7 +144,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             if (currentPos < currentSnapshot.Length-1)
                 classificationSpans.Add(
                     new ClassificationSpan(
-                        new SnapshotSpan(currentSnapshot, currentPos, currentSnapshot.Length - 1 - currentPos),
+                        new SnapshotSpan(currentSnapshot, currentPos, currentSnapshot.Length - currentPos),
                         iClassificationTypeRegistryService.GetClassificationType(Formats.BooBlockComment)
                         ));
         }
