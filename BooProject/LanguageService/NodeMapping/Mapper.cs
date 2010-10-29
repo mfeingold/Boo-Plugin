@@ -17,7 +17,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         private readonly ITextSnapshot currentSnapshot;
         private readonly IClassificationTypeRegistryService iClassificationTypeRegistryService;
         private int currentPos = 0;
-        private List<ClassificationSpan> classificationSpans = new List<ClassificationSpan>();
+        private readonly List<ClassificationSpan> classificationSpans = new List<ClassificationSpan>();
         public IList<ClassificationSpan> ClassificationSpans { get { return classificationSpans; } }
 
         public Mapper(IClassificationTypeRegistryService iClassificationTypeRegistryService, ITextBuffer buffer, int tabSize)
@@ -102,20 +102,39 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             List<MappedNode> nodes;
             if (!nodeDictionary.TryGetValue(node.LineNo-1, out nodes))
                 nodeDictionary[node.LineNo-1] = nodes = new List<MappedNode>();
+            if (node.Format != null)
+            {
+                var start = currentSnapshot.GetLineFromLineNumber(node.LineNo - 1).Start + node.StartPos;
+                var span = new SnapshotSpan(currentSnapshot, start, node.EndPos - node.StartPos);
+                classificationSpans.Add(new ClassificationSpan(span,
+                                                               iClassificationTypeRegistryService.GetClassificationType(
+                                                                   node.Format)));
+            }
             nodes.Add(node);
         }
 
-        public MappedNode GetNode(int line, int pos)
+        private MappedNode GetNode(int line, int pos, Func<MappedNode, int, int, bool> comparer)
         {
             List<MappedNode> nodes;
             if (!nodeDictionary.TryGetValue(line, out nodes))
                 return null;
+            MappedNode result = null;
             foreach (var node in nodes)
             {
-                if (pos >= node.Start && pos < node.End)
-                    return node;
+                if (comparer(node, line, pos))
+                    result = node;
             }
-            return null;
+            return result;
+        }
+
+        public MappedNode GetNode(int line, int pos)
+        {
+            return GetNode(line, pos, (node, li, po) => (po >= node.StartPos && po < node.EndPos));
+        }
+
+        internal MappedNode GetAdjacentNode(int line, int pos)
+        {
+            return GetNode(line, pos, (node, li, po) => (po > node.EndPos));
         }
 
         internal Tuple<int, int> MapLocation(int lineNo, int pos, int length)
@@ -124,19 +143,6 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
                 positionMap[lineNo - 1][pos - 1],
                 positionMap[lineNo - 1][pos - 1 + length]
                 );
-        }
-
-        internal MappedNode GetNode(int line, antlr.IToken token)
-        {
-            List<MappedNode> nodes;
-            if (!nodeDictionary.TryGetValue(line - 1, out nodes))
-                return null;
-            foreach (var node in nodes)
-            {
-                if (token.getColumn() == node.Pos && token.getText().Length == node.Length)
-                    return node;
-            }
-            return null;
         }
 
         internal void CompleteComments()
@@ -151,7 +157,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
 
         internal SnapshotSpan SnapshotSpan { get { return new SnapshotSpan(currentSnapshot, 0, currentSnapshot.Length); } }
 
-        static string[] tokenFormats = 
+        static readonly string[] tokenFormats = 
         {
             null,
             null,

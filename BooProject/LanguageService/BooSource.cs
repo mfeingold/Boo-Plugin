@@ -37,7 +37,7 @@ namespace Hill30.BooProject.LanguageService
                         Mapper.MapToken(token);
 
                     compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, "code", new StringReader(req.Text)));
-                    new AstWalker(this, Mapper).Visit(compileResult.CompileUnit);
+                    new AstWalker(Mapper).Visit(compileResult.CompileUnit);
                 }
                 catch
                 {}
@@ -57,7 +57,7 @@ namespace Hill30.BooProject.LanguageService
                 if (node != null)
                 {
                     span = new TextSpan
-                               {iStartLine = line, iStartIndex = node.Start, iEndLine = line, iEndIndex = node.End};
+                               {iStartLine = line, iStartIndex = node.StartPos, iEndLine = line, iEndIndex = node.EndPos};
                     return node.QuickInfoTip;
 
                 }

@@ -85,27 +85,25 @@ namespace Hill30.BooProject.LanguageService
             return s;
         }
 
-        public override ParseRequest CreateParseRequest(Source s, int line, int idx, TokenInfo info, string sourceText, string fname, ParseReason reason, IVsTextView view)
-        {
-            return new BooParseRequest((BooSource)s, line, idx, info, sourceText, fname, reason, view, s.CreateAuthoringSink(reason, line, idx), !Preferences.EnableAsyncCompletion);
-        }
-
         BooCompiler compiler;
 
         public override AuthoringScope ParseSource(ParseRequest req)
         {
-            if (req.Reason == ParseReason.Check)
+            var source = GetSource(req.View) as BooSource;
+
+            if (source != null && req.Reason == ParseReason.Check)
             {
                 if (compiler == null)
                     compiler = new BooCompiler(
                             new CompilerParameters(true)
                             {
-                                Pipeline = CompilerPipeline.GetPipeline("parse")
+                                Pipeline = CompilerPipeline.GetPipeline("compile")
                             }
                         );
-                ((BooParseRequest)req).Source.Compile(compiler, req);
+                
+                source.Compile(compiler, req);
             }
-            return new BooAuthoringScope((BooParseRequest)req);
+            return new BooAuthoringScope(source);
         }
 
         public override int GetItemCount(out int count)

@@ -30,7 +30,6 @@ namespace Hill30.BooProject.LanguageService.Colorizer
             public BooKeywordFormat()
             {
                 ForegroundColor = Colors.Blue;
-//                BackgroundColor = Colors.Yellow;
             }
         }
 
@@ -50,10 +49,27 @@ namespace Hill30.BooProject.LanguageService.Colorizer
             public BooBlockCommentFormat()
             {
                 ForegroundColor = Colors.Green;
-//                BackgroundColor = Colors.Yellow;
             }
         }
 
+        internal const string BooType = "boo.type";
+        [Export]
+        [Name(BooType)]
+        private static ClassificationTypeDefinition booType;
+
+        [Export(typeof(EditorFormatDefinition))]
+        [Name("boo.type.format")]
+        [DisplayName("Boo Type Format")]
+        [UserVisible(true)]
+        [ClassificationType(ClassificationTypeNames = BooType)]
+        [Order]
+        internal sealed class BooTypeFormat : ClassificationFormatDefinition
+        {
+            public BooTypeFormat()
+            {
+                ForegroundColor = Colors.SteelBlue;
+            }
+        }
 
         // even though the "custom" colors defined here are identical to stack colors, it is necessary 
         // to configure the package to provide them as "custom" because stock colors trump colors provided

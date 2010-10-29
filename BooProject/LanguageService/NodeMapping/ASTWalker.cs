@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
 
 namespace Hill30.BooProject.LanguageService.NodeMapping
 {
     public class AstWalker : DepthFirstVisitor
     {
         private readonly Mapper mapper;
-        public AstWalker(BooSource source, Mapper mapper)
+ 
+        public AstWalker(Mapper mapper)
         {
-            this.source = source;
             this.mapper = mapper;
         }
-
-        private readonly BooSource source;
 
         public override void OnClassDefinition(ClassDefinition node)
         {

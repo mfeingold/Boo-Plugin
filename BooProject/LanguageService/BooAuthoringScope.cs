@@ -5,21 +5,24 @@ namespace Hill30.BooProject.LanguageService
 {
     public class BooAuthoringScope : AuthoringScope
     {
-        private readonly BooParseRequest req;
+        private readonly BooSource source;
 
-        public BooAuthoringScope(BooParseRequest req)
+        public BooAuthoringScope(BooSource source)
         {
-            this.req = req;
+            this.source = source;
         }
 
         public override string GetDataTipText(int line, int col, out TextSpan span)
         {
-            return req.Source.GetDataTipText(line, col, out span);
+            return source.GetDataTipText(line, col, out span);
         }
 
         public override Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)
         {
-            return null;
+            var node = source.Mapper.GetAdjacentNode(line, col);
+            if (node == null)
+                return new BooDeclarations();
+            return new BooDeclarations(node.Declarations);
         }
 
         public override Methods GetMethods(int line, int col, string name)

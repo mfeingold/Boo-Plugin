@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.TextManager.Interop;
@@ -24,7 +22,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 
         public event EventHandler<ClassificationChangedEventArgs> ClassificationChanged;
 
-        public IList<ClassificationSpan> GetClassificationSpans(Microsoft.VisualStudio.Text.SnapshotSpan span)
+        public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span)
         {
             if (source == null)
             {
@@ -35,6 +33,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 
             if (source != null && source.Mapper != null)
                 return source.Mapper.ClassificationSpans;
+            
             return new List<ClassificationSpan>();
         }
 

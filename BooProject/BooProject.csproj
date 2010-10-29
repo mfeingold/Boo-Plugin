@@ -89,7 +89,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="LanguageService\BooAuthoringScope.cs" />
-    <Compile Include="LanguageService\BooParseRequest.cs" />
+    <Compile Include="LanguageService\BooDeclarations.cs" />
     <Compile Include="LanguageService\BooSource.cs" />
     <Compile Include="LanguageService\Colorizer\Classifier.cs" />
     <Compile Include="LanguageService\Colorizer\ClassifierProvider.cs" />
