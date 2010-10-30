@@ -66,6 +66,10 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\MPFProject\Microsoft.VisualStudio.Project.csproj">
+      <Project>{CACB60A9-1E76-4F92-8831-B134A658C695}</Project>
+      <Name>Microsoft.VisualStudio.Project</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BooProject.csproj">
       <Project>{69C291FC-45BC-484D-971F-ABB0BC06D57C}</Project>
       <Name>BooProject</Name>

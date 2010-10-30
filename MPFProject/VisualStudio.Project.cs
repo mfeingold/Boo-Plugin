@@ -21,7 +21,7 @@ using System.Security.Permissions;
 namespace Microsoft.VisualStudio.Project
 {
 	[AttributeUsage(AttributeTargets.All)]
-	internal sealed class SRDescriptionAttribute : DescriptionAttribute
+	public sealed class SRDescriptionAttribute : DescriptionAttribute
 	{
 		private bool replaced;
 
@@ -58,7 +58,7 @@ namespace Microsoft.VisualStudio.Project
 			return SR.GetString(value, CultureInfo.CurrentUICulture);
 		}
 	}
-	internal sealed class SR
+	public sealed class SR
 	{
 		internal const string AddReferenceDialogTitle = "AddReferenceDialogTitle";
 		internal const string AddToNullProjectError = "AddToNullProjectError";
@@ -171,8 +171,8 @@ namespace Microsoft.VisualStudio.Project
         internal const string Warning = "Warning";
 		internal const string WinExe = "WinExe";
 		internal const string CannotLoadUnknownTargetFrameworkProject = "CannotLoadUnknownTargetFrameworkProject";
-		internal const string ReloadPromptOnTargetFxChanged = "ReloadPromptOnTargetFxChanged";
-		internal const string ReloadPromptOnTargetFxChangedCaption = "ReloadPromptOnTargetFxChangedCaption";
+		public const string ReloadPromptOnTargetFxChanged = "ReloadPromptOnTargetFxChanged";
+		public const string ReloadPromptOnTargetFxChangedCaption = "ReloadPromptOnTargetFxChangedCaption";
 
 		static SR loader;
 		ResourceManager resources;
