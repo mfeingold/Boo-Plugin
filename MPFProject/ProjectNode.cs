@@ -3643,7 +3643,7 @@ namespace Microsoft.VisualStudio.Project
             Dictionary<String, MSBuild.ProjectItem> items = new Dictionary<String, MSBuild.ProjectItem>();
 
             // Process Files
-            foreach (MSBuild.ProjectItem item in this.buildProject.Items)
+            foreach (MSBuild.ProjectItem item in new List<MSBuild.ProjectItem>(this.buildProject.Items))
             {
                 // Ignore the item if it is a reference or folder
                 if (this.FilterItemTypeToBeAddedToHierarchy(item.ItemType))
