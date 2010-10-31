@@ -363,7 +363,16 @@ namespace Microsoft.VisualStudio.Project
 				return Path.GetExtension(this.Node.Caption);
 			}
 		}
-		#endregion
+
+        [Browsable(false)]
+        public string URL
+        {
+            get
+            {
+                return this.Node.Url;
+            }
+        }
+        #endregion
 
 		#endregion
 
@@ -570,6 +579,15 @@ namespace Microsoft.VisualStudio.Project
 			}
 		}
 
+        [Browsable(false)]
+        public string TargetFramework
+        {
+            get
+            {
+                var version = this.Node.ProjectMgr.TargetFrameworkMoniker.Version;
+                return ((version.Major << 0x10) + version.Minor).ToString();
+            }
+        }
 
 		[Browsable(false)]
 		public string FullPath

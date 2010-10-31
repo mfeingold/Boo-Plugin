@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Hill30.BooProject.LanguageService.Colorizer;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 
 namespace Hill30.BooProject.LanguageService.NodeMapping
 {
@@ -25,7 +26,20 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             if (type != null)
             {
                 format = Formats.BooType;
-                quickInfoTip = "class " + type.FullName;
+                var CLRType = type as ExternalType;
+                if (CLRType != null)
+                {
+                    var prefix = "struct ";
+                    if (CLRType.ActualType.IsClass)
+                        prefix = "class ";
+                    if (CLRType.ActualType.IsInterface)
+                        prefix = "interface ";
+                    if (CLRType.ActualType.IsEnum)
+                        prefix = "enumeration ";
+                    quickInfoTip = prefix + CLRType.ActualType.FullName;
+                }
+                else
+                    quickInfoTip = "class " + type.FullName;
             }
         }
 

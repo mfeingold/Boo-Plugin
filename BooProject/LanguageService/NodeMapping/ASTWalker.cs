@@ -30,6 +30,13 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             base.OnSimpleTypeReference(node);
         }
 
+        public override void OnReferenceExpression(ReferenceExpression node)
+        {
+            if (node.LexicalInfo != null)
+                mapper.MapNode(new MappedReferenceNode(mapper, node));
+            base.OnReferenceExpression(node);
+        }
+
         protected override void OnError(Node node, Exception error)
         {
             // Do Nothing
