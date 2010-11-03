@@ -9,38 +9,19 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
 {
     public class MappedTypeNode : MappedNode
     {
-        private readonly string format;
-        private readonly string quickInfoTip;
+        private string format;
+        private string quickInfoTip;
 
         public MappedTypeNode(Mapper mapper, ClassDefinition node)
-            : base(mapper, node.LexicalInfo.Line, node.LexicalInfo.Column, node.Name.Length)
+            : base(mapper, node, node.Name.Length)
         {
             format = Formats.BooType;
             quickInfoTip = null;
         }
 
         public MappedTypeNode(Mapper mapper, SimpleTypeReference node)
-            : base(mapper, node.LexicalInfo.Line, node.LexicalInfo.Column, node.Name.Length)
+            : base(mapper, node, node.Name.Length)
         {
-            var type = TypeSystemServices.GetType(node);
-            if (type != null)
-            {
-                format = Formats.BooType;
-                var CLRType = type as ExternalType;
-                if (CLRType != null)
-                {
-                    var prefix = "struct ";
-                    if (CLRType.ActualType.IsClass)
-                        prefix = "class ";
-                    if (CLRType.ActualType.IsInterface)
-                        prefix = "interface ";
-                    if (CLRType.ActualType.IsEnum)
-                        prefix = "enumeration ";
-                    quickInfoTip = prefix + CLRType.ActualType.FullName;
-                }
-                else
-                    quickInfoTip = "class " + type.FullName;
-            }
         }
 
         public override string Format
@@ -59,6 +40,29 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             {
                 var result = new List<Tuple<string, string, int, string>>();
                 return result;
+            }
+        }
+
+        internal protected override void Resolve()
+        {
+            var type = TypeSystemServices.GetType(Node);
+            if (type != null)
+            {
+                format = Formats.BooType;
+                var clrType = type as ExternalType;
+                if (clrType != null)
+                {
+                    var prefix = "struct ";
+                    if (clrType.ActualType.IsClass)
+                        prefix = "class ";
+                    if (clrType.ActualType.IsInterface)
+                        prefix = "interface ";
+                    if (clrType.ActualType.IsEnum)
+                        prefix = "enumeration ";
+                    quickInfoTip = prefix + clrType.ActualType.FullName;
+                }
+                else
+                    quickInfoTip = "class " + type.FullName;
             }
         }
 

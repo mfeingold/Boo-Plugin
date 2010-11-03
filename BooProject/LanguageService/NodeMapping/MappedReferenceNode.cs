@@ -12,7 +12,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         private readonly string quickInfoTip;
 
         public MappedReferenceNode(Mapper mapper, ReferenceExpression node)
-            : base(mapper, node.LexicalInfo.Line, node.LexicalInfo.Column, node.Name.Length)
+            : base(mapper, node, node.Name.Length)
         {
             this.mapper = mapper;
             quickInfoTip = "(var) " + node.Name + " as " + node.ExpressionType.FullName;

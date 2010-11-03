@@ -42,6 +42,8 @@ namespace Hill30.BooProject.LanguageService
             }
         }
 
+        private BooCompiler compiler;
+
         internal void Compile(ParseRequest req)
         {
             lock (this)
@@ -53,16 +55,26 @@ namespace Hill30.BooProject.LanguageService
                     IToken token;
                     while ((token = lexer.nextToken()).Type != BooLexer.EOF)
                         Mapper.MapToken(token);
-
-                    compileResult = projectManager.Compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, "code", new StringReader(req.Text)));
-                    new AstWalker(Mapper).Visit(compileResult.CompileUnit);
+                    if (compiler == null)
+                    {
+                        compiler = projectManager.CreateCompiler();
+                        compiler.Parameters.Pipeline.AfterStep += Pipeline_AfterStep;
+                    }
+                    compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, "code", new StringReader(req.Text)));
+//                    new AstWalker(Mapper).Visit(compileResult.CompileUnit);
                 }
                 catch
                 {}
-                Mapper.CompleteComments();
+                Mapper.Complete();
             }
             if (Recompiled != null)
                 Recompiled(this, EventArgs.Empty);
+        }
+
+        void Pipeline_AfterStep(object sender, CompilerStepEventArgs args)
+        {
+            if (args.Step == ((CompilerPipeline)sender)[0])
+                new AstWalker(Mapper).Visit(args.Context.CompileUnit);
         }
 
         public event EventHandler Recompiled;

@@ -13,7 +13,7 @@ namespace Hill30.BooProject.Project
     [ComVisible(true)]
     public interface IProjectManager
     {
-        BooCompiler Compiler { get; }
+        BooCompiler CreateCompiler();
     }
 
     [ComVisible(true)]
@@ -154,27 +154,14 @@ namespace Hill30.BooProject.Project
             return service;
         }
 
-        BooCompiler compiler;
-
-        public BooCompiler Compiler
+        public BooCompiler CreateCompiler()
         {
-            get
-            {
-                if (compiler == null)
-                    InitializeCompiler();
-                return compiler;
-            }
-        }
-
-        private void InitializeCompiler()
-        {
-            compiler = new BooCompiler(
-                    new CompilerParameters(true)
-                    {
-                        Pipeline = CompilerPipeline.GetPipeline("compile")
-                    }
-                );
-                
+            return new BooCompiler(
+                new CompilerParameters(true)
+                {
+                    Pipeline = CompilerPipeline.GetPipeline("compile")
+                }
+            );
         }
 
     }

@@ -100,16 +100,8 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         public void MapNode(MappedNode node)
         {
             List<MappedNode> nodes;
-            if (!nodeDictionary.TryGetValue(node.LineNo-1, out nodes))
-                nodeDictionary[node.LineNo-1] = nodes = new List<MappedNode>();
-            if (node.Format != null)
-            {
-                var start = currentSnapshot.GetLineFromLineNumber(node.LineNo - 1).Start + node.StartPos;
-                var span = new SnapshotSpan(currentSnapshot, start, node.EndPos - node.StartPos);
-                classificationSpans.Add(new ClassificationSpan(span,
-                                                               iClassificationTypeRegistryService.GetClassificationType(
-                                                                   node.Format)));
-            }
+            if (!nodeDictionary.TryGetValue(node.Line-1, out nodes))
+                nodeDictionary[node.Line-1] = nodes = new List<MappedNode>();
             nodes.Add(node);
         }
 
@@ -145,8 +137,22 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
                 );
         }
 
-        internal void CompleteComments()
+        internal void Complete()
         {
+            foreach (var list in nodeDictionary.Values)
+                foreach (var node in list)
+                {
+                    node.Resolve();
+                    if (node.Format != null)
+                    {
+                        var start = currentSnapshot.GetLineFromLineNumber(node.Line - 1).Start + node.StartPos;
+                        var span = new SnapshotSpan(currentSnapshot, start, node.EndPos - node.StartPos);
+                        classificationSpans.Add(new ClassificationSpan(span,
+                                                                       iClassificationTypeRegistryService.GetClassificationType(
+                                                                           node.Format)));
+                    }
+                }
+
             if (currentPos < currentSnapshot.Length-1)
                 classificationSpans.Add(
                     new ClassificationSpan(
