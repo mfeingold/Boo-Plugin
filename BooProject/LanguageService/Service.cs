@@ -85,24 +85,13 @@ namespace Hill30.BooProject.LanguageService
             return s;
         }
 
-        BooCompiler compiler;
-
         public override AuthoringScope ParseSource(ParseRequest req)
         {
             var source = GetSource(req.View) as BooSource;
 
             if (source != null && req.Reason == ParseReason.Check)
-            {
-                if (compiler == null)
-                    compiler = new BooCompiler(
-                            new CompilerParameters(true)
-                            {
-                                Pipeline = CompilerPipeline.GetPipeline("compile")
-                            }
-                        );
-                
-                source.Compile(compiler, req);
-            }
+                source.Compile(req);
+
             return new BooAuthoringScope(source);
         }
 
@@ -133,7 +122,7 @@ namespace Hill30.BooProject.LanguageService
                 crinfo[0].grfcadvf = (uint)_OLECADVF.olecadvfModal |
                                               (uint)_OLECADVF.olecadvfRedrawOff |
                                               (uint)_OLECADVF.olecadvfWarningsOff;
-                crinfo[0].uIdleTimeInterval = 300;
+                crinfo[0].uIdleTimeInterval = 100;
                 mgr.FRegisterComponent(this, crinfo, out mComponentID);
             }
         }

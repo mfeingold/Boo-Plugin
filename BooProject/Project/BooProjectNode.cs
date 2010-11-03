@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.InteropServices;
+using Boo.Lang.Compiler;
 using Microsoft.VisualStudio.Project;
 using System.Windows.Forms;
 using System.Drawing;
@@ -8,7 +10,14 @@ using Microsoft.VisualStudio.Project.Automation;
 
 namespace Hill30.BooProject.Project
 {
-    public sealed class BooProjectNode : ProjectNode
+    [ComVisible(true)]
+    public interface IProjectManager
+    {
+        BooCompiler Compiler { get; }
+    }
+
+    [ComVisible(true)]
+    public sealed class BooProjectNode : ProjectNode, IProjectManager
     {
         #region Enum for image list
         internal enum ProjectIcons
@@ -143,6 +152,29 @@ namespace Hill30.BooProject.Project
                 service = GetAutomationObject();
             }
             return service;
+        }
+
+        BooCompiler compiler;
+
+        public BooCompiler Compiler
+        {
+            get
+            {
+                if (compiler == null)
+                    InitializeCompiler();
+                return compiler;
+            }
+        }
+
+        private void InitializeCompiler()
+        {
+            compiler = new BooCompiler(
+                    new CompilerParameters(true)
+                    {
+                        Pipeline = CompilerPipeline.GetPipeline("compile")
+                    }
+                );
+                
         }
 
     }
