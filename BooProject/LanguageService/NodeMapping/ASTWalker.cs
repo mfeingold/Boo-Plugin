@@ -37,6 +37,13 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             base.OnReferenceExpression(node);
         }
 
+        public override void OnMacroStatement(MacroStatement node)
+        {
+            if (node.LexicalInfo != null)
+                mapper.MapNode(new MappedMacroNode(mapper, node));
+            base.OnMacroStatement(node);
+        }
+
         protected override void OnError(Node node, Exception error)
         {
             // Do Nothing

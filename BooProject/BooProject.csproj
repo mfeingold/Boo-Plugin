@@ -98,6 +98,7 @@
     <Compile Include="LanguageService\Colorizer\Classifier.cs" />
     <Compile Include="LanguageService\Colorizer\ClassifierProvider.cs" />
     <Compile Include="LanguageService\Colorizer\Formats.cs" />
+    <Compile Include="LanguageService\NodeMapping\MappedMacroNode.cs" />
     <Compile Include="LanguageService\NodeMapping\MappedReferenceNode.cs" />
     <Compile Include="LanguageService\Scanner\Scanner.cs" />
     <Compile Include="LanguageService\Scanner\ScanningLexer.cs" />

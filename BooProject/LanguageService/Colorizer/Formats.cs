@@ -14,13 +14,13 @@ namespace Hill30.BooProject.LanguageService.Colorizer
     class Formats
     {
 
-        internal const string BooKeyword = "boo.keyword";
+        internal const string BooKeyword = "Boo Keyword";
         [Export]
         [Name(BooKeyword)]
         private static ClassificationTypeDefinition booKeyword;
 
         [Export(typeof(EditorFormatDefinition))]
-        [Name("boo.keyword.format")]
+        [Name(BooKeyword)]
         [DisplayName("Boo Keyword Format")]
         [UserVisible(true)]
         [ClassificationType(ClassificationTypeNames = BooKeyword)]
@@ -33,14 +33,14 @@ namespace Hill30.BooProject.LanguageService.Colorizer
             }
         }
 
-        internal const string BooBlockComment = "boo.blockcomment";
+        internal const string BooBlockComment = "Boo Comment";
         [Export]
         [Name(BooBlockComment)]
         private static ClassificationTypeDefinition booBlockComment;
 
         [Export(typeof(EditorFormatDefinition))]
-        [Name("boo.blockcomment.format")]
-        [DisplayName("Boo Blockcomment Format")]
+        [Name(BooBlockComment)]
+        [DisplayName("Boo Comment Format")]
         [UserVisible(true)]
         [ClassificationType(ClassificationTypeNames = BooBlockComment)]
         [Order]
@@ -52,13 +52,13 @@ namespace Hill30.BooProject.LanguageService.Colorizer
             }
         }
 
-        internal const string BooType = "boo.type";
+        internal const string BooType = "Boo Type";
         [Export]
         [Name(BooType)]
         private static ClassificationTypeDefinition booType;
 
         [Export(typeof(EditorFormatDefinition))]
-        [Name("boo.type.format")]
+        [Name(BooType)]
         [DisplayName("Boo Type Format")]
         [UserVisible(true)]
         [ClassificationType(ClassificationTypeNames = BooType)]
@@ -71,7 +71,26 @@ namespace Hill30.BooProject.LanguageService.Colorizer
             }
         }
 
-        // even though the "custom" colors defined here are identical to stack colors, it is necessary 
+        internal const string BooMacro = "Boo Macro";
+        [Export]
+        [Name(BooMacro)]
+        private static ClassificationTypeDefinition booMacro;
+
+        [Export(typeof(EditorFormatDefinition))]
+        [Name(BooMacro)]
+        [DisplayName("Boo Macro Format")]
+        [UserVisible(true)]
+        [ClassificationType(ClassificationTypeNames = BooMacro)]
+        [Order]
+        internal sealed class BooMacroFormat : ClassificationFormatDefinition
+        {
+            public BooMacroFormat()
+            {
+                ForegroundColor = Colors.Fuchsia;
+            }
+        }
+
+        // even though the "custom" colors defined here are identical to stock colors, it is necessary 
         // to configure the package to provide them as "custom" because stock colors trump colors provided
         // by classifier
         public static readonly ColorableItem[] ColorableItems = new[]
