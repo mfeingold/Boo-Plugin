@@ -79,22 +79,5 @@ namespace Hill30.BooProject.LanguageService
 
         public event EventHandler Recompiled;
 
-        internal string GetDataTipText(int line, int col, out TextSpan span)
-        {
-            if (Mapper != null)
-            {
-                var node = Mapper.GetNode(line, col);
-                if (node != null)
-                {
-                    span = new TextSpan
-                               {iStartLine = line, iStartIndex = node.StartPos, iEndLine = line, iEndIndex = node.EndPos};
-                    return node.QuickInfoTip;
-
-                }
-            }
-            span = new TextSpan { iStartLine = line, iStartIndex = col, iEndLine = line, iEndIndex = col };
-            return "";
-        }
-
     }
 }

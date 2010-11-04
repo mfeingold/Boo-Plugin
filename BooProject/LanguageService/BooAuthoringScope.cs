@@ -14,7 +14,19 @@ namespace Hill30.BooProject.LanguageService
 
         public override string GetDataTipText(int line, int col, out TextSpan span)
         {
-            return source.GetDataTipText(line, col, out span);
+            if (source.Mapper != null)
+            {
+                var node = source.Mapper.GetNode(line, col);
+                if (node != null)
+                {
+                    span = new TextSpan
+                               {iStartLine = line, iStartIndex = node.StartPos, iEndLine = line, iEndIndex = node.EndPos};
+                    return node.QuickInfoTip;
+
+                }
+            }
+            span = new TextSpan();
+            return "";
         }
 
         public override Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)
@@ -32,6 +44,16 @@ namespace Hill30.BooProject.LanguageService
 
         public override string Goto(Microsoft.VisualStudio.VSConstants.VSStd97CmdID cmd, IVsTextView textView, int line, int col, out TextSpan span)
         {
+            //if (source.Mapper != null)
+            //{
+            //    var node = source.Mapper.GetNode(line, col);
+            //    if (node != null)
+            //    {
+            //        span = new TextSpan { iStartLine = line, iStartIndex = node.StartPos, iEndLine = line, iEndIndex = node.EndPos };
+            //        return node.QuickInfoTip;
+
+            //    }
+            //}
             span = new TextSpan();
             return null;
         }
