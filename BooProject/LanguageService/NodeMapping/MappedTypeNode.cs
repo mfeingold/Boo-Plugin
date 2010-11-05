@@ -34,15 +34,6 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             get { return quickInfoTip; }
         }
 
-        public override IEnumerable<Tuple<string, string, int, string>> Declarations
-        {
-            get
-            {
-                var result = new List<Tuple<string, string, int, string>>();
-                return result;
-            }
-        }
-
         internal protected override void Resolve()
         {
             var type = TypeSystemServices.GetType(Node);

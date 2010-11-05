@@ -26,7 +26,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         public int EndPos { get; private set; }
         public abstract string QuickInfoTip { get; }
         public virtual string Format { get { return null; } }
-        public virtual IEnumerable<Tuple<string, string, int, string>> Declarations { get { return new List<Tuple<string, string, int, string>>(); } }
+        public virtual BooDeclarations Declarations { get { return new BooDeclarations(); } }
         internal protected virtual void Resolve() { }
         internal protected virtual MappedNode DefintionNode { get { return null; } }
 

@@ -34,7 +34,7 @@ namespace Hill30.BooProject.LanguageService
             var node = source.Mapper.GetAdjacentNode(line, col);
             if (node == null)
                 return new BooDeclarations();
-            return new BooDeclarations(node.Declarations);
+            return node.Declarations;
         }
 
         public override Methods GetMethods(int line, int col, string name)

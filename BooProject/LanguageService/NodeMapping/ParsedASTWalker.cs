@@ -58,6 +58,13 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             base.OnReferenceExpression(node);
         }
 
+        public override void OnSelfLiteralExpression(SelfLiteralExpression node)
+        {
+            if (node.LexicalInfo != null)
+                mapper.MapNode(new MappedReferenceNode(mapper, node));
+            base.OnSelfLiteralExpression(node);
+        }
+
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
             if (node.LexicalInfo != null)
