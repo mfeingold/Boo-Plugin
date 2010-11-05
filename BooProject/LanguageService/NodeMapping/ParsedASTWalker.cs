@@ -7,13 +7,34 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Hill30.BooProject.LanguageService.NodeMapping
 {
-    public class AstWalker : DepthFirstVisitor
+    public class ParsedAstWalker : DepthFirstVisitor
     {
         private readonly Mapper mapper;
  
-        public AstWalker(Mapper mapper)
+        public ParsedAstWalker(Mapper mapper)
         {
             this.mapper = mapper;
+        }
+
+        public override void OnParameterDeclaration(ParameterDeclaration node)
+        {
+            if (node.LexicalInfo != null)
+                mapper.MapNode(new MappedDeclarationNode(mapper, node));
+            base.OnParameterDeclaration(node);
+        }
+
+        public override void OnLocal(Local node)
+        {
+            if (node.LexicalInfo != null)
+                mapper.MapNode(new MappedDeclarationNode(mapper, node));
+            base.OnLocal(node);
+        }
+
+        public override void OnField(Field node)
+        {
+            if (node.LexicalInfo != null)
+                mapper.MapNode(new MappedDeclarationNode(mapper, node));
+            base.OnField(node);
         }
 
         public override void OnClassDefinition(ClassDefinition node)
@@ -35,6 +56,13 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             if (node.LexicalInfo != null)
                 mapper.MapNode(new MappedReferenceNode(mapper, node));
             base.OnReferenceExpression(node);
+        }
+
+        public override void OnMemberReferenceExpression(MemberReferenceExpression node)
+        {
+            if (node.LexicalInfo != null)
+                mapper.MapNode(new MappedReferenceNode(mapper, node));
+            base.OnMemberReferenceExpression(node);
         }
 
         public override void OnMacroStatement(MacroStatement node)

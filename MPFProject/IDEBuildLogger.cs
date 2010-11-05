@@ -417,7 +417,7 @@ namespace Microsoft.VisualStudio.Project
                 task.Text = errorEvent.Message;
                 task.Category = TaskCategory.BuildCompile;
                 task.HierarchyItem = hierarchy;
-                task.Navigate += new EventHandler(task_Navigate);
+                task.Navigate += task_Navigate;
 
                 return task;
             });
@@ -428,7 +428,7 @@ namespace Microsoft.VisualStudio.Project
 
         void task_Navigate(object sender, EventArgs e)
         {
-            var task = sender as Microsoft.VisualStudio.Shell.ErrorTask;
+            var task = sender as ErrorTask;
             if (task == null)
                 throw new ArgumentException("Sender is not a Microsoft.VisualStudio.Shell.ErrorTask", "sender");
 

@@ -44,16 +44,24 @@ namespace Hill30.BooProject.LanguageService
 
         public override string Goto(Microsoft.VisualStudio.VSConstants.VSStd97CmdID cmd, IVsTextView textView, int line, int col, out TextSpan span)
         {
-            //if (source.Mapper != null)
-            //{
-            //    var node = source.Mapper.GetNode(line, col);
-            //    if (node != null)
-            //    {
-            //        span = new TextSpan { iStartLine = line, iStartIndex = node.StartPos, iEndLine = line, iEndIndex = node.EndPos };
-            //        return node.QuickInfoTip;
-
-            //    }
-            //}
+            if (source.Mapper != null)
+            {
+                var node = source.Mapper.GetNode(line, col);
+                if (node != null)
+                {
+                    if (node.DefintionNode != null)
+                    {
+                        span = new TextSpan
+                                   {
+                                       iStartLine = node.DefintionNode.Line-1, 
+                                       iStartIndex = node.DefintionNode.StartPos, 
+                                       iEndLine = node.DefintionNode.Line-1, 
+                                       iEndIndex = node.DefintionNode.EndPos
+                                   };
+                        return node.Node.LexicalInfo.FullPath;
+                    }
+                }
+            }
             span = new TextSpan();
             return null;
         }

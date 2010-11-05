@@ -10,10 +10,10 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
 {
     public class MappedReferenceNode : MappedNode
     {
-        private Mapper mapper;
+        private readonly Mapper mapper;
         private string quickInfoTip;
-        private ReferenceExpression node;
-        private LexicalInfo gotoLocation;
+        private readonly ReferenceExpression node;
+        private MappedNode defintionNode;
 
         public MappedReferenceNode(Mapper mapper, ReferenceExpression node)
             : base(mapper, node, node.Name.Length)
@@ -31,15 +31,35 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         {
             if (node.ExpressionType is Error)
                 return;
-            var entity = TypeSystemServices.GetEntity(node);
-            var prefix = "";
-            if (entity is InternalParameter)
+            try
             {
-                prefix = "parameter";
-                gotoLocation = ((InternalParameter)entity).Parameter.LexicalInfo;
+                var entity = TypeSystemServices.GetEntity(node);
+                var prefix = "";
+                if (entity is InternalParameter)
+                {
+                    prefix = "parameter";
+                    defintionNode = mapper.GetNode(((InternalParameter)entity).Parameter.LexicalInfo);
+                }
+                if (entity is InternalLocal)
+                {
+                    prefix = "local";
+                    defintionNode = mapper.GetNode(((InternalLocal)entity).Local.LexicalInfo);
+                }
+                if (entity is InternalField)
+                {
+                    prefix = "field";
+                    defintionNode = mapper.GetNode(((InternalField)entity).Field.LexicalInfo);
+                }
+                quickInfoTip = "(" + prefix + ") " + node.Name + " as " + node.ExpressionType.FullName;
+
             }
-            quickInfoTip = "(" + prefix + ") " + node.Name + " as " + node.ExpressionType.FullName;
+            catch (Exception)
+            {
+                return;
+            }
         }
+
+        protected internal override MappedNode DefintionNode { get { return defintionNode; } }
 
     }
 }

@@ -13,7 +13,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             Length = length;
             Line = Node.LexicalInfo.Line;
             Column = Node.LexicalInfo.Column;
-            var location = mapper.MapLocation(Node.LexicalInfo.Line, Node.LexicalInfo.Column, length);
+            var location = mapper.MapSpan(Node.LexicalInfo.Line, Node.LexicalInfo.Column, length);
             StartPos = location.Item1;
             EndPos = location.Item2;
         }
@@ -28,5 +28,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         public virtual string Format { get { return null; } }
         public virtual IEnumerable<Tuple<string, string, int, string>> Declarations { get { return new List<Tuple<string, string, int, string>>(); } }
         internal protected virtual void Resolve() { }
+        internal protected virtual MappedNode DefintionNode { get { return null; } }
+
     }
 }

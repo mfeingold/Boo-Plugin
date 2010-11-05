@@ -48,7 +48,7 @@ namespace Hill30.BooProject.LanguageService
         {
             lock (this)
             {
-                Mapper = new Mapper(service.ClassificationTypeRegistry, buffer, service.GetLanguagePreferences().TabSize);
+                Mapper = new Mapper(service, buffer, service.GetLanguagePreferences().TabSize);
                 var lexer = BooParser.CreateBooLexer(service.GetLanguagePreferences().TabSize, "code stream", new StringReader(req.Text));
                 try
                 {
@@ -60,8 +60,8 @@ namespace Hill30.BooProject.LanguageService
                         compiler = projectManager.CreateCompiler();
                         compiler.Parameters.Pipeline.AfterStep += Pipeline_AfterStep;
                     }
-                    compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, "code", new StringReader(req.Text)));
-//                    new AstWalker(Mapper).Visit(compileResult.CompileUnit);
+                    compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, Mapper.FilePath, new StringReader(req.Text)));
+                    new FullAstWalker(Mapper).Visit(compileResult.CompileUnit);
                 }
                 catch
                 {}
@@ -74,7 +74,7 @@ namespace Hill30.BooProject.LanguageService
         void Pipeline_AfterStep(object sender, CompilerStepEventArgs args)
         {
             if (args.Step == ((CompilerPipeline)sender)[0])
-                new AstWalker(Mapper).Visit(args.Context.CompileUnit);
+                new ParsedAstWalker(Mapper).Visit(args.Context.CompileUnit);
         }
 
         public event EventHandler Recompiled;
