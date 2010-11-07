@@ -8,6 +8,9 @@ using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text;
 using Boo.Lang.Parser;
 using Hill30.BooProject.LanguageService.Colorizer;
+using Boo.Lang.Compiler;
+using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Hill30.BooProject.LanguageService.NodeMapping
 {
@@ -108,20 +111,6 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             nodes.Add(node);
         }
 
-        private MappedNode GetNode(int line, int pos, Func<MappedNode, int, int, bool> comparer)
-        {
-            List<MappedNode> nodes;
-            if (!nodeDictionary.TryGetValue(line, out nodes))
-                return null;
-            MappedNode result = null;
-            foreach (var node in nodes)
-            {
-                if (comparer(node, line, pos))
-                    result = node;
-            }
-            return result;
-        }
-
         public string FilePath
         {
             get
@@ -133,24 +122,59 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             }
         }
 
-        public MappedNode GetNode(LexicalInfo loc)
+        /// <summary>
+        /// Produces a list of nodes for a given location (in the Boo Compiler format) filtered by the provided filter
+        /// </summary>
+        /// <param name="loc">Location in the source code as provided by Boo compiler</param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        /// <remarks> The text span for the selected nodes include the location provided</remarks>
+        public IEnumerable<MappedNode> GetNodes(LexicalInfo loc, Func<MappedNode, bool> filter)
         {
             if (FilePath == loc.FileName)
-                return GetNode(loc.Line - 1, MapPosition(loc.Line, loc.Column));
+                return GetNodes(loc.Line - 1, MapPosition(loc.Line, loc.Column), filter);
             var source = service.GetSource(loc.FullPath) as BooSource;
             if (source == null)
                 return null;
-            return source.Mapper.GetNode(loc.Line - 1, source.Mapper.MapPosition(loc.Line, loc.Column));
+            return source.Mapper.GetNodes(loc.Line - 1, source.Mapper.MapPosition(loc.Line, loc.Column), filter);
         }
 
-        public MappedNode GetNode(int line, int pos)
+        /// <summary>
+        /// Produces a list of nodes for a given location (in the text buffer coordinates) filtered by the provided filter
+        /// </summary>
+        /// <param name="line">The 0 based line number </param>
+        /// <param name="pos">The 0 based position number </param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        /// <remarks> The text span for the selected nodes include the location provided</remarks>
+        public IEnumerable<MappedNode> GetNodes(int line, int pos, Func<MappedNode, bool> filter)
         {
-            return GetNode(line, pos, (node, li, po) => (po >= node.StartPos && po <= node.EndPos));
+            return GetNodes(line, pos, (node, li, po) => (po >= node.StartPos && po <= node.EndPos), filter);
         }
 
-        internal MappedNode GetAdjacentNode(int line, int pos)
+        /// <summary>
+        /// Produces a list of nodes adjacent to a given location (in the text buffer coordinates) filtered by the provided filter
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="pos"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        /// <remarks> selects the closest nodes with the textspans ending before (to the left of) the location provided</remarks>
+        internal IEnumerable<MappedNode> GetAdjacentNodes(int line, int pos, Func<MappedNode, bool> filter)
         {
-            return GetNode(line, pos, (node, li, po) => (po > node.EndPos));
+            var list = GetNodes(line, pos, (node, li, po) => (po > node.EndPos), filter);
+            var max = list.Max(item => item.EndPos);
+            return list.Where(item => item.EndPos == max);
+        }
+
+        private IEnumerable<MappedNode> GetNodes(int line, int pos, Func<MappedNode, int, int, bool> comparer, Func<MappedNode, bool> filter)
+        {
+            List<MappedNode> nodes;
+            if (!nodeDictionary.TryGetValue(line, out nodes))
+                yield break;
+            foreach (var node in nodes)
+                if (filter(node) && comparer(node, line, pos))
+                    yield return node;
         }
 
         internal int MapPosition(int line, int pos)
@@ -191,6 +215,20 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         }
 
         internal SnapshotSpan SnapshotSpan { get { return new SnapshotSpan(currentSnapshot, 0, currentSnapshot.Length); } }
+
+
+        internal SnapshotSpan GetSnapshotSpan(LexicalInfo lexicalInfo)
+        {
+            var line = currentSnapshot.GetLineFromLineNumber(lexicalInfo.Line - 1);
+            var start = line.Start + MapPosition(lexicalInfo.Line, lexicalInfo.Column);
+            var node = GetNodes(lexicalInfo, n => true).FirstOrDefault();
+            if (node == null)
+                return new SnapshotSpan(currentSnapshot, start,  line.End - start);
+            else
+                return new SnapshotSpan(currentSnapshot, start, node.Length);
+        }
+
+        internal CompilerErrorCollection Errors { get; set; }
 
         static readonly string[] tokenFormats = 
         {

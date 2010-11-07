@@ -69,6 +69,7 @@
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.10.0" />
     <Reference Include="Microsoft.VisualStudio.Text.Data, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Text.Logic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Text.UI, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Text.UI.Wpf, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.TextManager.Interop" />
     <Reference Include="Microsoft.VisualStudio.Shell.10.0">
@@ -98,6 +99,8 @@
     <Compile Include="LanguageService\Colorizer\Classifier.cs" />
     <Compile Include="LanguageService\Colorizer\ClassifierProvider.cs" />
     <Compile Include="LanguageService\Colorizer\Formats.cs" />
+    <Compile Include="LanguageService\Colorizer\Tagger.cs" />
+    <Compile Include="LanguageService\Colorizer\TaggerProvider.cs" />
     <Compile Include="LanguageService\NodeMapping\FullASTWalker.cs" />
     <Compile Include="LanguageService\NodeMapping\MappedMacroNode.cs" />
     <Compile Include="LanguageService\NodeMapping\MappedDeclarationNode.cs" />
@@ -109,6 +112,7 @@
     <Compile Include="LanguageService\NodeMapping\MappedNode.cs" />
     <Compile Include="LanguageService\NodeMapping\MappedTypeNode.cs" />
     <Compile Include="LanguageService\NodeMapping\Mapper.cs" />
+    <Compile Include="LanguageService\TaskItems\Collection.cs" />
     <Compile Include="Project\Attributes\LocDisplayNameAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesDescriptionAttribute.cs" />
@@ -275,6 +279,7 @@
       <Name>Microsoft.VisualStudio.Project</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>
   </PropertyGroup>

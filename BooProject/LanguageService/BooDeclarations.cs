@@ -44,8 +44,6 @@ namespace Hill30.BooProject.LanguageService
                         break;
                 }
             }
-            //for (var i = 0; i < 200; i = i + 6)
-            //    result.Add("aa " + i, new Tuple<string, int, string>("", i, "")); 
         }
 
         private bool IsPrivate(Node context, IType type)
@@ -95,7 +93,11 @@ namespace Hill30.BooProject.LanguageService
             var description = name + " as " + property.Type.ToString();
             var icon = PROPERTY_ICONS;
             if (property.IsPrivate)
+            {
+                if (!IsPrivate(context, property.Type))
+                    return;
                 icon += ICON_PRIVATE;
+            }
             if (property.IsProtected)
                 icon += ICON_PROTECTED;
             if (property.IsExtension)
@@ -122,7 +124,11 @@ namespace Hill30.BooProject.LanguageService
             var description = name + " as " + method.ReturnType.ToString();
             var icon = METHOD_ICONS;
             if (method.IsPrivate)
+            {
+                if (!IsPrivate(context, method.Type))
+                    return;
                 icon += ICON_PRIVATE;
+            }
             if (method.IsProtected)
                 icon += ICON_PROTECTED;
             if (method.IsExtension)

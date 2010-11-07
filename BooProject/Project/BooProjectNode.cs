@@ -7,6 +7,10 @@ using System.Drawing;
 using EnvDTE;
 using VSLangProj;
 using Microsoft.VisualStudio.Project.Automation;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Hill30.BooProject.Project
 {
@@ -14,6 +18,12 @@ namespace Hill30.BooProject.Project
     public interface IProjectManager
     {
         BooCompiler CreateCompiler();
+
+        void AddTask(ErrorTask task);
+
+        void RemoveTask(ErrorTask task);
+
+        void NavigateTo(ErrorTask errorTask);
     }
 
     [ComVisible(true)]
@@ -33,7 +43,7 @@ namespace Hill30.BooProject.Project
 
         static BooProjectNode()
         {
-            imageList = new ImageList {ColorDepth = ColorDepth.Depth24Bit, ImageSize = new Size(16, 16)};
+            imageList = new ImageList { ColorDepth = ColorDepth.Depth24Bit, ImageSize = new Size(16, 16) };
 
             imageList.Images.AddStrip(GetIcon("BooProjectNode"));
             imageList.Images.AddStrip(GetIcon("BooFileNode"));
@@ -44,7 +54,7 @@ namespace Hill30.BooProject.Project
         {
             return new Bitmap(
                 typeof(BooProjectNode).Assembly.GetManifestResourceStream(
-                    "Hill30.BooProject.Resources." + name + ".bmp")            
+                    "Hill30.BooProject.Resources." + name + ".bmp")
                 );
         }
 
@@ -132,9 +142,9 @@ namespace Hill30.BooProject.Project
 
         public static int ImageOffset { get { return imageOffset; } }
 
-// ReSharper disable InconsistentNaming
+        // ReSharper disable InconsistentNaming
         internal VSProject VSProject
-// ReSharper restore InconsistentNaming
+        // ReSharper restore InconsistentNaming
         {
             get { return vsProject ?? (vsProject = new OAVSProject(this)); }
         }
@@ -154,6 +164,8 @@ namespace Hill30.BooProject.Project
             return service;
         }
 
+        #region IProjectManager Members
+
         public BooCompiler CreateCompiler()
         {
             return new BooCompiler(
@@ -164,5 +176,67 @@ namespace Hill30.BooProject.Project
             );
         }
 
+        public void AddTask(ErrorTask task)
+        {
+            TaskProvider.Tasks.Add(task);
+        }
+
+        public void RemoveTask(ErrorTask task)
+        {
+            TaskProvider.Tasks.Remove(task);
+        }
+
+        public void NavigateTo(ErrorTask task)
+        {
+            TaskProvider.Navigate(task, VSConstants.LOGVIEWID_Code);
+        }
+
+        #endregion
+
+        //bool Navigate(ErrorTask task, Guid logicalView)
+        //{
+        //    IVsWindowFrame frame;
+        //    Microsoft.VisualStudio.OLE.Interop.IServiceProvider provider;
+        //    IVsUIHierarchy hierarchy;
+        //    uint num;
+        //    if (task == null)
+        //        throw new System.ArgumentNullException("task");
+            
+        //    if ((task.Document == null) || (task.Document.get_Length() == 0))
+        //        return false;
+      
+        //    IVsUIShellOpenDocument service = this.GetService(typeof(IVsUIShellOpenDocument)) as IVsUIShellOpenDocument;
+        //    if (service == null)
+        //        return false;
+      
+        //    if (Microsoft.VisualStudio.NativeMethods.Failed(service.OpenDocumentViaProject(task.Document, ref logicalView, out provider, out hierarchy, out num, out frame)) || (frame == null))
+        //        return false;
+
+        //    object obj2;
+        //    frame.GetProperty(-4004, out obj2);
+        //    Microsoft.VisualStudio.TextManager.Interop.VsTextBuffer pBuffer = obj2 as Microsoft.VisualStudio.TextManager.Interop.VsTextBuffer;
+        //    if (pBuffer == null)
+        //    {
+        //        IVsTextBufferProvider provider2 = obj2 as IVsTextBufferProvider;
+        //        if (provider2 != null)
+        //        {
+        //            IVsTextLines lines;
+        //            Microsoft.VisualStudio.NativeMethods.ThrowOnFailure(provider2.GetTextBuffer(out lines));
+        //            pBuffer = lines as Microsoft.VisualStudio.TextManager.Interop.VsTextBuffer;
+        //            if (pBuffer == null)
+        //                return false;
+        //        }
+        //    }
+        //    IVsTextManager manager = this.GetService(typeof(VsTextManagerClass)) as IVsTextManager;
+        //    if (manager == null)
+        //        return false;
+
+        //    int line = task.Line;
+        //    if (line > 0)
+        //        line = (int) (line - 1);
+
+        //    manager.NavigateToLineAndColumn(pBuffer, ref logicalView, line, 0, line, 0);
+        //    return true;
+        //}
     }
 }

@@ -51,28 +51,34 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
                         }
                     break;
 
+                case NodeType.MemberReferenceExpression:
                 case NodeType.ReferenceExpression:
                     var expression = node as ReferenceExpression;
-                    var entity = TypeSystemServices.GetEntity(expression);
                     var prefix = "";
-                    if (entity is InternalParameter)
+                    if (expression.ExpressionType == null || expression.ExpressionType.EntityType == EntityType.Error)
+                        quickInfoTip = "(**error) " + expression.Name;
+                    else
                     {
-                        prefix = "(parameter) ";
-                        varType = TypeSystemServices.GetType(expression);
-                        defintionNode = mapper.GetNode(((InternalParameter)entity).Parameter.LexicalInfo);
+                        var entity = TypeSystemServices.GetEntity(expression);
+                        if (entity is InternalParameter)
+                        {
+                            prefix = "(parameter) ";
+                            varType = TypeSystemServices.GetType(expression);
+                            defintionNode = mapper.GetNodes(((InternalParameter)entity).Parameter.LexicalInfo, n=>n.Node.NodeType == NodeType.ParameterDeclaration).FirstOrDefault();
+                        }
+                        if (entity is InternalLocal)
+                        {
+                            prefix = "(local variable) ";
+                            varType = ((InternalLocal)entity).Type;
+                            defintionNode = mapper.GetNodes(((InternalLocal)entity).Local.LexicalInfo, n=>n.Node.NodeType == NodeType.Local).FirstOrDefault();
+                        }
+                        if (entity is InternalField)
+                        {
+                            varType = TypeSystemServices.GetType(node);
+                            defintionNode = mapper.GetNodes(((InternalField)entity).Field.LexicalInfo, n=>n.Node.NodeType == NodeType.Field).FirstOrDefault();
+                        }
+                        quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
                     }
-                    if (entity is InternalLocal)
-                    {
-                        prefix = "(local variable) ";
-                        varType = ((InternalLocal)entity).Type;
-                        defintionNode = mapper.GetNode(((InternalLocal)entity).Local.LexicalInfo);
-                    }
-                    if (entity is InternalField)
-                    {
-                        varType = TypeSystemServices.GetType(node);
-                        defintionNode = mapper.GetNode(((InternalField)entity).Field.LexicalInfo);
-                    }
-                    quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
                     break;
                 default:
                     break;

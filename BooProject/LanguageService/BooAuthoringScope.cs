@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.Package;
+﻿using System.Linq;
+using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Boo.Lang.Compiler.Ast;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -16,12 +18,25 @@ namespace Hill30.BooProject.LanguageService
         {
             if (source.Mapper != null)
             {
-                var node = source.Mapper.GetNode(line, col);
-                if (node != null)
+                var nodes = source.Mapper.GetNodes(line, col, node=>node.QuickInfoTip != null);
+                int? start = null;
+                int? end = null;
+                var tip = "";
+                foreach (var node in nodes)
+                {
+                    if (node.StartPos >= (start ?? 0))
+                        start = node.StartPos;
+                    if (node.EndPos <= (end ?? int.MaxValue))
+                        end = node.EndPos;
+                    if (tip != "")
+                        tip += "\n";
+                    tip += node.QuickInfoTip;
+                }
+                if (tip != "")
                 {
                     span = new TextSpan
-                               {iStartLine = line, iStartIndex = node.StartPos, iEndLine = line, iEndIndex = node.EndPos};
-                    return node.QuickInfoTip;
+                               {iStartLine = line, iStartIndex = start.Value, iEndLine = line, iEndIndex = end.Value};
+                    return tip;
 
                 }
             }
@@ -31,7 +46,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)
         {
-            var node = source.Mapper.GetAdjacentNode(line, col);
+            var node = source.Mapper.GetAdjacentNodes(line, col, n=>n.Declarations.GetCount() > 0).FirstOrDefault();
             if (node == null)
                 return new BooDeclarations();
             return node.Declarations;
@@ -46,7 +61,7 @@ namespace Hill30.BooProject.LanguageService
         {
             if (source.Mapper != null)
             {
-                var node = source.Mapper.GetNode(line, col);
+                var node = source.Mapper.GetNodes(line, col, n=>n.DefintionNode != null).FirstOrDefault();
                 if (node != null)
                 {
                     if (node.DefintionNode != null)
