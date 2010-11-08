@@ -7,15 +7,14 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
 {
     public abstract class MappedNode
     {
-        protected MappedNode(Mapper mapper, Node node, int length)
+        protected MappedNode(BufferMap bufferMap, Node node, int length)
         {
             Node = node;
             Length = length;
             Line = Node.LexicalInfo.Line;
             Column = Node.LexicalInfo.Column;
-            var location = mapper.MapSpan(Node.LexicalInfo.Line, Node.LexicalInfo.Column, length);
-            StartPos = location.Item1;
-            EndPos = location.Item2;
+            StartPos = bufferMap.MapPosition(Node.LexicalInfo.Line, Node.LexicalInfo.Column);
+            EndPos = bufferMap.MapPosition(Node.LexicalInfo.Line, Node.LexicalInfo.Column + length);
         }
 
         public Node Node { get; private set; }

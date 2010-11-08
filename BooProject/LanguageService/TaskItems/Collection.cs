@@ -16,27 +16,23 @@ namespace Hill30.BooProject.LanguageService.TaskItems
         List<ErrorTask> tasks = new List<ErrorTask>();
         IProjectManager projectManager;
         IVsHierarchy hier;
-        Mapper mapper;
 
-
-        public Collection(IProjectManager projectManager, IVsHierarchy hier, Mapper mapper)
+        public Collection(IProjectManager projectManager, IVsHierarchy hier)
         {
             this.projectManager = projectManager;
             this.hier = hier;
-            this.mapper = mapper;
         }
 
         public void CreateErrorMessages(CompilerErrorCollection errors)
         {
             foreach (var error in errors)
             {
-                var column = mapper.MapPosition(error.LexicalInfo.Line, error.LexicalInfo.Column);
                 ErrorTask task = new ErrorTask() 
                     {
                         Document = error.LexicalInfo.FileName,
                         ErrorCategory = TaskErrorCategory.Error,
                         Line = error.LexicalInfo.Line,
-                        Column = 10,// column-1,
+                        Column = error.LexicalInfo.Column,
                         Priority = TaskPriority.High,
                         Text = error.Code + ' ' + error.Message,
                         HierarchyItem = hier,

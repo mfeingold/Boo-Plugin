@@ -69,37 +69,37 @@ namespace Hill30.BooProject.LanguageService.Scanner
 
             int quotes = 0;
 
-            switch (Mapper.GetTokenType(token))
+            switch (NodeMap.GetTokenType(token))
             {
-                case Mapper.TokenType.DocumentString:
+                case NodeMap.TokenType.DocumentString:
                     quotes = 6;
                     tokenInfo.Type = TokenType.String;
                     tokenInfo.Color = TokenColor.String;
                     break;
 
-                case Mapper.TokenType.String:
+                case NodeMap.TokenType.String:
                     quotes = 2;
                     tokenInfo.Type = TokenType.String;
                     tokenInfo.Color = TokenColor.String;
                     break;
 
-                case Mapper.TokenType.MemberSelector:
+                case NodeMap.TokenType.MemberSelector:
                     tokenInfo.Type = TokenType.Text;
                     tokenInfo.Color = TokenColor.Text;
                     tokenInfo.Trigger = TokenTriggers.MemberSelect;
                     break;
 
-                case Mapper.TokenType.WhiteSpace:
+                case NodeMap.TokenType.WhiteSpace:
                     tokenInfo.Type = TokenType.WhiteSpace;
                     tokenInfo.Color = TokenColor.Text;
                     break;
 
-                case Mapper.TokenType.Identifier:
+                case NodeMap.TokenType.Identifier:
                     tokenInfo.Type = TokenType.Identifier;
                     tokenInfo.Color = TokenColor.Text;
                     break;
 
-                case Mapper.TokenType.Keyword:
+                case NodeMap.TokenType.Keyword:
                     tokenInfo.Type = TokenType.Keyword;
                     tokenInfo.Color = TokenColor.Keyword;
                     break;

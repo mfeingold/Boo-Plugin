@@ -1,125 +1,127 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Parser;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text;
-using Boo.Lang.Parser;
 using Hill30.BooProject.LanguageService.Colorizer;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
-using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Hill30.BooProject.LanguageService.NodeMapping
 {
-    public class Mapper
+    public class NodeMap
     {
-        private readonly Service service;
-        private ITextBuffer buffer;
-        private readonly int[][] positionMap;
         private readonly Dictionary<int, List<MappedNode>> nodeDictionary = new Dictionary<int, List<MappedNode>>();
-        private readonly ITextSnapshot currentSnapshot;
-        private int currentPos = 0;
         private readonly List<ClassificationSpan> classificationSpans = new List<ClassificationSpan>();
+        Service service;
+        BufferMap bufferMap;
+
+        public CompilerErrorCollection Errors { get; private set; }
+        public CompilerWarningCollection Warnings { get; private set; }
         public IList<ClassificationSpan> ClassificationSpans { get { return classificationSpans; } }
 
-        public Mapper(Service service, ITextBuffer buffer, int tabSize)
+        public NodeMap(Service service, BufferMap bufferMap)
         {
             this.service = service;
-            this.buffer = buffer;
-            currentSnapshot = buffer.CurrentSnapshot;
-            var sourceText = currentSnapshot.GetText();
-
-            var sourcePos = 0;
-            var mappedPos = 0;
-            var mappers = new List<int[]>();
-            var positionList = new List<int>();
-            foreach (var c in sourceText)
-            {
-                if (c == '\t')
-                    while (mappedPos % tabSize < tabSize - 1)
-                    {
-                        positionList.Add(sourcePos);
-                        mappedPos++;
-                    }
-                positionList.Add(sourcePos++);
-                mappedPos++;
-                if (c=='\n')
-                {
-                    mappers.Add(positionList.ToArray());
-                    positionList.Clear();
-                    sourcePos = 0;
-                    mappedPos = 0;
-                }
-            }
-            positionList.Add(sourcePos); // to map the <EOL> token
-            mappers.Add(positionList.ToArray());
-            positionMap = mappers.ToArray();
+            this.bufferMap = bufferMap;
+            Errors = new CompilerErrorCollection();
+            Warnings = new CompilerWarningCollection();
         }
 
-        internal void MapToken(antlr.IToken token)
+        internal void Clear()
         {
-            if (token.Type == BooLexer.EOL)
-                return;
+            nodeDictionary.Clear();
+            classificationSpans.Clear();
+            Errors.Clear();
+            Warnings.Clear();
+        }
 
-            if (token.Type == BooLexer.INDENT)
-                return;
+        internal void MapTokens(antlr.TokenStream tokens)
+        {
+            antlr.IToken token;
+            var currentPos = 0;
 
-            if (token.Type == BooLexer.DEDENT)
-                return;
-
-            var start = positionMap[token.getLine() - 1][token.getColumn() - 1];
-
-            var length = token.getText().Length;
-            if (token.Type == BooLexer.TRIPLE_QUOTED_STRING)
-                length += 6;
-            if (token.Type == BooLexer.DOUBLE_QUOTED_STRING)
-                length += 2;
-            if (token.Type == BooLexer.SINGLE_QUOTED_STRING)
-                length += 2;
-
-            var end = positionMap[token.getLine() - 1][token.getColumn() - 1 + length];
-            length = end - start;
-
-            var span =
-                new SnapshotSpan(currentSnapshot,
-                    currentSnapshot.GetLineFromLineNumber(token.getLine() - 1).Start + start,
-                    length);
-            if (span.Start > currentPos)
-                classificationSpans.Add(new ClassificationSpan
-                    (new SnapshotSpan(currentSnapshot, currentPos, span.Start - currentPos),
-                    service.ClassificationTypeRegistry.GetClassificationType(Formats.BooBlockComment)
-                    ));
-
-            var format = tokenFormats[(int)GetTokenType(token)];
-            if (format != null)
+            while ((token = tokens.nextToken()).Type != BooLexer.EOF)
             {
-                classificationSpans.Add(new ClassificationSpan(span, service.ClassificationTypeRegistry.GetClassificationType(format)));
+
+                if (token.Type == BooLexer.EOL)
+                    return;
+
+                if (token.Type == BooLexer.INDENT)
+                    return;
+
+                if (token.Type == BooLexer.DEDENT)
+                    return;
+
+                var start = bufferMap.MapPosition(token.getLine(), token.getColumn());
+
+                var length = token.getText().Length;
+                if (token.Type == BooLexer.TRIPLE_QUOTED_STRING)
+                    length += 6;
+                if (token.Type == BooLexer.DOUBLE_QUOTED_STRING)
+                    length += 2;
+                if (token.Type == BooLexer.SINGLE_QUOTED_STRING)
+                    length += 2;
+
+                var end = bufferMap.MapPosition(token.getLine(), token.getColumn() + length);
+                length = end - start;
+
+                var span =
+                    new SnapshotSpan(bufferMap.CurrentSnapshot,
+                        bufferMap.CurrentSnapshot.GetLineFromLineNumber(token.getLine() - 1).Start + start,
+                        length);
+
+                if (span.Start > currentPos)
+                    classificationSpans.Add(new ClassificationSpan
+                        (new SnapshotSpan(bufferMap.CurrentSnapshot, currentPos, span.Start - currentPos),
+                        service.ClassificationTypeRegistry.GetClassificationType(Formats.BooBlockComment)
+                        ));
+
+                var format = tokenFormats[(int)GetTokenType(token)];
+                if (format != null)
+                {
+                    classificationSpans.Add(new ClassificationSpan(span, service.ClassificationTypeRegistry.GetClassificationType(format)));
+                }
+
+                currentPos = span.End;
             }
 
-            currentPos = span.End;
-
+            if (currentPos < bufferMap.CurrentSnapshot.Length - 1)
+                classificationSpans.Add(
+                    new ClassificationSpan(
+                        new SnapshotSpan(bufferMap.CurrentSnapshot, currentPos, bufferMap.CurrentSnapshot.Length - currentPos),
+                        service.ClassificationTypeRegistry.GetClassificationType(Formats.BooBlockComment)
+                        ));
         }
 
         public void MapNode(MappedNode node)
         {
             List<MappedNode> nodes;
-            if (!nodeDictionary.TryGetValue(node.Line-1, out nodes))
-                nodeDictionary[node.Line-1] = nodes = new List<MappedNode>();
+            if (!nodeDictionary.TryGetValue(node.Line - 1, out nodes))
+                nodeDictionary[node.Line - 1] = nodes = new List<MappedNode>();
             nodes.Add(node);
         }
 
-        public string FilePath
+
+        internal void Complete(CompilerContext compileResult)
         {
-            get
-            {
-                var doc = buffer.Properties[typeof(ITextDocument)] as ITextDocument;
-                if (doc == null)
-                    return null;
-                return doc.FilePath;
-            }
+            foreach (var list in nodeDictionary.Values)
+                foreach (var node in list)
+                {
+                    node.Resolve();
+                    if (node.Format != null)
+                    {
+                        var start = bufferMap.CurrentSnapshot.GetLineFromLineNumber(node.Line - 1).Start + node.StartPos;
+                        var span = new SnapshotSpan(bufferMap.CurrentSnapshot, start, node.EndPos - node.StartPos);
+                        classificationSpans.Add(new ClassificationSpan(span,
+                                                                       service.ClassificationTypeRegistry.GetClassificationType(
+                                                                           node.Format)));
+                    }
+                }
+            Errors = compileResult.Errors;
+            Warnings = compileResult.Warnings;
         }
 
         /// <summary>
@@ -131,12 +133,12 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         /// <remarks> The text span for the selected nodes include the location provided</remarks>
         public IEnumerable<MappedNode> GetNodes(LexicalInfo loc, Func<MappedNode, bool> filter)
         {
-            if (FilePath == loc.FileName)
-                return GetNodes(loc.Line - 1, MapPosition(loc.Line, loc.Column), filter);
+            if (bufferMap.FilePath == loc.FileName)
+                return GetNodes(loc.Line - 1, bufferMap.MapPosition(loc.Line, loc.Column), filter);
             var source = service.GetSource(loc.FullPath) as BooSource;
             if (source == null)
                 return null;
-            return source.Mapper.GetNodes(loc.Line - 1, source.Mapper.MapPosition(loc.Line, loc.Column), filter);
+            return source.GetNodes(loc.Line - 1, source.MapPosition(loc.Line, loc.Column), filter);
         }
 
         /// <summary>
@@ -177,58 +179,16 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
                     yield return node;
         }
 
-        internal int MapPosition(int line, int pos)
-        {
-            return positionMap[line - 1][pos - 1];
-        }
-
-        internal Tuple<int, int> MapSpan(int lineNo, int pos, int length)
-        {
-            return new Tuple<int, int>(
-                MapPosition(lineNo,pos),
-                MapPosition(lineNo, pos + length)
-                );
-        }
-
-        internal void Complete()
-        {
-            foreach (var list in nodeDictionary.Values)
-                foreach (var node in list)
-                {
-                    node.Resolve();
-                    if (node.Format != null)
-                    {
-                        var start = currentSnapshot.GetLineFromLineNumber(node.Line - 1).Start + node.StartPos;
-                        var span = new SnapshotSpan(currentSnapshot, start, node.EndPos - node.StartPos);
-                        classificationSpans.Add(new ClassificationSpan(span,
-                                                                       service.ClassificationTypeRegistry.GetClassificationType(
-                                                                           node.Format)));
-                    }
-                }
-
-            if (currentPos < currentSnapshot.Length-1)
-                classificationSpans.Add(
-                    new ClassificationSpan(
-                        new SnapshotSpan(currentSnapshot, currentPos, currentSnapshot.Length - currentPos),
-                        service.ClassificationTypeRegistry.GetClassificationType(Formats.BooBlockComment)
-                        ));
-        }
-
-        internal SnapshotSpan SnapshotSpan { get { return new SnapshotSpan(currentSnapshot, 0, currentSnapshot.Length); } }
-
-
         internal SnapshotSpan GetSnapshotSpan(LexicalInfo lexicalInfo)
         {
-            var line = currentSnapshot.GetLineFromLineNumber(lexicalInfo.Line - 1);
-            var start = line.Start + MapPosition(lexicalInfo.Line, lexicalInfo.Column);
+            var line = bufferMap.CurrentSnapshot.GetLineFromLineNumber(lexicalInfo.Line - 1);
+            var start = line.Start + bufferMap.MapPosition(lexicalInfo.Line, lexicalInfo.Column);
             var node = GetNodes(lexicalInfo, n => true).FirstOrDefault();
             if (node == null)
-                return new SnapshotSpan(currentSnapshot, start,  line.End - start);
+                return new SnapshotSpan(bufferMap.CurrentSnapshot, start, line.End - start);
             else
-                return new SnapshotSpan(currentSnapshot, start, node.Length);
+                return new SnapshotSpan(bufferMap.CurrentSnapshot, start, node.Length);
         }
-
-        internal CompilerErrorCollection Errors { get; set; }
 
         static readonly string[] tokenFormats = 
         {

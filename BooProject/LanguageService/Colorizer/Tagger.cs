@@ -33,9 +33,9 @@ namespace Hill30.BooProject.LanguageService.Colorizer
                     source.Recompiled += source_Recompiled;
             }
 
-            if (source != null && source.Mapper != null && source.Mapper.Errors != null)
-                foreach (var error in source.Mapper.Errors)
-                    yield return new TagSpan<ErrorTag>(source.Mapper.GetSnapshotSpan(error.LexicalInfo)
+            if (source != null)
+                foreach (var error in source.Errors)
+                    yield return new TagSpan<ErrorTag>(source.GetSnapshotSpan(error.LexicalInfo)
                         , new ErrorTag(PredefinedErrorTypeNames.SyntaxError, error.Code + ' ' + error.Message));
 
             yield break;
@@ -47,7 +47,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         void source_Recompiled(object sender, EventArgs e)
         {
             if (TagsChanged != null)
-                TagsChanged(sender, new SnapshotSpanEventArgs(source.Mapper.SnapshotSpan));
+                TagsChanged(sender, new SnapshotSpanEventArgs(source.SnapshotSpan));
         }
     }
 }

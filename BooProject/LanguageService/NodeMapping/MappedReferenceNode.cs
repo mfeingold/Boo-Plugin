@@ -10,23 +10,23 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
 {
     public class MappedReferenceNode : MappedNode
     {
-        private readonly Mapper mapper;
+        private readonly NodeMap nodeMap;
         private string quickInfoTip;
         private readonly Node node;
         private MappedNode defintionNode;
         private IType varType;
 
-        public MappedReferenceNode(Mapper mapper, ReferenceExpression node)
-            : base(mapper, node, node.Name.Length)
+        public MappedReferenceNode(NodeMap nodeMap, BufferMap bufferMap, ReferenceExpression node)
+            : base(bufferMap, node, node.Name.Length)
         {
-            this.mapper = mapper;
+            this.nodeMap = nodeMap;
             this.node = node;
         }
 
-        public MappedReferenceNode(Mapper mapper, SelfLiteralExpression node)
-            : base(mapper, node, "self".Length)
+        public MappedReferenceNode(NodeMap nodeMap, BufferMap bufferMap, SelfLiteralExpression node)
+            : base(bufferMap, node, "self".Length)
         {
-            this.mapper = mapper;
+            this.nodeMap = nodeMap;
             this.node = node;
         }
 
@@ -64,18 +64,18 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
                         {
                             prefix = "(parameter) ";
                             varType = TypeSystemServices.GetType(expression);
-                            defintionNode = mapper.GetNodes(((InternalParameter)entity).Parameter.LexicalInfo, n=>n.Node.NodeType == NodeType.ParameterDeclaration).FirstOrDefault();
+                            defintionNode = nodeMap.GetNodes(((InternalParameter)entity).Parameter.LexicalInfo, n=>n.Node.NodeType == NodeType.ParameterDeclaration).FirstOrDefault();
                         }
                         if (entity is InternalLocal)
                         {
                             prefix = "(local variable) ";
                             varType = ((InternalLocal)entity).Type;
-                            defintionNode = mapper.GetNodes(((InternalLocal)entity).Local.LexicalInfo, n=>n.Node.NodeType == NodeType.Local).FirstOrDefault();
+                            defintionNode = nodeMap.GetNodes(((InternalLocal)entity).Local.LexicalInfo, n => n.Node.NodeType == NodeType.Local).FirstOrDefault();
                         }
                         if (entity is InternalField)
                         {
                             varType = TypeSystemServices.GetType(node);
-                            defintionNode = mapper.GetNodes(((InternalField)entity).Field.LexicalInfo, n=>n.Node.NodeType == NodeType.Field).FirstOrDefault();
+                            defintionNode = nodeMap.GetNodes(((InternalField)entity).Field.LexicalInfo, n => n.Node.NodeType == NodeType.Field).FirstOrDefault();
                         }
                         quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
                     }

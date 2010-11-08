@@ -9,73 +9,75 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
 {
     public class ParsedAstWalker : DepthFirstVisitor
     {
-        private readonly Mapper mapper;
+        private NodeMap nodeMap;
+        private BufferMap bufferMap;
  
-        public ParsedAstWalker(Mapper mapper)
+        public ParsedAstWalker(NodeMap nodeMap, BufferMap bufferMap)
         {
-            this.mapper = mapper;
+            this.nodeMap = nodeMap;
+            this.bufferMap = bufferMap;
         }
 
         public override void OnParameterDeclaration(ParameterDeclaration node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedDeclarationNode(mapper, node));
+                nodeMap.MapNode(new MappedDeclarationNode(bufferMap, node));
             base.OnParameterDeclaration(node);
         }
 
         public override void OnLocal(Local node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedDeclarationNode(mapper, node));
+                nodeMap.MapNode(new MappedDeclarationNode(bufferMap, node));
             base.OnLocal(node);
         }
 
         public override void OnField(Field node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedDeclarationNode(mapper, node));
+                nodeMap.MapNode(new MappedDeclarationNode(bufferMap, node));
             base.OnField(node);
         }
 
         public override void OnClassDefinition(ClassDefinition node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedTypeNode(mapper, node));
+                nodeMap.MapNode(new MappedTypeNode(bufferMap, node));
             base.OnClassDefinition(node);
         }
 
         public override void OnSimpleTypeReference(SimpleTypeReference node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedTypeNode(mapper, node));
+                nodeMap.MapNode(new MappedTypeNode(bufferMap, node));
             base.OnSimpleTypeReference(node);
         }
 
         public override void OnReferenceExpression(ReferenceExpression node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedReferenceNode(mapper, node));
+                nodeMap.MapNode(new MappedReferenceNode(nodeMap, bufferMap, node));
             base.OnReferenceExpression(node);
         }
 
         public override void OnSelfLiteralExpression(SelfLiteralExpression node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedReferenceNode(mapper, node));
+                nodeMap.MapNode(new MappedReferenceNode(nodeMap, bufferMap, node));
             base.OnSelfLiteralExpression(node);
         }
 
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedReferenceNode(mapper, node));
+                nodeMap.MapNode(new MappedReferenceNode(nodeMap, bufferMap, node));
             base.OnMemberReferenceExpression(node);
         }
 
         public override void OnMacroStatement(MacroStatement node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedMacroNode(mapper, node));
+                nodeMap.MapNode(new MappedMacroNode(bufferMap, node));
             base.OnMacroStatement(node);
         }
 

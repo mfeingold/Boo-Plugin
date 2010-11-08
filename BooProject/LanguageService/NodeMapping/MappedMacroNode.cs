@@ -13,8 +13,8 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         private string format;
         private string quickInfoTip;
 
-        public MappedMacroNode(Mapper mapper, MacroStatement node)
-            : base(mapper, node, node.Name.Length)
+        public MappedMacroNode(BufferMap bufferMap, MacroStatement node)
+            : base(bufferMap, node, node.Name.Length)
         {
             format = Formats.BooMacro;
             quickInfoTip = "macro " + node.Name;

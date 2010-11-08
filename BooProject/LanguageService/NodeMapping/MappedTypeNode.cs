@@ -12,15 +12,15 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         private string format;
         private string quickInfoTip;
 
-        public MappedTypeNode(Mapper mapper, ClassDefinition node)
-            : base(mapper, node, node.Name.Length)
+        public MappedTypeNode(BufferMap bufferMap, ClassDefinition node)
+            : base(bufferMap, node, node.Name.Length)
         {
             format = Formats.BooType;
             quickInfoTip = null;
         }
 
-        public MappedTypeNode(Mapper mapper, SimpleTypeReference node)
-            : base(mapper, node, node.Name.Length)
+        public MappedTypeNode(BufferMap bufferMap, SimpleTypeReference node)
+            : base(bufferMap, node, node.Name.Length)
         {
         }
 

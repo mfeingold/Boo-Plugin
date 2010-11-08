@@ -48,7 +48,7 @@ namespace Microsoft.VisualStudio.Project
         private IVsOutputWindowPane outputWindowPane;
         private string errorString = SR.GetString(SR.Error, CultureInfo.CurrentUICulture);
         private string warningString = SR.GetString(SR.Warning, CultureInfo.CurrentUICulture);
-        private TaskProvider taskProvider;
+        private ProjectNode projectManager;
         private IVsHierarchy hierarchy;
         private IServiceProvider serviceProvider;
         private Dispatcher dispatcher;
@@ -120,9 +120,9 @@ namespace Microsoft.VisualStudio.Project
         /// <summary>
         /// Constructor.  Inititialize member data.
         /// </summary>
-        public IDEBuildLogger(IVsOutputWindowPane output, TaskProvider taskProvider, IVsHierarchy hierarchy)
+        public IDEBuildLogger(IVsOutputWindowPane output, ProjectNode projectManager, IVsHierarchy hierarchy)
         {
-            if (taskProvider == null)
+            if (projectManager.TaskProvider == null)
                 throw new ArgumentNullException("taskProvider");
             if (hierarchy == null)
                 throw new ArgumentNullException("hierarchy");
@@ -132,7 +132,7 @@ namespace Microsoft.VisualStudio.Project
             IOleServiceProvider site;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(hierarchy.GetSite(out site));
 
-            this.taskProvider = taskProvider;
+            this.projectManager = projectManager;
             this.outputWindowPane = output;
             this.hierarchy = hierarchy;
             this.serviceProvider = new ServiceProvider(site);
@@ -430,65 +430,12 @@ namespace Microsoft.VisualStudio.Project
         {
             var task = sender as ErrorTask;
             if (task == null)
-                throw new ArgumentException("Sender is not a Microsoft.VisualStudio.Shell.ErrorTask", "sender");
-
+                return;
             // Get the doc data for the task's document
             if (String.IsNullOrEmpty(task.Document))
                 return;
 
-            var path = task.Document;
-            Url url;
-            if (Path.IsPathRooted(path))
-            {
-                // Use absolute path
-                url = new Microsoft.VisualStudio.Shell.Url(path);
-            }
-            else
-            {
-                // Path is relative, so make it relative to the project path
-                object value;
-                task.HierarchyItem.GetProperty((uint)VSConstants.VSITEMID.Root, (int)__VSHPROPID.VSHPROPID_ProjectDir, out value);
-                url = new Url(new Url(value.ToString() + "\\"), path);
-            }
-
-            IVsUIShellOpenDocument openDoc = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(IVsUIShellOpenDocument)) as IVsUIShellOpenDocument;
-            if (openDoc == null)
-                return;
-
-            IVsWindowFrame frame;
-            Microsoft.VisualStudio.OLE.Interop.IServiceProvider sp;
-            IVsUIHierarchy hier;
-            uint itemid;
-            Guid logicalView = VSConstants.LOGVIEWID_Code;
-
-            if (Microsoft.VisualStudio.ErrorHandler.Failed(openDoc.OpenDocumentViaProject(url.AbsoluteUrl, ref logicalView, out sp, out hier, out itemid, out frame)) || frame == null)
-                return;
-
-            object docData;
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocData, out docData));
-
-            // Get the VsTextBuffer
-            VsTextBuffer buffer = docData as VsTextBuffer;
-            if (buffer == null)
-            {
-                IVsTextBufferProvider bufferProvider = docData as IVsTextBufferProvider;
-                if (bufferProvider != null)
-                {
-                    IVsTextLines lines;
-                    Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(bufferProvider.GetTextBuffer(out lines));
-                    buffer = lines as VsTextBuffer;
-                    System.Diagnostics.Debug.Assert(buffer != null, "IVsTextLines does not implement IVsTextBuffer");
-                    if (buffer == null)
-                        return;
-                }
-            }
-
-            // Finally, perform the navigation.
-            IVsTextManager mgr = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(VsTextManagerClass)) as IVsTextManager; ;
-            if (mgr == null)
-                return;
-
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(mgr.NavigateToLineAndColumn(buffer, ref logicalView, task.Line, task.Column, task.Line, task.Column));
+            projectManager.Navigate(task.Document, task.Line, task.Column);
         }
 
         private void ReportQueuedTasks()
@@ -497,7 +444,7 @@ namespace Microsoft.VisualStudio.Project
             // We need to output this on the main thread. We must use BeginInvoke because the main thread may not be pumping events yet.
             BeginInvokeWithErrorMessage(this.serviceProvider, this.dispatcher, () =>
             {
-                this.taskProvider.SuspendRefresh();
+                this.projectManager.TaskProvider.SuspendRefresh();
                 try
                 {
                     Func<ErrorTask> taskFunc;
@@ -508,12 +455,12 @@ namespace Microsoft.VisualStudio.Project
                         ErrorTask task = taskFunc();
 
                         // Log the task
-                        this.taskProvider.Tasks.Add(task);
+                        this.projectManager.TaskProvider.Tasks.Add(task);
                     }
                 }
                 finally
                 {
-                    this.taskProvider.ResumeRefresh();
+                    this.projectManager.TaskProvider.ResumeRefresh();
                 }
             });
         }
@@ -528,7 +475,7 @@ namespace Microsoft.VisualStudio.Project
                 // We need to clear this on the main thread. We must use BeginInvoke because the main thread may not be pumping events yet.
                 BeginInvokeWithErrorMessage(this.serviceProvider, this.dispatcher, () =>
                 {
-                    this.taskProvider.Tasks.Clear();
+                    this.projectManager.TaskProvider.Tasks.Clear();
                 });
             }
         }

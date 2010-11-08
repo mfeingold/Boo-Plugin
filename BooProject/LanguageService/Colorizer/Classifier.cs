@@ -31,8 +31,8 @@ namespace Hill30.BooProject.LanguageService.Colorizer
                     source.Recompiled += source_Recompiled;
             }
 
-            if (source != null && source.Mapper != null)
-                return source.Mapper.ClassificationSpans;
+            if (source != null)
+                return source.ClassificationSpans;
             
             return new List<ClassificationSpan>();
         }
@@ -42,7 +42,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         void source_Recompiled(object sender, EventArgs e)
         {
             if (ClassificationChanged != null)
-                ClassificationChanged(sender, new ClassificationChangedEventArgs(source.Mapper.SnapshotSpan));
+                ClassificationChanged(sender, new ClassificationChangedEventArgs(source.SnapshotSpan));
         }
     }
 }

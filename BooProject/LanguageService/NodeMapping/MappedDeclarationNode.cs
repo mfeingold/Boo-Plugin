@@ -9,18 +9,18 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
     public class MappedDeclarationNode : MappedNode
     {
 
-        public MappedDeclarationNode(Mapper mapper, ParameterDeclaration node)
-            : base(mapper, node, 0)
+        public MappedDeclarationNode(BufferMap bufferMap, ParameterDeclaration node)
+            : base(bufferMap, node, 0)
         {
         }
 
-        public MappedDeclarationNode(Mapper mapper, Local node)
-            : base(mapper, node, 0)
+        public MappedDeclarationNode(BufferMap bufferMap, Local node)
+            : base(bufferMap, node, 0)
         {
         }
 
-        public MappedDeclarationNode(Mapper mapper, Field node)
-            : base(mapper, node, 0)
+        public MappedDeclarationNode(BufferMap bufferMap, Field node)
+            : base(bufferMap, node, 0)
         {
         }
 

@@ -8,17 +8,19 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
 {
     public class FullAstWalker : DepthFirstVisitor
     {
-        private readonly Mapper mapper;
+        private readonly NodeMap nodeMap;
+        private readonly BufferMap bufferMap;
 
-        public FullAstWalker(Mapper mapper)
+        public FullAstWalker(NodeMap nodeMap, BufferMap bufferMap)
         {
-            this.mapper = mapper;
+            this.nodeMap = nodeMap;
+            this.bufferMap = bufferMap;
         }
 
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
             if (node.LexicalInfo != null)
-                mapper.MapNode(new MappedReferenceNode(mapper, node));
+                nodeMap.MapNode(new MappedReferenceNode(nodeMap, bufferMap, node));
             base.OnMemberReferenceExpression(node);
         }
 

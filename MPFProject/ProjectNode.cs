@@ -37,6 +37,7 @@ using MSBuildExecution = Microsoft.Build.Execution;
 using OleConstants = Microsoft.VisualStudio.OLE.Interop.Constants;
 using VsCommands = Microsoft.VisualStudio.VSConstants.VSStd97CmdID;
 using VsCommands2K = Microsoft.VisualStudio.VSConstants.VSStd2KCmdID;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Microsoft.VisualStudio.Project
 {
@@ -836,7 +837,7 @@ namespace Microsoft.VisualStudio.Project
         /// <summary>
         /// Gets the taskprovider.
         /// </summary>
-        protected TaskProvider TaskProvider
+        internal protected TaskProvider TaskProvider
         {
             get
             {
@@ -2500,6 +2501,63 @@ namespace Microsoft.VisualStudio.Project
             return false;
         }
 
+        public virtual bool Navigate(string file, int line, int column)
+        {
+            Url url;
+            if (Path.IsPathRooted(file))
+                // Use absolute path
+                url = new Microsoft.VisualStudio.Shell.Url(file);
+            else
+                // Path is relative, so make it relative to the project path
+                url = new Url(new Url(ProjectFolder + "\\"), file);
+
+            IVsUIShellOpenDocument openDocService = GetService(typeof(IVsUIShellOpenDocument)) as IVsUIShellOpenDocument;
+            if (openDocService == null)
+                return false;
+
+            IVsWindowFrame frame;
+            Microsoft.VisualStudio.OLE.Interop.IServiceProvider sp;
+            IVsUIHierarchy hier;
+            uint itemid;
+            Guid logicalView = VSConstants.LOGVIEWID_Code;
+
+            if (Microsoft.VisualStudio.ErrorHandler.Failed(openDocService.OpenDocumentViaProject(url.AbsoluteUrl, ref logicalView, out sp, out hier, out itemid, out frame)) || frame == null)
+                return false;
+
+            object docData;
+            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocData, out docData));
+
+            // Get the VsTextBuffer
+            VsTextBuffer buffer = docData as VsTextBuffer;
+            if (buffer == null)
+            {
+                IVsTextBufferProvider bufferProvider = docData as IVsTextBufferProvider;
+                if (bufferProvider != null)
+                {
+                    IVsTextLines lines;
+                    Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(bufferProvider.GetTextBuffer(out lines));
+                    buffer = lines as VsTextBuffer;
+                    System.Diagnostics.Debug.Assert(buffer != null, "IVsTextLines does not implement IVsTextBuffer");
+                    if (buffer == null)
+                        return false;
+                }
+            }
+
+            return Navigate(buffer, line, column);
+        }
+
+        public virtual bool Navigate(VsTextBuffer buffer, int line, int column)
+        {
+            Guid logicalView = VSConstants.LOGVIEWID_Code;
+
+            // Finally, perform the navigation.
+            IVsTextManager mgr = GetService(typeof(VsTextManagerClass)) as IVsTextManager;
+            if (mgr == null)
+                return false;
+
+            return Microsoft.VisualStudio.ErrorHandler.Succeeded(mgr.NavigateToLineAndColumn(buffer, ref logicalView, line, column, line, column));
+        }
+
         /// <summary>
         /// List of Guids of the config independent property pages. It is called by the GetProperty for VSHPROPID_PropertyPagesCLSIDList property.
         /// </summary>
@@ -2916,7 +2974,7 @@ namespace Microsoft.VisualStudio.Project
                         Marshal.Release(unknown);
                 }
                 // Create the logger
-                this.BuildLogger = new IDEBuildLogger(output, this.TaskProvider, hierarchy);
+                this.BuildLogger = new IDEBuildLogger(output, this, hierarchy);
 
                 // To retrive the verbosity level, the build logger depends on the registry root 
                 // (otherwise it will used an hardcoded default)

@@ -13,6 +13,9 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.BooProject.Project;
 using Hill30.BooProject.LanguageService.TaskItems;
+using Microsoft.VisualStudio.Text.Classification;
+using System.Collections.Generic;
+using Boo.Lang.Compiler.Ast;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -20,7 +23,9 @@ namespace Hill30.BooProject.LanguageService
     {
         private CompilerContext compileResult;
         private readonly Service service;
-        public Mapper Mapper { get; private set; }
+        private BufferMap bufferMap = new BufferMap();
+        private NodeMap nodeMap;
+//        public Mapper Mapper { get; private set; }
         private readonly ITextBuffer buffer;
         private readonly IProjectManager projectManager;
         private readonly IVsHierarchy hierarchyItem;
@@ -30,6 +35,9 @@ namespace Hill30.BooProject.LanguageService
         {
             this.service = service;
             this.buffer = service.BufferAdapterService.GetDataBuffer(buffer);
+            bufferMap.Map(this.buffer, service.GetLanguagePreferences().TabSize);
+            nodeMap = new NodeMap(service, bufferMap);
+
             hierarchyItem = new RunningDocumentTable(this.service.Site).GetHierarchyItem(GetFilePath());
             object value;
             ErrorHandler.ThrowOnFailure(hierarchyItem.GetProperty(VSConstants.VSITEMID_ROOT, (int) __VSHPROPID.VSHPROPID_Root, out value));
@@ -51,41 +59,75 @@ namespace Hill30.BooProject.LanguageService
         {
             lock (this)
             {
-                Mapper = new Mapper(service, buffer, service.GetLanguagePreferences().TabSize);
+                bufferMap.Map(buffer, service.GetLanguagePreferences().TabSize);
+//                Mapper = new Mapper(service, buffer, service.GetLanguagePreferences().TabSize);
                 if (errorsMessages != null)
                     errorsMessages.Dispose();
-                errorsMessages = new Collection(projectManager, hierarchyItem, Mapper);
+                errorsMessages = new Collection(projectManager, hierarchyItem);
                 var lexer = BooParser.CreateBooLexer(service.GetLanguagePreferences().TabSize, "code stream", new StringReader(req.Text));
                 try
                 {
-                    IToken token;
-                    while ((token = lexer.nextToken()).Type != BooLexer.EOF)
-                        Mapper.MapToken(token);
+                    //IToken token;
+                    //while ((token = lexer.nextToken()).Type != BooLexer.EOF)
+                    //    Mapper.MapToken(token);
+                    nodeMap.Clear();
+                    nodeMap.MapTokens(lexer);
                     if (compiler == null)
                     {
                         compiler = projectManager.CreateCompiler();
                         compiler.Parameters.Pipeline.AfterStep += Pipeline_AfterStep;
                     }
-                    compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, Mapper.FilePath, new StringReader(req.Text)));
-                    new FullAstWalker(Mapper).Visit(compileResult.CompileUnit);
-                    Mapper.Errors = compileResult.Errors;
+                    compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, bufferMap.FilePath, new StringReader(req.Text)));
+                    new FullAstWalker(nodeMap, bufferMap).Visit(compileResult.CompileUnit);
                     errorsMessages.CreateErrorMessages(compileResult.Errors);
+                    nodeMap.Complete(compileResult);
                 }
                 catch
                 {}
-                Mapper.Complete();
             }
             if (Recompiled != null)
                 Recompiled(this, EventArgs.Empty);
         }
 
-        void Pipeline_AfterStep(object sender, CompilerStepEventArgs args)
+        private void Pipeline_AfterStep(object sender, CompilerStepEventArgs args)
         {
             if (args.Step == ((CompilerPipeline)sender)[0])
-                new ParsedAstWalker(Mapper).Visit(args.Context.CompileUnit);
+                new ParsedAstWalker(nodeMap, bufferMap).Visit(args.Context.CompileUnit);
         }
 
         public event EventHandler Recompiled;
+
+        public IList<ClassificationSpan> ClassificationSpans { get { return nodeMap.ClassificationSpans; } }
+
+        public IEnumerable<MappedNode> GetNodes(LexicalInfo loc, Func<MappedNode, bool> filter)
+        {
+            return nodeMap.GetNodes(loc, filter);
+        }
+
+        public IEnumerable<MappedNode> GetNodes(int line, int pos, Func<MappedNode, bool> filter)
+        {
+            return nodeMap.GetNodes(line, pos, filter);
+        }
+
+        public IEnumerable<MappedNode> GetAdjacentNodes(int line, int pos, Func<MappedNode, bool> filter)
+        {
+            return nodeMap.GetAdjacentNodes(line, pos, filter);
+        }
+
+        internal Microsoft.VisualStudio.Text.SnapshotSpan GetSnapshotSpan(LexicalInfo lexicalInfo)
+        {
+            return nodeMap.GetSnapshotSpan(lexicalInfo);
+        }
+
+        public CompilerErrorCollection Errors { get { return nodeMap.Errors; } }
+        public CompilerWarningCollection Warnings { get { return nodeMap.Warnings; } }
+
+        internal int MapPosition(int line, int pos)
+        {
+            return bufferMap.MapPosition(line, pos);
+        }
+
+        internal SnapshotSpan SnapshotSpan { get { return new SnapshotSpan(bufferMap.CurrentSnapshot, 0, bufferMap.CurrentSnapshot.Length); } }
 
         public override void Dispose()
         {
@@ -93,6 +135,5 @@ namespace Hill30.BooProject.LanguageService
                 errorsMessages.Dispose();
             base.Dispose();
         }
-
     }
 }
