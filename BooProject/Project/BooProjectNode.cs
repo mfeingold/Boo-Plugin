@@ -8,8 +8,6 @@ using EnvDTE;
 using VSLangProj;
 using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Hill30.BooProject.Project
@@ -140,7 +138,7 @@ namespace Hill30.BooProject.Project
 
         public override bool Navigate(VsTextBuffer buffer, int line, int column)
         {
-            var languageService = GetService(typeof(LanguageService.Service)) as LanguageService.Service;
+            var languageService = (LanguageService.BooLanguageService)GetService(typeof(LanguageService.BooLanguageService));
             var source = (LanguageService.BooSource)languageService.GetOrCreateSource((IVsTextLines)buffer);
             return base.Navigate(buffer, line-1, source.MapPosition(line, column));
         }

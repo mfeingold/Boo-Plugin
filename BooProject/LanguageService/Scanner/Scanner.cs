@@ -1,10 +1,10 @@
 ﻿using System;
+using Hill30.BooProject.LanguageService.Mapping;
 using Microsoft.VisualStudio.Package;
 using Boo.Lang.Parser;
 using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.BooProject.LanguageService.Colorizer;
-using Hill30.BooProject.LanguageService.NodeMapping;
 
 namespace Hill30.BooProject.LanguageService.Scanner
 {
@@ -15,7 +15,7 @@ namespace Hill30.BooProject.LanguageService.Scanner
         int offset;
         int current;
         int endIndex;
-        private Service service;
+        private BooLanguageService service;
         private IVsTextLines buffer;
 
         private Source source;
@@ -25,7 +25,7 @@ namespace Hill30.BooProject.LanguageService.Scanner
             this.source = source;
         }
 
-        public Scanner(Service service, IVsTextLines buffer)
+        public Scanner(BooLanguageService service, IVsTextLines buffer)
         {
             this.service = service;
             this.buffer = buffer;

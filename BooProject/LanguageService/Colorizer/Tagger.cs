@@ -11,11 +11,11 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 {
     class Tagger : ITagger<ErrorTag>
     {
-        private readonly Service service;
+        private readonly BooLanguageService service;
         private readonly IVsTextLines buffer;
         private BooSource source;
 
-        public Tagger(Service service, IVsTextLines iVsTextLines)
+        public Tagger(BooLanguageService service, IVsTextLines iVsTextLines)
         {
             // TODO: Complete member initialization
             this.service = service;

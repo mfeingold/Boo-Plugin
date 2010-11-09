@@ -36,10 +36,10 @@ namespace Hill30.BooProject
     [ProvideObject(typeof(Project.ProjectProperties.Build))]
 
     // Registers the language service
-    [ProvideService(typeof(LanguageService.Service))]
-    [ProvideLanguageExtension(typeof(LanguageService.Service), ".boo")]
+    [ProvideService(typeof(LanguageService.BooLanguageService))]
+    [ProvideLanguageExtension(typeof(LanguageService.BooLanguageService), ".boo")]
 
-    [ProvideLanguageServiceAttribute(typeof(LanguageService.Service),
+    [ProvideLanguageServiceAttribute(typeof(LanguageService.BooLanguageService),
                              Constants.LanguageName,
                              106,                           // resource ID of localized language name
                              CodeSense = true,             // Supports IntelliSense
@@ -67,7 +67,7 @@ namespace Hill30.BooProject
 
             RegisterProjectFactory(new Project.BooProjectFactory(this));
 
-            LanguageService.Service.Register(this);
+            LanguageService.BooLanguageService.Register(this);
 
             // Add our command handlers for menu (commands must exist in the .vsct file)
             var mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
@@ -84,7 +84,7 @@ namespace Hill30.BooProject
         {
             if (disposing)
             {
-                LanguageService.Service.Stop(this);
+                LanguageService.BooLanguageService.Stop(this);
             }
             base.Dispose(disposing);
         }

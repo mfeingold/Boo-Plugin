@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Package;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.Ast;
@@ -24,26 +22,29 @@ namespace Hill30.BooProject.LanguageService
         {
         }
 
-        public BooDeclarations(Node context, IType varType)
+        public BooDeclarations(Node context, IType varType, bool instance)
         {
-            foreach (var member in varType.GetMembers())
-            {
-                switch (member.EntityType)
+            if (varType != null)
+                foreach (var member in varType.GetMembers())
                 {
-                    case EntityType.Method:
-                        FormatMethod(context, (IMethod)member);
-                        break;
-                    case EntityType.Property:
-                        FormatProperty(context, (IProperty)member);
-                        break;
-                    case EntityType.Event:
-                        FormatEvent(context, (IEvent)member);
-                        break;
-                    case EntityType.Field:
-                        FormatField(context, (IField)member);
-                        break;
+                    switch (member.EntityType)
+                    {
+                        case EntityType.Method:
+                            FormatMethod(context, (IMethod)member, instance);
+                            break;
+                        case EntityType.Property:
+                            FormatProperty(context, (IProperty)member, instance);
+                            break;
+                        case EntityType.Event:
+                            FormatEvent(context, (IEvent)member, instance);
+                            break;
+                        case EntityType.Field:
+                            FormatField(context, (IField)member, instance);
+                            break;
+                    }
                 }
-            }
+            for (var i = 1000; i < 1300; i += 6)
+                list.Add("a" + i, new Declaration {DisplayText="a" + i, ImageIndex = i - 1000});
         }
 
         private bool IsPrivate(Node context, IType type)
@@ -55,12 +56,13 @@ namespace Hill30.BooProject.LanguageService
             return IsPrivate(context.ParentNode, type);
         }
 
-        private void FormatField(Node context, IField field)
+        private void FormatField(Node context, IField field, bool instance)
         {
+            if (field.IsStatic == instance)
+                return;
 
-            var insertValue = field.Name;
             var name = field.Name;
-            var description = name + " as " + field.Type.ToString();
+            var description = name + " as " + field.Type;
             var icon = FIELD_ICONS;
             if (field.IsPrivate)
             {
@@ -74,11 +76,13 @@ namespace Hill30.BooProject.LanguageService
             list.Add(name, new Declaration { DisplayText = name, Description = description, ImageIndex = icon } );
         }
 
-        private void FormatEvent(Node context, IEvent @event)
+        private void FormatEvent(Node context, IEvent @event, bool instance)
         {
-            var insertValue = @event.Name;
+            if (@event.IsStatic == instance)
+                return;
+
             var name = @event.Name;
-            var description = name + " as " + @event.Type.ToString();
+            var description = name + " as " + @event.Type;
             var icon = EVENT_ICONS;
             if (!@event.IsPublic)
                 icon += ICON_PROTECTED;
@@ -86,11 +90,13 @@ namespace Hill30.BooProject.LanguageService
             list.Add(name, new Declaration { DisplayText = name, Description = description, ImageIndex = icon });
         }
 
-        private void FormatProperty(Node context, IProperty property)
+        private void FormatProperty(Node context, IProperty property, bool instance)
         {
-            var insertValue = property.Name;
+            if (property.IsStatic == instance)
+                return;
+
             var name = property.Name;
-            var description = name + " as " + property.Type.ToString();
+            var description = name + " as " + property.Type;
             var icon = PROPERTY_ICONS;
             if (property.IsPrivate)
             {
@@ -106,12 +112,15 @@ namespace Hill30.BooProject.LanguageService
             list.Add(name, new Declaration { DisplayText = name, Description = description, ImageIndex = icon });
         }
 
-        private void FormatMethod(Node context, IMethod method)
+        private void FormatMethod(Node context, IMethod method, bool instance)
         {
             if (method.IsAbstract)
                 return;
             if (method.IsSpecialName)
                 return;
+            if (method.IsStatic == instance)
+                return;
+
             var name = method.Name;
             Declaration declaration;
             if (list.TryGetValue(name, out declaration))
@@ -120,12 +129,11 @@ namespace Hill30.BooProject.LanguageService
                 return;
             }
 
-            var insertValue = method.Name;
-            var description = name + " as " + method.ReturnType.ToString();
+            var description = name + " as " + method.ReturnType;
             var icon = METHOD_ICONS;
             if (method.IsPrivate)
             {
-                if (!IsPrivate(context, method.Type))
+                if (!IsPrivate(context, method.ReturnType))
                     return;
                 icon += ICON_PRIVATE;
             }
@@ -141,13 +149,13 @@ namespace Hill30.BooProject.LanguageService
         const int DELEGATE_ICONS = 12;
         const int ENUM_ICONS = 18;
         const int EVENT_ICONS = 30;
-        const int PROPERTY_ICONS = 102;
         const int FIELD_ICONS = 42;
         const int INTERFACE_ICONS = 48;
         const int METHOD_ICONS = 72;
+        const int PROPERTY_ICONS = 102;
 
         const int ICON_PUBLIC = 0;
-        const int ICON_ENVELOPE = 1;
+        const int ICON_INTERNAL = 1;
         const int ICON_DIAMOND = 2;
         const int ICON_PROTECTED = 3;
         const int ICON_PRIVATE = 4;

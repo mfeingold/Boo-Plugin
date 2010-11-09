@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.Text;
 
-namespace Hill30.BooProject.LanguageService.NodeMapping
+namespace Hill30.BooProject.LanguageService.Mapping
 {
     public class BufferMap
     {

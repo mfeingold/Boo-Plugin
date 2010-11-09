@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Boo.Lang.Compiler.Ast;
+﻿using Boo.Lang.Compiler.Ast;
 
-namespace Hill30.BooProject.LanguageService.NodeMapping
+namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 {
     public class MappedDeclarationNode : MappedNode
     {
@@ -22,11 +18,6 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         public MappedDeclarationNode(BufferMap bufferMap, Field node)
             : base(bufferMap, node, 0)
         {
-        }
-
-        public override string QuickInfoTip
-        {
-            get { return null; }
         }
     }
 }

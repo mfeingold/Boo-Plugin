@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Boo.Lang.Parser;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text;
@@ -9,20 +8,20 @@ using Hill30.BooProject.LanguageService.Colorizer;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 
-namespace Hill30.BooProject.LanguageService.NodeMapping
+namespace Hill30.BooProject.LanguageService.Mapping
 {
     public class NodeMap
     {
         private readonly Dictionary<int, List<MappedNode>> nodeDictionary = new Dictionary<int, List<MappedNode>>();
         private readonly List<ClassificationSpan> classificationSpans = new List<ClassificationSpan>();
-        Service service;
+        BooLanguageService service;
         BufferMap bufferMap;
 
         public CompilerErrorCollection Errors { get; private set; }
         public CompilerWarningCollection Warnings { get; private set; }
         public IList<ClassificationSpan> ClassificationSpans { get { return classificationSpans; } }
 
-        public NodeMap(Service service, BufferMap bufferMap)
+        public NodeMap(BooLanguageService service, BufferMap bufferMap)
         {
             this.service = service;
             this.bufferMap = bufferMap;
@@ -104,6 +103,15 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             nodes.Add(node);
         }
 
+        internal void MapType(ClassDefinition node)
+        {
+//            throw new NotImplementedException();
+        }
+
+        internal void MapType(Module node)
+        {
+//            throw new NotImplementedException();
+        }
 
         internal void Complete(CompilerContext compileResult)
         {
@@ -186,8 +194,15 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
             var node = GetNodes(lexicalInfo, n => true).FirstOrDefault();
             if (node == null)
                 return new SnapshotSpan(bufferMap.CurrentSnapshot, start, line.End - start);
-            else
-                return new SnapshotSpan(bufferMap.CurrentSnapshot, start, node.Length);
+            return new SnapshotSpan(bufferMap.CurrentSnapshot, start, node.Length);
+        }
+
+        internal IEnumerable<MappedNode> GetTypes()
+        {
+            foreach (var line in nodeDictionary.Values)
+                foreach (var node in line)
+                    if (node.Node is TypeDefinition)
+                        yield return node;
         }
 
         static readonly string[] tokenFormats = 

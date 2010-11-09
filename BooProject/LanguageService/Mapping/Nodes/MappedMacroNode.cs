@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Boo.Lang.Compiler.Ast;
+﻿using Boo.Lang.Compiler.Ast;
 using Hill30.BooProject.LanguageService.Colorizer;
 
-namespace Hill30.BooProject.LanguageService.NodeMapping
+namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 {
     public class MappedMacroNode: MappedNode
     {

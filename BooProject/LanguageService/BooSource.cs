@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using antlr;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
-using Hill30.BooProject.LanguageService.NodeMapping;
+using Hill30.BooProject.LanguageService.Mapping;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.Shell;
@@ -22,15 +21,14 @@ namespace Hill30.BooProject.LanguageService
     public class BooSource : Source
     {
         private CompilerContext compileResult;
-        private readonly Service service;
-        private BufferMap bufferMap = new BufferMap();
-        private NodeMap nodeMap;
-//        public Mapper Mapper { get; private set; }
+        private readonly BooLanguageService service;
+        private readonly BufferMap bufferMap = new BufferMap();
+        private readonly NodeMap nodeMap;
         private readonly ITextBuffer buffer;
         private readonly IProjectManager projectManager;
         private readonly IVsHierarchy hierarchyItem;
 
-        public BooSource(Service service, IVsTextLines buffer, Microsoft.VisualStudio.Package.Colorizer colorizer)
+        public BooSource(BooLanguageService service, IVsTextLines buffer, Microsoft.VisualStudio.Package.Colorizer colorizer)
             : base(service, buffer, colorizer)
         {
             this.service = service;
@@ -38,7 +36,9 @@ namespace Hill30.BooProject.LanguageService
             bufferMap.Map(this.buffer, service.GetLanguagePreferences().TabSize);
             nodeMap = new NodeMap(service, bufferMap);
 
+// ReSharper disable DoNotCallOverridableMethodsInConstructor
             hierarchyItem = new RunningDocumentTable(this.service.Site).GetHierarchyItem(GetFilePath());
+// ReSharper restore DoNotCallOverridableMethodsInConstructor
             object value;
             ErrorHandler.ThrowOnFailure(hierarchyItem.GetProperty(VSConstants.VSITEMID_ROOT, (int) __VSHPROPID.VSHPROPID_Root, out value));
             var pointer = new IntPtr((int)value);
@@ -75,21 +75,24 @@ namespace Hill30.BooProject.LanguageService
                     if (compiler == null)
                     {
                         compiler = projectManager.CreateCompiler();
-                        compiler.Parameters.Pipeline.AfterStep += Pipeline_AfterStep;
+                        compiler.Parameters.Pipeline.AfterStep += PipelineAfterStep;
                     }
                     compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, bufferMap.FilePath, new StringReader(req.Text)));
                     new FullAstWalker(nodeMap, bufferMap).Visit(compileResult.CompileUnit);
                     errorsMessages.CreateErrorMessages(compileResult.Errors);
                     nodeMap.Complete(compileResult);
+                    service.Invoke(new Action(service.SynchronizeDropdowns), new object[] {});
                 }
+// ReSharper disable EmptyGeneralCatchClause
                 catch
+// ReSharper restore EmptyGeneralCatchClause
                 {}
             }
             if (Recompiled != null)
                 Recompiled(this, EventArgs.Empty);
         }
 
-        private void Pipeline_AfterStep(object sender, CompilerStepEventArgs args)
+        private void PipelineAfterStep(object sender, CompilerStepEventArgs args)
         {
             if (args.Step == ((CompilerPipeline)sender)[0])
                 new ParsedAstWalker(nodeMap, bufferMap).Visit(args.Context.CompileUnit);
@@ -114,9 +117,14 @@ namespace Hill30.BooProject.LanguageService
             return nodeMap.GetAdjacentNodes(line, pos, filter);
         }
 
-        internal Microsoft.VisualStudio.Text.SnapshotSpan GetSnapshotSpan(LexicalInfo lexicalInfo)
+        internal SnapshotSpan GetSnapshotSpan(LexicalInfo lexicalInfo)
         {
             return nodeMap.GetSnapshotSpan(lexicalInfo);
+        }
+
+        internal IEnumerable<MappedNode> GetTypes()
+        {
+            return nodeMap.GetTypes();
         }
 
         public CompilerErrorCollection Errors { get { return nodeMap.Errors; } }

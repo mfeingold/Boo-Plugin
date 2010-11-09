@@ -1,9 +1,6 @@
-﻿
-using System;
-using System.Collections.Generic;
-using Boo.Lang.Compiler.Ast;
+﻿using Boo.Lang.Compiler.Ast;
 
-namespace Hill30.BooProject.LanguageService.NodeMapping
+namespace Hill30.BooProject.LanguageService.Mapping
 {
     public abstract class MappedNode
     {
@@ -23,7 +20,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         public int Length { get; private set; }
         public int StartPos { get; private set; }
         public int EndPos { get; private set; }
-        public abstract string QuickInfoTip { get; }
+        public virtual string QuickInfoTip { get { return null; } }
         public virtual string Format { get { return null; } }
         public virtual BooDeclarations Declarations { get { return new BooDeclarations(); } }
         internal protected virtual void Resolve() { }

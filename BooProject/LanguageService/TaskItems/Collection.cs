@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Boo.Lang.Compiler;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Hill30.BooProject.Project;
-using Hill30.BooProject.LanguageService.NodeMapping;
-using System.IO;
 
 namespace Hill30.BooProject.LanguageService.TaskItems
 {
@@ -27,7 +23,8 @@ namespace Hill30.BooProject.LanguageService.TaskItems
         {
             foreach (var error in errors)
             {
-                ErrorTask task = new ErrorTask() 
+                var task = 
+                    new ErrorTask
                     {
                         Document = error.LexicalInfo.FileName,
                         ErrorCategory = TaskErrorCategory.Error,
@@ -38,13 +35,13 @@ namespace Hill30.BooProject.LanguageService.TaskItems
                         HierarchyItem = hier,
                         Category = TaskCategory.CodeSense
                     };
-                task.Navigate += task_Navigate;
-                this.tasks.Add(task);
+                task.Navigate += TaskNavigate;
+                tasks.Add(task);
                 projectManager.AddTask(task);
             }
         }
 
-        void task_Navigate(object sender, EventArgs e)
+        private void TaskNavigate(object sender, EventArgs e)
         {
             projectManager.NavigateTo((ErrorTask)sender);
         }

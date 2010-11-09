@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem;
+using Hill30.BooProject.LanguageService.Mapping.Nodes;
 
-namespace Hill30.BooProject.LanguageService.NodeMapping
+namespace Hill30.BooProject.LanguageService.Mapping
 {
     public class ParsedAstWalker : DepthFirstVisitor
     {
-        private NodeMap nodeMap;
-        private BufferMap bufferMap;
+        private readonly NodeMap nodeMap;
+        private readonly BufferMap bufferMap;
  
         public ParsedAstWalker(NodeMap nodeMap, BufferMap bufferMap)
         {
@@ -42,8 +39,15 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         public override void OnClassDefinition(ClassDefinition node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedTypeNode(bufferMap, node));
+                nodeMap.MapNode(new MappedTypeNode(nodeMap, bufferMap, node));
             base.OnClassDefinition(node);
+        }
+
+        public override void OnModule(Module node)
+        {
+            if (node.LexicalInfo != null)
+                nodeMap.MapNode(new MappedTypeNode(nodeMap, bufferMap, node));
+            base.OnModule(node);
         }
 
         public override void OnSimpleTypeReference(SimpleTypeReference node)

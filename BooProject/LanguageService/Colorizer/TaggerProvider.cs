@@ -24,7 +24,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 
         public ITagger<T> CreateTagger<T>(Microsoft.VisualStudio.Text.ITextBuffer buffer) where T : ITag
         {
-            return (ITagger<T>)new Tagger((Service)serviceProvider.GetService(typeof(Service)),
+            return (ITagger<T>)new Tagger((BooLanguageService)serviceProvider.GetService(typeof(BooLanguageService)),
                 (IVsTextLines)bufferAdapterService.GetBufferAdapter(buffer));
         }
 

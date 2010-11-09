@@ -8,11 +8,11 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 {
     class Classifier : IClassifier
     {
-        private readonly Service service;
+        private readonly BooLanguageService service;
         private readonly IVsTextLines buffer;
         private BooSource source;
 
-        public Classifier(Service service, IVsTextLines buffer)
+        public Classifier(BooLanguageService service, IVsTextLines buffer)
         {
             this.service = service;
             this.buffer = buffer;

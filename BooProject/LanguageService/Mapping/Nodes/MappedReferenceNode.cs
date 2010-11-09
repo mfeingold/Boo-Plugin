@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.TypeSystem;
 
-namespace Hill30.BooProject.LanguageService.NodeMapping
+namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 {
     public class MappedReferenceNode : MappedNode
     {
@@ -53,32 +49,29 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
 
                 case NodeType.MemberReferenceExpression:
                 case NodeType.ReferenceExpression:
-                    var expression = node as ReferenceExpression;
-                    var prefix = "";
+                    var expression = (ReferenceExpression)node;
                     if (expression.ExpressionType == null || expression.ExpressionType.EntityType == EntityType.Error)
-                        quickInfoTip = "(**error) " + expression.Name;
-                    else
+                        break;
+                    var entity = TypeSystemServices.GetEntity(expression);
+                    var prefix = "";
+                    if (entity is InternalParameter)
                     {
-                        var entity = TypeSystemServices.GetEntity(expression);
-                        if (entity is InternalParameter)
-                        {
-                            prefix = "(parameter) ";
-                            varType = TypeSystemServices.GetType(expression);
-                            defintionNode = nodeMap.GetNodes(((InternalParameter)entity).Parameter.LexicalInfo, n=>n.Node.NodeType == NodeType.ParameterDeclaration).FirstOrDefault();
-                        }
-                        if (entity is InternalLocal)
-                        {
-                            prefix = "(local variable) ";
-                            varType = ((InternalLocal)entity).Type;
-                            defintionNode = nodeMap.GetNodes(((InternalLocal)entity).Local.LexicalInfo, n => n.Node.NodeType == NodeType.Local).FirstOrDefault();
-                        }
-                        if (entity is InternalField)
-                        {
-                            varType = TypeSystemServices.GetType(node);
-                            defintionNode = nodeMap.GetNodes(((InternalField)entity).Field.LexicalInfo, n => n.Node.NodeType == NodeType.Field).FirstOrDefault();
-                        }
-                        quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
+                        prefix = "(parameter) ";
+                        varType = TypeSystemServices.GetType(expression);
+                        defintionNode = nodeMap.GetNodes(((InternalParameter)entity).Parameter.LexicalInfo, n=>n.Node.NodeType == NodeType.ParameterDeclaration).FirstOrDefault();
                     }
+                    if (entity is InternalLocal)
+                    {
+                        prefix = "(local variable) ";
+                        varType = ((InternalLocal)entity).Type;
+                        defintionNode = nodeMap.GetNodes(((InternalLocal)entity).Local.LexicalInfo, n => n.Node.NodeType == NodeType.Local).FirstOrDefault();
+                    }
+                    if (entity is InternalField)
+                    {
+                        varType = TypeSystemServices.GetType(node);
+                        defintionNode = nodeMap.GetNodes(((InternalField)entity).Field.LexicalInfo, n => n.Node.NodeType == NodeType.Field).FirstOrDefault();
+                    }
+                    quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
                     break;
                 default:
                     break;
@@ -91,7 +84,7 @@ namespace Hill30.BooProject.LanguageService.NodeMapping
         {
             get
             {
-                return new BooDeclarations(node, varType);
+                return new BooDeclarations(node, varType, true);
             }
         }
     }

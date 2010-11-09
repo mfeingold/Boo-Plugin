@@ -26,7 +26,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         public IClassifier GetClassifier(ITextBuffer textBuffer)
         {
             return new Classifier(
-                (Service)serviceProvider.GetService(typeof(Service)), 
+                (BooLanguageService)serviceProvider.GetService(typeof(BooLanguageService)), 
                 (IVsTextLines)bufferAdapterService.GetBufferAdapter(textBuffer));
         }
     }
