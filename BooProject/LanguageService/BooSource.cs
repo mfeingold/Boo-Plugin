@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using antlr;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
 using Hill30.BooProject.LanguageService.Mapping;
@@ -16,6 +17,7 @@ using Hill30.BooProject.LanguageService.TaskItems;
 using Microsoft.VisualStudio.Text.Classification;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.IO;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -74,9 +76,13 @@ namespace Hill30.BooProject.LanguageService
                         compiler = projectManager.CreateCompiler();
                         compiler.Parameters.Pipeline.AfterStep += PipelineAfterStep;
                     }
-                    compileResult = compiler.Run(BooParser.ParseReader(service.GetLanguagePreferences().TabSize, bufferMap.FilePath, new StringReader(req.Text)));
+                    compiler.Parameters.Input.Clear();
+                    compiler.Parameters.Input.Add(new StringInput(bufferMap.FilePath, req.Text));
+                    compileResult = compiler.Run();
+                    var parsingErrors = new List<RecognitionException>();
+                    
                     new FullAstWalker(nodeMap, bufferMap).Visit(compileResult.CompileUnit);
-                    errorsMessages.CreateErrorMessages(compileResult.Errors);
+                    errorsMessages.CreateMessages(compileResult.Errors, compileResult.Warnings);
                     nodeMap.Complete(compileResult);
                     service.Invoke(new Action(service.SynchronizeDropdowns), new object[] {});
                 }

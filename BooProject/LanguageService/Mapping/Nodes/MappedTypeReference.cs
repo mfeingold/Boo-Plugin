@@ -1,4 +1,5 @@
-﻿using Boo.Lang.Compiler.Ast;
+﻿using System;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Hill30.BooProject.LanguageService.Colorizer;
@@ -34,25 +35,32 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 
         internal protected override void Resolve()
         {
-            var type = TypeSystemServices.GetType(node);
-            if (type is Error)
-                return;
-
-            format = Formats.BooType;
-            var clrType = type as ExternalType;
-            if (clrType != null)
+            try
             {
-                var prefix = "struct ";
-                if (clrType.ActualType.IsClass)
-                    prefix = "class ";
-                if (clrType.ActualType.IsInterface)
-                    prefix = "interface ";
-                if (clrType.ActualType.IsEnum)
-                    prefix = "enumeration ";
-                quickInfoTip = prefix + clrType.ActualType.FullName;
+                var type = TypeSystemServices.GetType(node);
+                if (type is Error)
+                    return;
+
+                format = Formats.BooType;
+                var clrType = type as ExternalType;
+                if (clrType != null)
+                {
+                    var prefix = "struct ";
+                    if (clrType.ActualType.IsClass)
+                        prefix = "class ";
+                    if (clrType.ActualType.IsInterface)
+                        prefix = "interface ";
+                    if (clrType.ActualType.IsEnum)
+                        prefix = "enumeration ";
+                    quickInfoTip = prefix + clrType.ActualType.FullName;
+                }
+                else
+                    quickInfoTip = "class " + type.FullName;
             }
-            else
-                quickInfoTip = "class " + type.FullName;
+            catch (Exception)
+            {
+                return;
+            }
         }
     }
 }
