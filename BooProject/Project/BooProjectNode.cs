@@ -174,12 +174,9 @@ namespace Hill30.BooProject.Project
 
         public BooCompiler CreateCompiler()
         {
-            return new BooCompiler(
-                new CompilerParameters(true)
-                {
-                    Pipeline = CompilerPipeline.GetPipeline("compile")
-                }
-            );
+            var pipeline = CompilerPipeline.GetPipeline("compile");
+            pipeline.BreakOnErrors = false;
+            return new BooCompiler( new CompilerParameters(true) { Pipeline = pipeline } );
         }
 
         public void AddTask(ErrorTask task)

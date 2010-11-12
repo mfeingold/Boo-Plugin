@@ -20,5 +20,10 @@ namespace Hill30.BooProject.LanguageService.Mapping
                 nodeMap.MapNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
             base.OnMemberReferenceExpression(node);
         }
+
+        protected override void OnError(Node node, System.Exception error)
+        {
+            //base.OnError(node, error);
+        }
     }
 }

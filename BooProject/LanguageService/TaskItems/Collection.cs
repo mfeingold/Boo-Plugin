@@ -19,9 +19,9 @@ namespace Hill30.BooProject.LanguageService.TaskItems
             this.hier = hier;
         }
 
-        public void CreateErrorMessages(CompilerErrorCollection errors)
+        internal void CreateMessages(CompilerErrorCollection compilerErrors, CompilerWarningCollection compilerWarnings)
         {
-            foreach (var error in errors)
+            foreach (var error in compilerErrors)
             {
                 var task = 
                     new ErrorTask
@@ -32,6 +32,24 @@ namespace Hill30.BooProject.LanguageService.TaskItems
                         Column = error.LexicalInfo.Column,
                         Priority = TaskPriority.High,
                         Text = error.Code + ' ' + error.Message,
+                        HierarchyItem = hier,
+                        Category = TaskCategory.CodeSense
+                    };
+                task.Navigate += TaskNavigate;
+                tasks.Add(task);
+                projectManager.AddTask(task);
+            }
+            foreach (var warning in compilerWarnings)
+            {
+                var task =
+                    new ErrorTask
+                    {
+                        Document = warning.LexicalInfo.FileName,
+                        ErrorCategory = TaskErrorCategory.Warning,
+                        Line = warning.LexicalInfo.Line,
+                        Column = warning.LexicalInfo.Column,
+                        Priority = TaskPriority.High,
+                        Text = warning.Code + ' ' + warning.Message,
                         HierarchyItem = hier,
                         Category = TaskCategory.CodeSense
                     };
