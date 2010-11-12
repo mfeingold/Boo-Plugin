@@ -140,7 +140,8 @@ namespace Hill30.BooProject.Project
         {
             var languageService = (LanguageService.BooLanguageService)GetService(typeof(LanguageService.BooLanguageService));
             var source = (LanguageService.BooSource)languageService.GetOrCreateSource((IVsTextLines)buffer);
-            return base.Navigate(buffer, line-1, source.MapPosition(line, column));
+            var pos = source.MapPosition(line, column);
+            return base.Navigate(buffer, pos.Line, pos.Column);
         }
 
         #region Properties

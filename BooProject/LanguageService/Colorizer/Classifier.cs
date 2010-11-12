@@ -28,7 +28,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
             {
                 source = (BooSource) service.GetSource(buffer);
                 if (source != null)
-                    source.Recompiled += source_Recompiled;
+                    source.Recompiled += SourceRecompiled;
             }
 
             if (source != null)
@@ -39,7 +39,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 
         #endregion
 
-        void source_Recompiled(object sender, EventArgs e)
+        void SourceRecompiled(object sender, EventArgs e)
         {
             if (ClassificationChanged != null)
                 ClassificationChanged(sender, new ClassificationChangedEventArgs(source.SnapshotSpan));

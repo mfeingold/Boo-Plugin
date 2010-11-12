@@ -9,9 +9,9 @@ namespace Hill30.BooProject.LanguageService.TaskItems
 {
     public class Collection : IDisposable
     {
-        List<ErrorTask> tasks = new List<ErrorTask>();
-        IProjectManager projectManager;
-        IVsHierarchy hier;
+        readonly List<ErrorTask> tasks = new List<ErrorTask>();
+        readonly IProjectManager projectManager;
+        readonly IVsHierarchy hier;
 
         public Collection(IProjectManager projectManager, IVsHierarchy hier)
         {

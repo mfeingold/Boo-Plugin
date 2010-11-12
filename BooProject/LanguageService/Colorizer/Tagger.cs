@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
@@ -17,20 +15,19 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 
         public Tagger(BooLanguageService service, IVsTextLines iVsTextLines)
         {
-            // TODO: Complete member initialization
             this.service = service;
             buffer = iVsTextLines;
         }
 
         #region ITagger<ErrorTag> Members
 
-        public IEnumerable<ITagSpan<ErrorTag>> GetTags(Microsoft.VisualStudio.Text.NormalizedSnapshotSpanCollection spans)
+        public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
             if (source == null)
             {
                 source = (BooSource)service.GetSource(buffer);
                 if (source != null)
-                    source.Recompiled += source_Recompiled;
+                    source.Recompiled += SourceRecompiled;
             }
 
             if (source != null)
@@ -44,7 +41,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         #endregion
-        void source_Recompiled(object sender, EventArgs e)
+        void SourceRecompiled(object sender, EventArgs e)
         {
             if (TagsChanged != null)
                 TagsChanged(sender, new SnapshotSpanEventArgs(source.SnapshotSpan));

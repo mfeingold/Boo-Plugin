@@ -45,9 +45,19 @@ namespace Hill30.BooProject.LanguageService.Mapping
             positionMap = mappers.ToArray();
         }
 
-        internal int MapPosition(int line, int pos)
+        public struct BufferPoint
         {
-            return positionMap[line - 1][pos - 1];
+            public int Line;
+            public int Column;
+        }
+
+        public BufferPoint MapPosition(int line, int pos)
+        {
+            if (line == -1)
+                line = positionMap.Length;
+            if (pos == -1)
+                pos = positionMap[line - 1].Length;
+            return new BufferPoint {Line = line - 1, Column = positionMap[line - 1][pos - 1]};
         }
     }
 }

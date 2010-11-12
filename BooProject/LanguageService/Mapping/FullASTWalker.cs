@@ -1,5 +1,4 @@
-﻿using System;
-using Boo.Lang.Compiler.Ast;
+﻿using Boo.Lang.Compiler.Ast;
 using Hill30.BooProject.LanguageService.Mapping.Nodes;
 
 namespace Hill30.BooProject.LanguageService.Mapping
@@ -18,13 +17,8 @@ namespace Hill30.BooProject.LanguageService.Mapping
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedReferenceNode(nodeMap, bufferMap, node));
+                nodeMap.MapNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
             base.OnMemberReferenceExpression(node);
-        }
-
-        protected override void OnError(Node node, Exception error)
-        {
-            base.OnError(node, error);
         }
     }
 }

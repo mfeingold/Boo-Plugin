@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
 using Hill30.BooProject.LanguageService.Mapping;
+using Hill30.BooProject.LanguageService.Mapping.Nodes;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.Shell;
@@ -60,16 +61,12 @@ namespace Hill30.BooProject.LanguageService
             lock (this)
             {
                 bufferMap.Map(buffer, service.GetLanguagePreferences().TabSize);
-//                Mapper = new Mapper(service, buffer, service.GetLanguagePreferences().TabSize);
                 if (errorsMessages != null)
                     errorsMessages.Dispose();
                 errorsMessages = new Collection(projectManager, hierarchyItem);
                 var lexer = BooParser.CreateBooLexer(service.GetLanguagePreferences().TabSize, "code stream", new StringReader(req.Text));
                 try
                 {
-                    //IToken token;
-                    //while ((token = lexer.nextToken()).Type != BooLexer.EOF)
-                    //    Mapper.MapToken(token);
                     nodeMap.Clear();
                     nodeMap.MapTokens(lexer);
                     if (compiler == null)
@@ -122,7 +119,7 @@ namespace Hill30.BooProject.LanguageService
             return nodeMap.GetSnapshotSpan(lexicalInfo);
         }
 
-        internal IEnumerable<MappedNode> GetTypes()
+        internal IEnumerable<MappedTypeDefinition> GetTypes()
         {
             return nodeMap.GetTypes();
         }
@@ -130,7 +127,7 @@ namespace Hill30.BooProject.LanguageService
         public CompilerErrorCollection Errors { get { return nodeMap.Errors; } }
         public CompilerWarningCollection Warnings { get { return nodeMap.Warnings; } }
 
-        internal int MapPosition(int line, int pos)
+        internal BufferMap.BufferPoint MapPosition(int line, int pos)
         {
             return bufferMap.MapPosition(line, pos);
         }

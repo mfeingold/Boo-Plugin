@@ -4,26 +4,31 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 {
-    public class MappedReferenceNode : MappedNode
+    public class MappedReferenceExpression : MappedNode
     {
         private readonly NodeMap nodeMap;
         private string quickInfoTip;
         private readonly Node node;
-        private MappedNode defintionNode;
+        private MappedNode declarationNode;
         private IType varType;
 
-        public MappedReferenceNode(NodeMap nodeMap, BufferMap bufferMap, ReferenceExpression node)
-            : base(bufferMap, node, node.Name.Length)
+        public MappedReferenceExpression(NodeMap nodeMap, BufferMap bufferMap, ReferenceExpression node)
+            : base(bufferMap, node.LexicalInfo, node.Name.Length)
         {
             this.nodeMap = nodeMap;
             this.node = node;
         }
 
-        public MappedReferenceNode(NodeMap nodeMap, BufferMap bufferMap, SelfLiteralExpression node)
-            : base(bufferMap, node, "self".Length)
+        public MappedReferenceExpression(NodeMap nodeMap, BufferMap bufferMap, SelfLiteralExpression node)
+            : base(bufferMap, node.LexicalInfo, "self".Length)
         {
             this.nodeMap = nodeMap;
             this.node = node;
+        }
+
+        public override MappedNodeType Type
+        {
+            get { return MappedNodeType.VraiableReference; }
         }
 
         public override string QuickInfoTip
@@ -58,18 +63,18 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
                     {
                         prefix = "(parameter) ";
                         varType = TypeSystemServices.GetType(expression);
-                        defintionNode = nodeMap.GetNodes(((InternalParameter)entity).Parameter.LexicalInfo, n=>n.Node.NodeType == NodeType.ParameterDeclaration).FirstOrDefault();
+                        declarationNode = nodeMap.GetNodes(((InternalParameter)entity).Parameter.LexicalInfo, n=>n.Type == MappedNodeType.VariableDefinition).FirstOrDefault();
                     }
                     if (entity is InternalLocal)
                     {
                         prefix = "(local variable) ";
                         varType = ((InternalLocal)entity).Type;
-                        defintionNode = nodeMap.GetNodes(((InternalLocal)entity).Local.LexicalInfo, n => n.Node.NodeType == NodeType.Local).FirstOrDefault();
+                        declarationNode = nodeMap.GetNodes(((InternalLocal)entity).Local.LexicalInfo, n=>n.Type == MappedNodeType.VariableDefinition).FirstOrDefault();
                     }
                     if (entity is InternalField)
                     {
                         varType = TypeSystemServices.GetType(node);
-                        defintionNode = nodeMap.GetNodes(((InternalField)entity).Field.LexicalInfo, n => n.Node.NodeType == NodeType.Field).FirstOrDefault();
+                        declarationNode = nodeMap.GetNodes(((InternalField)entity).Field.LexicalInfo, n=>n.Type == MappedNodeType.VariableDefinition).FirstOrDefault();
                     }
                     quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
                     break;
@@ -78,7 +83,7 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
             }
         }
 
-        protected internal override MappedNode DefintionNode { get { return defintionNode; } }
+        protected internal override MappedNode DeclarationNode { get { return declarationNode; } }
 
         public override BooDeclarations Declarations
         {

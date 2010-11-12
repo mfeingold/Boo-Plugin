@@ -1,10 +1,6 @@
 ﻿using System;
-using Hill30.BooProject.LanguageService.Mapping;
 using Microsoft.VisualStudio.Package;
 using Boo.Lang.Parser;
-using System.IO;
-using Microsoft.VisualStudio.TextManager.Interop;
-using Hill30.BooProject.LanguageService.Colorizer;
 
 namespace Hill30.BooProject.LanguageService.Scanner
 {
@@ -15,20 +11,11 @@ namespace Hill30.BooProject.LanguageService.Scanner
         int offset;
         int current;
         int endIndex;
-        private BooLanguageService service;
-        private IVsTextLines buffer;
+        private readonly BooLanguageService service;
 
-        private Source source;
-
-        public Scanner(Source source)
-        {
-            this.source = source;
-        }
-
-        public Scanner(BooLanguageService service, IVsTextLines buffer)
+        public Scanner(BooLanguageService service)
         {
             this.service = service;
-            this.buffer = buffer;
         }
 
         #region IScanner Members
@@ -49,7 +36,7 @@ namespace Hill30.BooProject.LanguageService.Scanner
                     tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notification for the typing inside the token
                     tokenInfo.Color = TokenColor.Comment;
                     current = tokenInfo.EndIndex + 1;
-                    stashedToken = null;//  new DummyToken();
+                    stashedToken = null;
                     return true;
                 }
 
@@ -69,37 +56,37 @@ namespace Hill30.BooProject.LanguageService.Scanner
 
             int quotes = 0;
 
-            switch (NodeMap.GetTokenType(token))
+            switch (GetTokenType(token))
             {
-                case NodeMap.TokenType.DocumentString:
+                case BooTokenType.DocumentString:
                     quotes = 6;
                     tokenInfo.Type = TokenType.String;
                     tokenInfo.Color = TokenColor.String;
                     break;
 
-                case NodeMap.TokenType.String:
+                case BooTokenType.String:
                     quotes = 2;
                     tokenInfo.Type = TokenType.String;
                     tokenInfo.Color = TokenColor.String;
                     break;
 
-                case NodeMap.TokenType.MemberSelector:
+                case BooTokenType.MemberSelector:
                     tokenInfo.Type = TokenType.Text;
                     tokenInfo.Color = TokenColor.Text;
                     tokenInfo.Trigger = TokenTriggers.MemberSelect;
                     break;
 
-                case NodeMap.TokenType.WhiteSpace:
+                case BooTokenType.WhiteSpace:
                     tokenInfo.Type = TokenType.WhiteSpace;
                     tokenInfo.Color = TokenColor.Text;
                     break;
 
-                case NodeMap.TokenType.Identifier:
+                case BooTokenType.Identifier:
                     tokenInfo.Type = TokenType.Identifier;
                     tokenInfo.Color = TokenColor.Text;
                     break;
 
-                case NodeMap.TokenType.Keyword:
+                case BooTokenType.Keyword:
                     tokenInfo.Type = TokenType.Keyword;
                     tokenInfo.Color = TokenColor.Keyword;
                     break;
@@ -127,5 +114,88 @@ namespace Hill30.BooProject.LanguageService.Scanner
 
         #endregion
 
+        public enum BooTokenType
+        {
+            DocumentString = 0,
+            String = 1,
+            MemberSelector = 2,
+            WhiteSpace = 3,
+            Identifier = 4,
+            Keyword = 5,
+            Other = 6,
+        }
+
+        public static BooTokenType GetTokenType(antlr.IToken token)
+        {
+            switch (token.Type)
+            {
+                case BooLexer.TRIPLE_QUOTED_STRING: return BooTokenType.DocumentString;
+
+                case BooLexer.DOUBLE_QUOTED_STRING:
+                case BooLexer.SINGLE_QUOTED_STRING:
+                    return BooTokenType.String;
+
+                case BooLexer.DOT: return BooTokenType.MemberSelector;
+
+                case BooLexer.WS: return BooTokenType.WhiteSpace;
+
+                case BooLexer.ID: return BooTokenType.Identifier;
+
+                case BooLexer.ABSTRACT:
+                case BooLexer.AS:
+                case BooLexer.BREAK:
+                case BooLexer.CLASS:
+                case BooLexer.CONSTRUCTOR:
+                case BooLexer.CONTINUE:
+                case BooLexer.DEF:
+                case BooLexer.DO:
+                case BooLexer.ELIF:
+                case BooLexer.ELSE:
+                case BooLexer.ENUM:
+                case BooLexer.EVENT:
+                case BooLexer.EXCEPT:
+                case BooLexer.FALSE:
+                case BooLexer.FINAL:
+                case BooLexer.FOR:
+                case BooLexer.FROM:
+                case BooLexer.GET:
+                case BooLexer.GOTO:
+                case BooLexer.IF:
+                case BooLexer.IMPORT:
+                case BooLexer.IN:
+                case BooLexer.INTERFACE:
+                case BooLexer.INTERNAL:
+                case BooLexer.IS:
+                case BooLexer.LONG:
+                case BooLexer.NAMESPACE:
+                case BooLexer.NULL:
+                case BooLexer.OF:
+                case BooLexer.OVERRIDE:
+                case BooLexer.PARTIAL:
+                case BooLexer.PASS:
+                case BooLexer.PRIVATE:
+                case BooLexer.PROTECTED:
+                case BooLexer.PUBLIC:
+                case BooLexer.RAISE:
+                case BooLexer.REF:
+                case BooLexer.RETURN:
+                case BooLexer.SELF:
+                case BooLexer.SET:
+                case BooLexer.STATIC:
+                case BooLexer.STRUCT:
+                case BooLexer.SUPER:
+                case BooLexer.THEN:
+                case BooLexer.TRUE:
+                case BooLexer.TRY:
+                case BooLexer.TYPEOF:
+                case BooLexer.UNLESS:
+                case BooLexer.VIRTUAL:
+                case BooLexer.WHILE:
+                case BooLexer.YIELD:
+                    return BooTokenType.Keyword;
+
+                default: return BooTokenType.Other;
+            }
+        }
     }
 }

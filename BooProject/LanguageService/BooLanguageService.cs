@@ -69,7 +69,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override IScanner GetScanner(IVsTextLines buffer)
         {
-            return new Scanner.Scanner(this, buffer);
+            return new Scanner.Scanner(this);
         }
 
         public override string Name

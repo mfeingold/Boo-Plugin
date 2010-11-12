@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Boo.Lang.Compiler.Ast;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -17,28 +16,14 @@ namespace Hill30.BooProject.LanguageService
         public override string GetDataTipText(int line, int col, out TextSpan span)
         {
             var nodes = source.GetNodes(line, col, node=>node.QuickInfoTip != null);
-            int? start = null;
-            int? end = null;
             var tip = "";
+            span = new TextSpan();
             foreach (var node in nodes)
             {
-                if (node.StartPos >= (start ?? 0))
-                    start = node.StartPos;
-                if (node.EndPos <= (end ?? int.MaxValue))
-                    end = node.EndPos;
-                if (tip != "")
-                    tip += "\n";
+                span = span.Union(node.TextSpan);
                 tip += node.QuickInfoTip;
             }
-            if (tip != "")
-            {
-                span = new TextSpan
-                            {iStartLine = line, iStartIndex = start.Value, iEndLine = line, iEndIndex = end.Value};
-                return tip;
-
-            }
-            span = new TextSpan();
-            return "";
+            return tip;
         }
 
         public override Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)
@@ -56,19 +41,13 @@ namespace Hill30.BooProject.LanguageService
 
         public override string Goto(Microsoft.VisualStudio.VSConstants.VSStd97CmdID cmd, IVsTextView textView, int line, int col, out TextSpan span)
         {
-                var node = source.GetNodes(line, col, n=>n.DefintionNode != null).FirstOrDefault();
+                var node = source.GetNodes(line, col, n=>n.DeclarationNode != null).FirstOrDefault();
             if (node != null)
             {
-                if (node.DefintionNode != null)
+                if (node.DeclarationNode != null)
                 {
-                    span = new TextSpan
-                                {
-                                    iStartLine = node.DefintionNode.Line-1, 
-                                    iStartIndex = node.DefintionNode.StartPos, 
-                                    iEndLine = node.DefintionNode.Line-1, 
-                                    iEndIndex = node.DefintionNode.EndPos
-                                };
-                    return node.Node.LexicalInfo.FullPath;
+                    span = node.DeclarationNode.TextSpan;
+                    return node.DeclarationNode.LexicalInfo.FullPath;
                 }
             }
             span = new TextSpan();

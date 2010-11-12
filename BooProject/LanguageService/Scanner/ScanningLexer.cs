@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Boo.Lang.Parser;
 using System.IO;
 
@@ -9,8 +7,8 @@ namespace Hill30.BooProject.LanguageService.Scanner
 {
     class ScanningLexer
     {
-        antlr.TokenStream lexer;
-        int[] positionMap;
+        readonly antlr.TokenStream lexer;
+        readonly int[] positionMap;
 
         public ScanningLexer(int tabSize, string source)
         {

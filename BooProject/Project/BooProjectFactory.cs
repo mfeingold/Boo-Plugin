@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Project;
 using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
-using Microsoft.Win32;
 using System.IO;
 
 namespace Hill30.BooProject.Project
 {
     public class BooProjectFactory : ProjectFactory
     {
-        BooProjectPackage package;
+        readonly BooProjectPackage package;
         public BooProjectFactory(BooProjectPackage package)
             : base(package)
         {
@@ -23,7 +19,7 @@ namespace Hill30.BooProject.Project
         protected override ProjectNode CreateProject()
         {
             var result = new BooProjectNode();
-            result.SetSite((IOleServiceProvider)((IServiceProvider)this.package).GetService(typeof(IOleServiceProvider)));
+            result.SetSite((IOleServiceProvider)((IServiceProvider)package).GetService(typeof(IOleServiceProvider)));
             return result;
         }
 
