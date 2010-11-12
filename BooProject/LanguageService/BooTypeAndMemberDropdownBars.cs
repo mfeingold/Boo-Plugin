@@ -46,7 +46,13 @@ namespace Hill30.BooProject.LanguageService
             ref int selectedType, 
             ref int selectedMember)
         {
-            // TODO: Navigation logic: assign selectedType/selectedMember based on line/col
+            var sType = -1;
+            foreach (var type in types)
+            {
+                sType++;
+                if (type.TextSpan.Contains(line, col))
+                    selectedType = sType;
+            }
 
             if (!recompiled)
                 return false;

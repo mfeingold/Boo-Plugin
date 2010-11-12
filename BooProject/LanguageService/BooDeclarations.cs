@@ -45,7 +45,7 @@ namespace Hill30.BooProject.LanguageService
                     }
                 }
             //for (var i = 1000; i < 1300; i += 6)
-            //    list.Add("a" + i, new Declaration {DisplayText="a" + i, ImageIndex = i - 1000});
+            //    list.Add("a" + i, new Declaration { DisplayText = "a" + i, ImageIndex = i - 1000 });
         }
 
         private static bool IsPrivate(Node context, IType type)
@@ -193,6 +193,8 @@ namespace Hill30.BooProject.LanguageService
             switch (type)
             {
                 case NodeType.Module:
+                    result = MODULE_ICONS;
+                    break;
                 case NodeType.ClassDefinition:
                     result = CLASS_ICONS;
                     break;
@@ -247,6 +249,7 @@ namespace Hill30.BooProject.LanguageService
         const int FIELD_ICONS = 42;
         const int INTERFACE_ICONS = 48;
         const int METHOD_ICONS = 72;
+        const int MODULE_ICONS = 84;
         const int PROPERTY_ICONS = 102;
         const int STRUCT_ICONS = 108;
 
