@@ -1,4 +1,19 @@
-﻿using System.Collections.Generic;
+﻿//
+//   Copyright © 2010 Michael Feingold
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+
+using System.Collections.Generic;
 using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Microsoft.VisualStudio.Package;
@@ -7,9 +22,28 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Hill30.BooProject.LanguageService
 {
+    /// <summary>
+    /// Represents a collection of items to be shown in member selection dropdowns
+    /// </summary>
+    /// <remarks>
+    /// The actual list is based on the list of members of the IType object passed in when the collection is created.
+    /// The member list is further filtered and formatted.
+    /// Filtering: only methods, properties, fields and events are included. Also access modifiers are taken into consideration
+    /// Formatting: 3 items displayed include name, description and icon. 
+    /// Name: is a short name of the member for overloaded methods only one item is included in the list.
+    /// Standard VS icons are selected based on the member type and access modifiers. 
+    /// Description consists of Full name of the member including the signature. For overloaded methods this will be a description 
+    /// of the first method of the group plus the number of other overloads
+    /// </remarks>
+    
+    // TODO: method description does not include parameter description
+    // TODO: double check the list of members to be included
+    // TODO: double check filtering of the private members
+    // TODO: implement filtering for the protected members
+    
     public class BooDeclarations : Declarations
     {
-        public class Declaration
+        private class Declaration
         {
             public string DisplayText { get; set; }
             public string Description { get; set; }

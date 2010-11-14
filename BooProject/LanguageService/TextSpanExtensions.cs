@@ -1,6 +1,22 @@
-﻿using System;
+﻿//
+//   Copyright © 2010 Michael Feingold
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+
+using System;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
+using Boo.Lang.Compiler.Ast;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -52,6 +68,19 @@ namespace Hill30.BooProject.LanguageService
             if (line > self.iEndLine)
                 return false;
             return true;
+        }
+
+        public static TextSpan GetTextSpan(this Node node, BooSource source)
+        {
+            var start = source.MapPosition(node.LexicalInfo.Line, node.LexicalInfo.Column);
+            var end = source.MapPosition(node.EndSourceLocation.Line, node.EndSourceLocation.Column);
+            return new TextSpan
+            {
+                iStartLine = start.Line,
+                iStartIndex = start.Column,
+                iEndLine = end.Line,
+                iEndIndex = end.Column
+            };
         }
 
     }

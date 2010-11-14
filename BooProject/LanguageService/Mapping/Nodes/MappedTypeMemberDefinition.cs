@@ -13,24 +13,30 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Boo.Lang.Compiler.Ast;
 
 namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 {
-    public class MappedTypeDefinition : MappedNode
+    public class MappedTypeMemberDefinition: MappedNode
     {
-        public TypeDefinition Node { get; private set; }
+        private BufferMap bufferMap;
+        private TypeMember node;
 
-        public MappedTypeDefinition(BufferMap bufferMap, TypeDefinition node)
+        public MappedTypeMemberDefinition(BufferMap bufferMap, TypeMember node)
             : base(bufferMap, node)
         {
-            Node = node;
+            // TODO: Complete member initialization
+            this.bufferMap = bufferMap;
+            this.node = node;
         }
 
         public override MappedNodeType Type
         {
-            get { return MappedNodeType.TypeDefiniton; }
+            get { throw new NotImplementedException(); }
         }
-
     }
 }
