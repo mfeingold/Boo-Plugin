@@ -82,77 +82,102 @@ namespace Hill30.BooProject.LanguageService
             //    list.Add("a" + i, new Declaration { DisplayText = "a" + i, ImageIndex = i - 1000 });
         }
 
-        private static bool IsPrivate(Node context, IType type)
+        private static bool IsContextPrivate(Node context, IType type)
         {
             if (context == null)
                 return false;
             if (context.NodeType == NodeType.ClassDefinition && TypeSystemServices.GetType(context) == type)
                     return true;
-            return IsPrivate(context.ParentNode, type);
+            if (context.NodeType == NodeType.StructDefinition && TypeSystemServices.GetType(context) == type)
+                return true;
+            return IsContextPrivate(context.ParentNode, type);
+        }
+
+        private static bool IsContextProtected(Node context, IType type)
+        {
+            if (context == null)
+                return false;
+            if (context.NodeType == NodeType.ClassDefinition && TypeSystemServices.GetType(context) == type)
+                return true;
+            if (context.NodeType == NodeType.StructDefinition && TypeSystemServices.GetType(context) == type)
+                return true;
+            return IsContextProtected(context.ParentNode, type);
         }
 
         private void FormatField(Node context, IField field, bool instance)
         {
             if (field.IsStatic == instance)
                 return;
-            if (field.IsInternal && !(field is InternalField))
-                return;
-            if (field.IsPrivate && !IsPrivate(context, field.Type))
-                    return;
+            if (
+                field.IsPublic ||
+                field.IsInternal && (field is InternalField) ||
+                field.IsProtected && IsContextProtected(context, field.Type) ||
+                field.IsPrivate && IsContextPrivate(context, field.Type)
+                )
+            {
 
+                var name = field.Name;
+                var description = name + " as " + field.Type;
 
-            var name = field.Name;
-            var description = name + " as " + field.Type;
-
-            list.Add(name,
-                new Declaration
-                {
-                    DisplayText = name,
-                    Description = description,
-                    ImageIndex = GetIconForNode(NodeType.Field, field.IsPublic, field.IsInternal, field.IsProtected, field.IsPrivate)
-                });
+                list.Add(name,
+                    new Declaration
+                    {
+                        DisplayText = name,
+                        Description = description,
+                        ImageIndex = GetIconForNode(NodeType.Field, field.IsPublic, field.IsInternal, field.IsProtected, field.IsPrivate)
+                    });
+            }
         }
 
         private void FormatEvent(Node context, IEvent @event, bool instance)
         {
             if (@event.IsStatic == instance)
                 return;
+            if (
+                @event.IsPublic
+                || IsContextPrivate(context, @event.Type)
+                )
+            {
 
-            var name = @event.Name;
-            var description = name + " as " + @event.Type;
+                var name = @event.Name;
+                var description = name + " as " + @event.Type;
 
-            list.Add(name,
-                new Declaration
-                {
-                    DisplayText = name,
-                    Description = description,
-                    // Hmm... if it is not public - is it protected? or internal? let us make it private
-                    ImageIndex = GetIconForNode(NodeType.Event, @event.IsPublic, /* @event.IsInternal */ false, /*@event.IsProtected*/ false, !@event.IsPublic)
-                });
+                list.Add(name,
+                    new Declaration
+                    {
+                        DisplayText = name,
+                        Description = description,
+                        // Hmm... if it is not public - is it protected? or internal? let us make it private
+                        ImageIndex = GetIconForNode(NodeType.Event, @event.IsPublic, /* @event.IsInternal */ false, /*@event.IsProtected*/ false, !@event.IsPublic)
+                    });
+            }
         }
 
         private void FormatProperty(Node context, IProperty property, bool instance)
         {
             if (property.IsStatic == instance)
                 return;
-            if (property.IsInternal && !(property is InternalProperty))
-                return;
-            if (property.IsPrivate && !IsPrivate(context, property.Type))
-                return;
+            if (
+                property.IsPublic ||
+                property.IsInternal && (property is InternalField) ||
+                property.IsProtected && IsContextProtected(context, property.Type) ||
+                property.IsPrivate && IsContextPrivate(context, property.Type)
+                )
+            {
+                var name = property.Name;
+                var description = name + " as " + property.Type;
 
-            var name = property.Name;
-            var description = name + " as " + property.Type;
+                if (property.IsExtension)
+                    description = "(extension) " + description;
 
-            if (property.IsExtension)
-                description = "(extension) " + description;
-
-            list.Add(name, 
-                new Declaration
-                    {
-                        DisplayText = name,
-                        Description = description,
-                        ImageIndex = GetIconForNode(NodeType.Property, property.IsPublic, property.IsInternal, property.IsProtected, property.IsPrivate)
-                    });
+                list.Add(name,
+                    new Declaration
+                        {
+                            DisplayText = name,
+                            Description = description,
+                            ImageIndex = GetIconForNode(NodeType.Property, property.IsPublic, property.IsInternal, property.IsProtected, property.IsPrivate)
+                        });
+            }
         }
 
         private void FormatMethod(Node context, IMethod method, bool instance)
@@ -163,30 +188,33 @@ namespace Hill30.BooProject.LanguageService
                 return;
             if (method.IsStatic == instance)
                 return;
-            if (method.IsInternal && !(method is InternalMethod))
-                return;
-            if (method.IsPrivate && !IsPrivate(context, method.ReturnType))
-                return;
-
-
-            var name = method.Name;
-            Declaration declaration;
-            if (list.TryGetValue(name, out declaration))
+            if (
+                method.IsPublic ||
+                method.IsInternal && (method is InternalField) ||
+                method.IsProtected && IsContextProtected(context, method.Type) ||
+                method.IsPrivate && IsContextPrivate(context, method.Type)
+                )
             {
-                declaration.Count++;
-                return;
+
+                var name = method.Name;
+                Declaration declaration;
+                if (list.TryGetValue(name, out declaration))
+                {
+                    declaration.Count++;
+                    return;
+                }
+
+                var description = name + " as " + method.ReturnType;
+                if (method.IsExtension)
+                    description = "(extension) " + description;
+
+                list.Add(name, new Declaration
+                    {
+                        DisplayText = name,
+                        Description = description,
+                        ImageIndex = GetIconForNode(NodeType.Method, method.IsPublic, method.IsInternal, method.IsProtected, method.IsPrivate)
+                    });
             }
-
-            var description = name + " as " + method.ReturnType;
-            if (method.IsExtension)
-                description = "(extension) " + description;
-
-            list.Add(name, new Declaration 
-                { 
-                    DisplayText = name, 
-                    Description = description, 
-                    ImageIndex = GetIconForNode(NodeType.Method, method.IsPublic, method.IsInternal, method.IsProtected, method.IsPrivate)
-                });
         }
 
         public override int GetCount()
