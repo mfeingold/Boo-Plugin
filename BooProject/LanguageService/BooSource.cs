@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
@@ -83,7 +84,7 @@ namespace Hill30.BooProject.LanguageService
                 var lexer = BooParser.CreateBooLexer(service.GetLanguagePreferences().TabSize, "code stream", new StringReader(req.Text));
                 try
                 {
-                    nodeMap.Clear();
+                    nodeMap.Initialize();
                     nodeMap.MapTokens(lexer);
                     if (compiler == null)
                     {
@@ -118,38 +119,12 @@ namespace Hill30.BooProject.LanguageService
         public event EventHandler Recompiled;
 
         public IList<ClassificationSpan> ClassificationSpans { get { return nodeMap.ClassificationSpans; } }
-
-        public IEnumerable<MappedNode> GetNodes(LexicalInfo loc, Func<MappedNode, bool> filter)
-        {
-            return nodeMap.GetNodes(loc, filter);
-        }
-
-        public IEnumerable<MappedNode> GetNodes(int line, int pos, Func<MappedNode, bool> filter)
-        {
-            return nodeMap.GetNodes(line, pos, filter);
-        }
-
-        public IEnumerable<MappedNode> GetAdjacentNodes(int line, int pos, Func<MappedNode, bool> filter)
-        {
-            return nodeMap.GetAdjacentNodes(line, pos, filter);
-        }
-
-        internal SnapshotSpan GetSnapshotSpan(LexicalInfo lexicalInfo)
-        {
-            return nodeMap.GetSnapshotSpan(lexicalInfo);
-        }
-
-        internal IEnumerable<MappedTypeDefinition> GetTypes()
-        {
-            return nodeMap.GetTypes();
-        }
-
         public CompilerErrorCollection Errors { get { return nodeMap.Errors; } }
         public CompilerWarningCollection Warnings { get { return nodeMap.Warnings; } }
 
         internal BufferMap.BufferPoint MapPosition(int line, int pos)
         {
-            return bufferMap.MapPosition(line, pos);
+            return bufferMap.LocationToPoint(line, pos);
         }
 
         internal SnapshotSpan SnapshotSpan { get { return new SnapshotSpan(bufferMap.CurrentSnapshot, 0, bufferMap.CurrentSnapshot.Length); } }
@@ -159,6 +134,46 @@ namespace Hill30.BooProject.LanguageService
             if (errorsMessages != null)
                 errorsMessages.Dispose();
             base.Dispose();
+        }
+
+        internal SnapshotSpan GetErrorSnapshotSpan(LexicalInfo lexicalInfo)
+        {
+            return nodeMap.GetErrorSnapshotSpan(lexicalInfo);
+        }
+
+        internal IEnumerable<MappedTypeDefinition> GetTypes()
+        {
+            return nodeMap.GetTypes();
+        }
+
+        internal string GetDataTipText(int line, int col, out TextSpan span)
+        {
+            var cluster = nodeMap.GetNodeCluster(line, col);
+            if (cluster == null)
+            {
+                span = new TextSpan();
+                return "";
+            }
+            return cluster.GetDataTiptext(out span);
+        }
+
+        internal Declarations GetDeclarations(int line, int col, TokenInfo info, ParseReason reason)
+        {
+            var cluster = nodeMap.GetAdjacentNodeCluster(line, col);
+            if (cluster == null)
+                return new BooDeclarations();
+            return cluster.GetDeclarations(info, reason);
+        }
+
+        internal string Goto(int line, int col, out TextSpan span)
+        {
+            var cluster = nodeMap.GetNodeCluster(line, col);
+            if (cluster == null)
+            {
+                span = new TextSpan();
+                return null;
+            }
+            return cluster.Goto(out span);
         }
     }
 }

@@ -13,9 +13,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System.Collections.Generic;
 using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 {
@@ -23,22 +25,19 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
     {
         private readonly NodeMap nodeMap;
         private string quickInfoTip;
-        private readonly Node node;
         private MappedNode declarationNode;
         private IType varType;
 
         public MappedReferenceExpression(NodeMap nodeMap, BufferMap bufferMap, ReferenceExpression node)
-            : base(bufferMap, node.LexicalInfo, node.Name.Length)
+            : base(bufferMap, node, node.Name.Length)
         {
             this.nodeMap = nodeMap;
-            this.node = node;
         }
 
         public MappedReferenceExpression(NodeMap nodeMap, BufferMap bufferMap, SelfLiteralExpression node)
-            : base(bufferMap, node.LexicalInfo, "self".Length)
+            : base(bufferMap, node, "self".Length)
         {
             this.nodeMap = nodeMap;
-            this.node = node;
         }
 
         public override MappedNodeType Type
@@ -51,12 +50,12 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
             get { return quickInfoTip; }
         }
 
-        protected internal override void Resolve()
+        protected override void ResolveImpl()
         {
-            switch (node.NodeType)
+            switch (Node.NodeType)
             {
                 case NodeType.SelfLiteralExpression:
-                    var classDefinition = node;
+                    var classDefinition = Node;
                     while (classDefinition.ParentNode != null)
                         if (classDefinition.NodeType != NodeType.ClassDefinition)
                             classDefinition = classDefinition.ParentNode;
@@ -69,7 +68,7 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 
                 case NodeType.MemberReferenceExpression:
                 case NodeType.ReferenceExpression:
-                    var expression = (ReferenceExpression)node;
+                    var expression = (ReferenceExpression)Node;
                     if (expression.ExpressionType == null || expression.ExpressionType.EntityType == EntityType.Error)
                         break;
                     var entity = TypeSystemServices.GetEntity(expression);
@@ -78,18 +77,34 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
                     {
                         prefix = "(parameter) ";
                         varType = TypeSystemServices.GetType(expression);
-                        declarationNode = nodeMap.GetNodes(((InternalParameter)entity).Parameter.LexicalInfo, n=>n.Type == MappedNodeType.VariableDefinition).FirstOrDefault();
+                        declarationNode = nodeMap.GetMappedNode(((InternalParameter)entity).Parameter);
                     }
                     if (entity is InternalLocal)
                     {
                         prefix = "(local variable) ";
                         varType = ((InternalLocal)entity).Type;
-                        declarationNode = nodeMap.GetNodes(((InternalLocal)entity).Local.LexicalInfo, n=>n.Type == MappedNodeType.VariableDefinition).FirstOrDefault();
+                        declarationNode = nodeMap.GetMappedNode(((InternalLocal)entity).Local);
                     }
                     if (entity is InternalField)
                     {
-                        varType = TypeSystemServices.GetType(node);
-                        declarationNode = nodeMap.GetNodes(((InternalField)entity).Field.LexicalInfo, n=>n.Type == MappedNodeType.VariableDefinition).FirstOrDefault();
+                        varType = TypeSystemServices.GetType(Node);
+                        declarationNode = nodeMap.GetMappedNode(((InternalField)entity).Field);
+                    }
+                    if (entity is InternalMethod)
+                    {
+                        var declaration = ((InternalMethod) entity).Method;
+                        declarationNode = nodeMap.GetMappedNode(declaration);
+                        varType = TypeSystemServices.GetType(declaration.ReturnType);
+                    }
+                    if (entity is InternalProperty)
+                    {
+                        varType = TypeSystemServices.GetType(Node);
+                        declarationNode = nodeMap.GetMappedNode(((InternalProperty)entity).Property);
+                    }
+                    if (entity is InternalEvent)
+                    {
+                        varType = TypeSystemServices.GetType(Node);
+                        declarationNode = nodeMap.GetMappedNode(((InternalEvent)entity).Event);
                     }
                     quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
                     break;
@@ -104,8 +119,26 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
         {
             get
             {
-                return new BooDeclarations(node, varType, true);
+                return new BooDeclarations(Node, varType, true);
             }
+        }
+
+        internal override void Record(RecordingStage stage, List<MappedNode> list)
+        {
+            switch (stage)
+            {
+                case RecordingStage.Completed:
+                    var macro = list.Where(
+                        node => (node.Node is MacroStatement &&
+                                    ((MacroStatement)node.Node).Name == ((ReferenceExpression)Node).Name)
+                        ).FirstOrDefault();
+                    if (macro != null)
+                        list.Remove(macro);
+                    break;
+                default:
+                    break;
+            }
+            base.Record(stage, list);
         }
     }
 }

@@ -21,17 +21,12 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
     {
 
         public MappedVariableDefinition(BufferMap bufferMap, ParameterDeclaration node)
-            : base(bufferMap, node)
+            : base(bufferMap, node, node.Name.Length)
         {
         }
 
         public MappedVariableDefinition(BufferMap bufferMap, Local node)
-            : base(bufferMap, node)
-        {
-        }
-
-        public MappedVariableDefinition(BufferMap bufferMap, Field node)
-            : base(bufferMap, node)
+            : base(bufferMap, node, node.Name.Length)
         {
         }
 

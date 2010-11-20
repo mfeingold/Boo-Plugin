@@ -23,20 +23,19 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
 {
     public class MappedTypeMemberDefinition: MappedNode
     {
-        private BufferMap bufferMap;
-        private TypeMember node;
-
         public MappedTypeMemberDefinition(BufferMap bufferMap, TypeMember node)
             : base(bufferMap, node)
         {
-            // TODO: Complete member initialization
-            this.bufferMap = bufferMap;
-            this.node = node;
+        }
+
+        public MappedTypeMemberDefinition(BufferMap bufferMap, Field node)
+            : base(bufferMap, node, node.Name.Length)
+        {
         }
 
         public override MappedNodeType Type
         {
-            get { throw new NotImplementedException(); }
+            get { return MappedNodeType.TypeMemberDefinition; }
         }
     }
 }

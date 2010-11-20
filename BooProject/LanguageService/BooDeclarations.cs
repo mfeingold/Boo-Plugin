@@ -111,8 +111,8 @@ namespace Hill30.BooProject.LanguageService
             if (
                 field.IsPublic ||
                 field.IsInternal && (field is InternalField) ||
-                field.IsProtected && IsContextProtected(context, field.Type) ||
-                field.IsPrivate && IsContextPrivate(context, field.Type)
+                field.IsProtected && IsContextProtected(context, field.DeclaringType) ||
+                field.IsPrivate && IsContextPrivate(context, field.DeclaringType)
                 )
             {
 
@@ -160,8 +160,8 @@ namespace Hill30.BooProject.LanguageService
             if (
                 property.IsPublic ||
                 property.IsInternal && (property is InternalField) ||
-                property.IsProtected && IsContextProtected(context, property.Type) ||
-                property.IsPrivate && IsContextPrivate(context, property.Type)
+                property.IsProtected && IsContextProtected(context, property.DeclaringType) ||
+                property.IsPrivate && IsContextPrivate(context, property.DeclaringType)
                 )
             {
                 var name = property.Name;
@@ -191,8 +191,8 @@ namespace Hill30.BooProject.LanguageService
             if (
                 method.IsPublic ||
                 method.IsInternal && (method is InternalField) ||
-                method.IsProtected && IsContextProtected(context, method.Type) ||
-                method.IsPrivate && IsContextPrivate(context, method.Type)
+                method.IsProtected && IsContextProtected(context, method.DeclaringType) ||
+                method.IsPrivate && IsContextPrivate(context, method.DeclaringType)
                 )
             {
 

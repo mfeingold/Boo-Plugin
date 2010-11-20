@@ -32,7 +32,7 @@ namespace Hill30.BooProject.LanguageService.Mapping
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
+                nodeMap.MapNode(RecordingStage.Completed, new MappedReferenceExpression(nodeMap, bufferMap, node));
             base.OnMemberReferenceExpression(node);
         }
 

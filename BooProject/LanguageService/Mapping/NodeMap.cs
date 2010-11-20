@@ -22,16 +22,18 @@ using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text;
 using Hill30.BooProject.LanguageService.Colorizer;
 using Boo.Lang.Compiler;
-using TypeDefinition = Hill30.BooProject.LanguageService.Mapping.Nodes.MappedTypeDefinition;
+using Hill30.BooProject.LanguageService.Mapping.Nodes;
 
 namespace Hill30.BooProject.LanguageService.Mapping
 {
     public class NodeMap
     {
-        private readonly Dictionary<int, List<MappedNode>> nodeDictionary = new Dictionary<int, List<MappedNode>>();
+
         private readonly List<ClassificationSpan> classificationSpans = new List<ClassificationSpan>();
         private readonly BooLanguageService service;
         private readonly BufferMap bufferMap;
+        private readonly List<NodeCluster> nodeClusters = new List<NodeCluster>();
+        private readonly List<MappedTypeDefinition> types = new List<MappedTypeDefinition>();
 
         public CompilerErrorCollection Errors { get; private set; }
         public CompilerWarningCollection Warnings { get; private set; }
@@ -45,14 +47,14 @@ namespace Hill30.BooProject.LanguageService.Mapping
             Warnings = new CompilerWarningCollection();
         }
 
-        internal void Clear()
+        internal void Initialize()
         {
-            nodeDictionary.Clear();
+            nodeClusters.Clear();
+            types.Clear();
             classificationSpans.Clear();
             Errors.Clear();
             Warnings.Clear();
         }
-
 
         private antlr.IToken nextToken(antlr.TokenStream tokens)
         {
@@ -70,7 +72,6 @@ namespace Hill30.BooProject.LanguageService.Mapping
 
             while ((token = nextToken(tokens)).Type != BooLexer.EOF)
             {
-
                 int length;
 
                 switch (token.Type)
@@ -91,9 +92,11 @@ namespace Hill30.BooProject.LanguageService.Mapping
                         break;
                 }
 
-                var start = bufferMap.MapPosition(token.getLine(), token.getColumn());
-                var end = bufferMap.MapPosition(token.getLine(), token.getColumn() + length);
+                var start = bufferMap.LocationToPoint(token.getLine(), token.getColumn());
+                var end = bufferMap.LocationToPoint(token.getLine(), token.getColumn() + length);
                 length = end.Column - start.Column;
+
+                Map(start, length, token);
 
                 var span =
                     new SnapshotSpan(bufferMap.CurrentSnapshot,
@@ -117,106 +120,111 @@ namespace Hill30.BooProject.LanguageService.Mapping
                         ));
         }
 
-        public void MapNode(MappedNode node)
+        private int IndexOfBufferPoint(int line, int column)
         {
-            List<MappedNode> nodes;
-            if (!nodeDictionary.TryGetValue(node.LexicalInfo.Line - 1, out nodes))
-                nodeDictionary[node.LexicalInfo.Line - 1] = nodes = new List<MappedNode>();
-            nodes.Add(node);
+            return line * bufferMap.LineSize + column;
+        }
+
+        private int Lookup(int index)
+        {
+            var i = nodeClusters.BinarySearch(new NodeCluster(index));
+            if (i >= 0)
+                return i;
+            return Math.Max(0, (~i) - 1);
+        }
+
+        private void Map(BufferMap.BufferPoint start, int length, antlr.IToken token)
+        {
+            var cluster = new NodeCluster(bufferMap.LineSize, start, length, token);
+            if (nodeClusters.Count > 0
+                && nodeClusters[nodeClusters.Count() - 1].Index >= cluster.Index)
+                throw new ArgumentException("Token Mapping order");
+            nodeClusters.Add(cluster);
+        }
+
+        private void ClustersForNode(MappedNode node, Action<NodeCluster> action)
+        {
+            var startIndex = IndexOfBufferPoint(node.TextSpan.iStartLine, node.TextSpan.iStartIndex);
+            var endIndex = IndexOfBufferPoint(node.TextSpan.iEndLine, node.TextSpan.iEndIndex);
+            for (var i = Lookup(startIndex); i < nodeClusters.Count && nodeClusters[i].Index + nodeClusters[i].Length <= endIndex; i++)
+                action(nodeClusters[i]);
+        }
+
+        public void MapParsedNode(MappedNode node)
+        {
+            if (node.Type == MappedNodeType.TypeDefiniton)
+                types.Add((MappedTypeDefinition)node);
+            ClustersForNode(node, cluster => node.Record(RecordingStage.Parsed, cluster.Nodes));
+        }
+
+        public void MapNode(RecordingStage stage, MappedNode node)
+        {
+            ClustersForNode(node, cluster => node.Record(stage, cluster.Nodes));
         }
 
         internal void Complete(CompilerContext compileResult)
         {
-            foreach (var list in nodeDictionary.Values)
-                foreach (var node in list)
-                {
-                    node.Resolve();
-                    if (node.Format != null)
-                    {
-                        classificationSpans.Add(
-                            new ClassificationSpan(
-                                node.TextSpan.GetSnapshotSpan(bufferMap.CurrentSnapshot),
-                                service.ClassificationTypeRegistry.GetClassificationType(
-                                node.Format)));
-                    }
-                }
+            foreach (var cluster in nodeClusters)
+                cluster.Resolve(
+                    node =>
+                        {
+                            if (node.Format != null)
+                                classificationSpans.Add(
+                                    new ClassificationSpan(
+                                        node.TextSpan.GetSnapshotSpan(bufferMap.CurrentSnapshot),
+                                        service.ClassificationTypeRegistry.GetClassificationType(
+                                            node.Format)));
+                        }
+                    );
+
             Errors = compileResult.Errors;
             Warnings = compileResult.Warnings;
         }
 
-        /// <summary>
-        /// Produces a list of nodes for a given location (in the Boo Compiler format) filtered by the provided filter
-        /// </summary>
-        /// <param name="loc">Location in the source code as provided by Boo compiler</param>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        /// <remarks> The text span for the selected nodes include the location provided</remarks>
-        public IEnumerable<MappedNode> GetNodes(LexicalInfo loc, Func<MappedNode, bool> filter)
+        public NodeCluster GetNodeCluster(int line, int column)
         {
-            if (bufferMap.FilePath == loc.FileName)
-                return GetNodes(loc.Line - 1, bufferMap.MapPosition(loc.Line, loc.Column).Column, filter);
-            var source = service.GetSource(loc.FullPath) as BooSource;
-            if (source == null)
+            var index = IndexOfBufferPoint(line, column);
+            var cluster = nodeClusters[Lookup(index)];
+            if (cluster.Index + cluster.Length >= index)
+                return cluster;
+            return null;
+        }
+
+        public NodeCluster GetNodeCluster(SourceLocation location)
+        {
+            var bufferPoint = bufferMap.LocationToPoint(location);
+            return GetNodeCluster(bufferPoint.Line, bufferPoint.Column);
+        }
+
+        public NodeCluster GetAdjacentNodeCluster(int line, int column)
+        {
+            return nodeClusters[Lookup(IndexOfBufferPoint(line, column))];
+        }
+
+        public SnapshotSpan GetErrorSnapshotSpan(LexicalInfo lexicalInfo)
+        {
+            var pos = bufferMap.LocationToPoint(lexicalInfo);
+            var cluster = GetNodeCluster(lexicalInfo);
+            if (cluster != null)
+                return cluster.Nodes.LastOrDefault().TextSpan.GetSnapshotSpan(bufferMap.CurrentSnapshot);
+            
+            var line = bufferMap.CurrentSnapshot.GetLineFromLineNumber(pos.Line);
+            var start = line.Start + pos.Column;
+
+            return new SnapshotSpan(bufferMap.CurrentSnapshot, start, line.End - start);
+        }
+
+        public IEnumerable<MappedTypeDefinition> GetTypes()
+        {
+            return types;
+        }
+
+        internal MappedNode GetMappedNode(Node astNode)
+        {
+            var cluster = GetNodeCluster(astNode.LexicalInfo);
+            if (cluster == null)
                 return null;
-            var mappedLoc = source.MapPosition(loc.Line, loc.Column);
-            return source.GetNodes(mappedLoc.Line, mappedLoc.Column, filter);
+            return cluster.Nodes.Where(n => n.Node == astNode).FirstOrDefault();
         }
-
-        /// <summary>
-        /// Produces a list of nodes for a given location (in the text buffer coordinates) filtered by the provided filter
-        /// </summary>
-        /// <param name="line">The 0 based line number </param>
-        /// <param name="pos">The 0 based position number </param>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        /// <remarks> The text span for the selected nodes include the location provided</remarks>
-        public IEnumerable<MappedNode> GetNodes(int line, int pos, Func<MappedNode, bool> filter)
-        {
-            return GetNodes(line, pos, (node, li, po) => node.TextSpan.Contains(li, po), filter);
-        }
-
-        /// <summary>
-        /// Produces a list of nodes adjacent to a given location (in the text buffer coordinates) filtered by the provided filter
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="pos"></param>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        /// <remarks> selects the closest nodes with the textspans ending before (to the left of) the location provided</remarks>
-        internal IEnumerable<MappedNode> GetAdjacentNodes(int line, int pos, Func<MappedNode, bool> filter)
-        {
-            var list = GetNodes(line, pos, (node, li, po) => (po > node.TextSpan.iEndIndex), filter);
-            var max = list.Max(item => item.TextSpan.iEndIndex);
-            return list.Where(item => item.TextSpan.iEndIndex == max);
-        }
-
-        private IEnumerable<MappedNode> GetNodes(int line, int pos, Func<MappedNode, int, int, bool> comparer, Func<MappedNode, bool> filter)
-        {
-            List<MappedNode> nodes;
-            if (!nodeDictionary.TryGetValue(line, out nodes))
-                yield break;
-            foreach (var node in nodes)
-                if (filter(node) && comparer(node, line, pos))
-                    yield return node;
-        }
-
-        internal SnapshotSpan GetSnapshotSpan(LexicalInfo lexicalInfo)
-        {
-            var line = bufferMap.CurrentSnapshot.GetLineFromLineNumber(lexicalInfo.Line - 1);
-            var start = line.Start + bufferMap.MapPosition(lexicalInfo.Line, lexicalInfo.Column).Column;
-            var node = GetNodes(lexicalInfo, n => true).FirstOrDefault();
-            if (node == null)
-                return new SnapshotSpan(bufferMap.CurrentSnapshot, start, line.End - start);
-            return node.TextSpan.GetSnapshotSpan(bufferMap.CurrentSnapshot);
-        }
-
-        internal IEnumerable<TypeDefinition> GetTypes()
-        {
-            foreach (var line in nodeDictionary.Values)
-                foreach (var node in line)
-                    if (node is TypeDefinition)
-                        yield return (TypeDefinition)node;
-        }
-
     }
 }

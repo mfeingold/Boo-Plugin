@@ -13,6 +13,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Microsoft.VisualStudio.TextManager.Interop;
 
@@ -28,28 +29,37 @@ namespace Hill30.BooProject.LanguageService.Mapping
         TypeMemberDefinition,
     }
 
+    public enum RecordingStage
+    {
+        Parsed,
+        Completed
+    }
+
     public abstract class MappedNode
     {
-        protected MappedNode(BufferMap bufferMap, LexicalInfo lexicalInfo, int length)
-            : this(
-                bufferMap.MapPosition(lexicalInfo.Line, lexicalInfo.Column),
-                bufferMap.MapPosition(lexicalInfo.Line, lexicalInfo.Column + length)
-            )
-        {
-            LexicalInfo = lexicalInfo;
-        }
+        private bool resolved;
 
-        protected MappedNode(BufferMap bufferMap, Node node)
-            : this(
-                bufferMap.MapPosition(node.LexicalInfo.Line, node.LexicalInfo.Column),
-                bufferMap.MapPosition(node.EndSourceLocation.Line, node.EndSourceLocation.Column)
+        protected MappedNode(BufferMap bufferMap, Node node, int length)
+            : this(node,
+                bufferMap.LocationToPoint(node.LexicalInfo),
+                bufferMap.LocationToPoint(node.LexicalInfo.Line, node.LexicalInfo.Column + length)
             )
         {
             LexicalInfo = node.LexicalInfo;
         }
 
-        private MappedNode(BufferMap.BufferPoint start, BufferMap.BufferPoint end)
+        protected MappedNode(BufferMap bufferMap, Node node)
+            : this(node,
+                bufferMap.LocationToPoint(node.LexicalInfo),
+                bufferMap.LocationToPoint(node.EndSourceLocation)
+            )
         {
+            LexicalInfo = node.LexicalInfo;
+        }
+
+        private MappedNode(Node node, BufferMap.BufferPoint start, BufferMap.BufferPoint end)
+        {
+            Node = node;
             TextSpan = new TextSpan
             {
                 iStartLine = start.Line,
@@ -59,14 +69,26 @@ namespace Hill30.BooProject.LanguageService.Mapping
             };
         }
 
+        public Node Node { get; private set; }
         public LexicalInfo LexicalInfo { get; private set; }
         public TextSpan TextSpan { get; private set; }
         public virtual string QuickInfoTip { get { return null; } }
         public virtual string Format { get { return null; } }
         public virtual BooDeclarations Declarations { get { return new BooDeclarations(); } }
-        internal protected virtual void Resolve() { }
+        protected virtual void ResolveImpl() { }
         internal protected virtual MappedNode DeclarationNode { get { return null; } }
         public abstract MappedNodeType Type { get; }
 
+        internal void Resolve()
+        {
+            if (!resolved)
+                ResolveImpl();
+            resolved = true;
+        }
+
+        internal virtual void Record(RecordingStage stage, List<MappedNode> list)
+        {
+            list.Add(this);
+        }
     }
 }

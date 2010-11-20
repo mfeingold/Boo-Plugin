@@ -25,12 +25,10 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
     {
         private string format;
         private string quickInfoTip;
-        private readonly TypeReference node;
 
         public MappedTypeReference(BufferMap bufferMap, SimpleTypeReference node)
-            : base(bufferMap, node.LexicalInfo, node.Name.Length)
+            : base(bufferMap, node, node.Name.Length)
         {
-            this.node = node;
         }
 
         public override MappedNodeType Type
@@ -48,11 +46,11 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
             get { return quickInfoTip; }
         }
 
-        internal protected override void Resolve()
+        protected override void ResolveImpl()
         {
             try
             {
-                var type = TypeSystemServices.GetType(node);
+                var type = TypeSystemServices.GetType(Node);
                 if (type is Error)
                     return;
 

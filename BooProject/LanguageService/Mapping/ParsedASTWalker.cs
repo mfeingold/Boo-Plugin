@@ -33,97 +33,104 @@ namespace Hill30.BooProject.LanguageService.Mapping
         public override void OnParameterDeclaration(ParameterDeclaration node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedVariableDefinition(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedVariableDefinition(bufferMap, node));
             base.OnParameterDeclaration(node);
         }
 
         public override void OnLocal(Local node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedVariableDefinition(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedVariableDefinition(bufferMap, node));
             base.OnLocal(node);
         }
 
         public override void OnField(Field node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedVariableDefinition(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedTypeMemberDefinition(bufferMap, node));
             base.OnField(node);
         }
 
         public override void OnProperty(Property node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedTypeMemberDefinition(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedTypeMemberDefinition(bufferMap, node));
             base.OnProperty(node);
         }
 
         public override void OnMethod(Method node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedTypeMemberDefinition(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedTypeMemberDefinition(bufferMap, node));
             base.OnMethod(node);
         }
 
         public override void OnEvent(Event node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedTypeMemberDefinition(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedTypeMemberDefinition(bufferMap, node));
             base.OnEvent(node);
         }
 
         public override void OnClassDefinition(ClassDefinition node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedTypeDefinition(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedTypeDefinition(bufferMap, node));
             base.OnClassDefinition(node);
         }
 
         public override void OnModule(Module node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedTypeDefinition(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedTypeDefinition(bufferMap, node));
             base.OnModule(node);
         }
 
         public override void OnSimpleTypeReference(SimpleTypeReference node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedTypeReference(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedTypeReference(bufferMap, node));
             base.OnSimpleTypeReference(node);
         }
 
         public override void OnReferenceExpression(ReferenceExpression node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
+                nodeMap.MapParsedNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
             base.OnReferenceExpression(node);
         }
 
         public override void OnSelfLiteralExpression(SelfLiteralExpression node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
+                nodeMap.MapParsedNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
             base.OnSelfLiteralExpression(node);
         }
 
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
+                nodeMap.MapParsedNode(new MappedReferenceExpression(nodeMap, bufferMap, node));
             base.OnMemberReferenceExpression(node);
         }
 
         public override void OnMacroStatement(MacroStatement node)
         {
             if (node.LexicalInfo != null)
-                nodeMap.MapNode(new MappedMacroReference(bufferMap, node));
+                nodeMap.MapParsedNode(new MappedMacroReference(bufferMap, node));
             base.OnMacroStatement(node);
         }
 
         protected override void OnError(Node node, Exception error)
         {
             // Do Nothing
+        }
+
+        public override void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
+        {
+            //if (node.LexicalInfo != null)
+            //    nodeMap.MapParsedNode(new MappedNode(bufferMap, node));
+            base.OnAttribute(node);
         }
     }
 

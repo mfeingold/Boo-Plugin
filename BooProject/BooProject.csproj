@@ -104,6 +104,7 @@
     <Compile Include="LanguageService\Colorizer\TaggerProvider.cs" />
     <Compile Include="LanguageService\Mapping\BufferMap.cs" />
     <Compile Include="LanguageService\Mapping\FullASTWalker.cs" />
+    <Compile Include="LanguageService\Mapping\NodeCluster.cs" />
     <Compile Include="LanguageService\Mapping\Nodes\MappedMacroReference.cs" />
     <Compile Include="LanguageService\Mapping\Nodes\MappedTypeMemberDefinition.cs" />
     <Compile Include="LanguageService\Mapping\Nodes\MappedVariableDefinition.cs" />

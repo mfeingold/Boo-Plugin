@@ -42,25 +42,12 @@ namespace Hill30.BooProject.LanguageService
 
         public override string GetDataTipText(int line, int col, out TextSpan span)
         {
-            var nodes = source.GetNodes(line, col, node=>node.QuickInfoTip != null);
-            var tip = "";
-            span = new TextSpan();
-            foreach (var node in nodes)
-            {
-                span = span.Union(node.TextSpan);
-                if (tip != "")
-                    tip += '\n';
-                tip += node.QuickInfoTip;
-            }
-            return tip;
+            return source.GetDataTipText(line, col, out span);
         }
 
         public override Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)
         {
-            var node = source.GetAdjacentNodes(line, col, n=>n.Declarations.GetCount() > 0).FirstOrDefault();
-            if (node == null)
-                return new BooDeclarations();
-            return node.Declarations;
+            return source.GetDeclarations(line, col, info, reason);
         }
 
         public override Methods GetMethods(int line, int col, string name)
@@ -70,17 +57,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override string Goto(Microsoft.VisualStudio.VSConstants.VSStd97CmdID cmd, IVsTextView textView, int line, int col, out TextSpan span)
         {
-            var node = source.GetNodes(line, col, n=>n.DeclarationNode != null).FirstOrDefault();
-            if (node != null)
-            {
-                if (node.DeclarationNode != null)
-                {
-                    span = node.DeclarationNode.TextSpan;
-                    return node.DeclarationNode.LexicalInfo.FullPath;
-                }
-            }
-            span = new TextSpan();
-            return null;
+            return source.Goto(line, col, out span);
         }
     }
 

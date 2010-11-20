@@ -25,7 +25,7 @@ namespace Hill30.BooProject.LanguageService.Mapping.Nodes
         private readonly string quickInfoTip;
 
         public MappedMacroReference(BufferMap bufferMap, MacroStatement node)
-            : base(bufferMap, node.LexicalInfo, node.Name.Length)
+            : base(bufferMap, node, node.Name.Length)
         {
             format = Formats.BooMacro;
             quickInfoTip = "macro " + node.Name;

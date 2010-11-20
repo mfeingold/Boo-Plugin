@@ -14,6 +14,7 @@
 //   limitations under the License.
 
 using System.Collections.Generic;
+using Boo.Lang.Compiler.Ast;
 using Microsoft.VisualStudio.Text;
 
 namespace Hill30.BooProject.LanguageService.Mapping
@@ -21,8 +22,11 @@ namespace Hill30.BooProject.LanguageService.Mapping
     public class BufferMap
     {
         private int[][] positionMap;
+        private int lineSize;
+
         public ITextSnapshot CurrentSnapshot { get; private set; }
         public string FilePath { get; private set; }
+        public int LineSize { get { return lineSize; } }
 
 
         public void Map(ITextBuffer buffer, int tabSize)
@@ -49,6 +53,7 @@ namespace Hill30.BooProject.LanguageService.Mapping
                 mappedPos++;
                 if (c == '\n')
                 {
+                    lineSize = System.Math.Max(lineSize, mappedPos);
                     mappers.Add(positionList.ToArray());
                     positionList.Clear();
                     sourcePos = 0;
@@ -66,13 +71,18 @@ namespace Hill30.BooProject.LanguageService.Mapping
             public int Column;
         }
 
-        public BufferPoint MapPosition(int line, int pos)
+        public BufferPoint LocationToPoint(int line, int column)
         {
             if (line == -1)
                 line = positionMap.Length;
-            if (pos == -1)
-                pos = positionMap[line - 1].Length;
-            return new BufferPoint {Line = line - 1, Column = positionMap[line - 1][pos - 1]};
+            if (column == -1)
+                column = positionMap[line - 1].Length;
+            return new BufferPoint {Line = line - 1, Column = positionMap[line - 1][column - 1]};
+        }
+
+        internal BufferPoint LocationToPoint(SourceLocation location)
+        {
+            return LocationToPoint(location.Line, location.Column);
         }
     }
 }
