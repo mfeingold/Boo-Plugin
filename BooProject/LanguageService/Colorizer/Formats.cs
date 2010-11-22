@@ -78,7 +78,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         [UserVisible(true)]
         [ClassificationType(ClassificationTypeNames = BooType)]
         [Order]
-        internal sealed class BooTypeFormat : ClassificationFormatDefinition
+        private sealed class BooTypeFormat : ClassificationFormatDefinition
         {
             public BooTypeFormat()
             {

@@ -128,8 +128,8 @@ namespace Hill30.BooProject.LanguageService.Mapping
 
         public override void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
         {
-            //if (node.LexicalInfo != null)
-            //    nodeMap.MapParsedNode(new MappedNode(bufferMap, node));
+            if (node.LexicalInfo != null)
+                nodeMap.MapParsedNode(new MappedAttribute(bufferMap, node));
             base.OnAttribute(node);
         }
     }
