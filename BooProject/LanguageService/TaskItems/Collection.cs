@@ -22,11 +22,13 @@ using Hill30.BooProject.Project;
 
 namespace Hill30.BooProject.LanguageService.TaskItems
 {
-    public class Collection : IDisposable
+    public class Collection
     {
         readonly List<ErrorTask> tasks = new List<ErrorTask>();
         readonly IProjectManager projectManager;
         readonly IVsHierarchy hier;
+        private CompilerWarningCollection warnings = new CompilerWarningCollection();
+        private CompilerErrorCollection errors = new CompilerErrorCollection();
 
         public Collection(IProjectManager projectManager, IVsHierarchy hier)
         {
@@ -34,8 +36,13 @@ namespace Hill30.BooProject.LanguageService.TaskItems
             this.hier = hier;
         }
 
+        public CompilerErrorCollection Errors { get { return errors; } }
+        public CompilerWarningCollection Warnings { get { return warnings; } }
+
         internal void CreateMessages(CompilerErrorCollection compilerErrors, CompilerWarningCollection compilerWarnings)
         {
+            errors = compilerErrors;
+            warnings = compilerWarnings;
             foreach (var error in compilerErrors)
             {
                 var task = 
@@ -79,14 +86,12 @@ namespace Hill30.BooProject.LanguageService.TaskItems
             projectManager.NavigateTo((ErrorTask)sender);
         }
 
-        #region IDisposable Members
-
-        public void Dispose()
+        internal void Clear()
         {
             foreach (var task in tasks)
                 projectManager.RemoveTask(task);
+            errors.Clear();
+            warnings.Clear();
         }
-
-        #endregion
     }
 }

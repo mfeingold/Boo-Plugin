@@ -27,6 +27,7 @@ namespace Hill30.BooProject.LanguageService.Mapping
         VraiableReference,
         VariableDefinition,
         TypeMemberDefinition,
+        ParsingError
     }
 
     public enum RecordingStage
@@ -55,6 +56,15 @@ namespace Hill30.BooProject.LanguageService.Mapping
             )
         {
             LexicalInfo = node.LexicalInfo;
+        }
+
+        protected MappedNode(BufferMap bufferMap, LexicalInfo lexicalInfo, int length)
+            : this(null,
+                bufferMap.LocationToPoint(lexicalInfo),
+                bufferMap.LocationToPoint(lexicalInfo.Line, lexicalInfo.Column + length)
+            )
+        {
+            LexicalInfo = lexicalInfo;
         }
 
         private MappedNode(Node node, BufferMap.BufferPoint start, BufferMap.BufferPoint end)

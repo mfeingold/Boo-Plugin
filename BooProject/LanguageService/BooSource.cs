@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
@@ -28,7 +27,6 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.BooProject.Project;
-using Hill30.BooProject.LanguageService.TaskItems;
 using Microsoft.VisualStudio.Text.Classification;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
@@ -38,52 +36,46 @@ namespace Hill30.BooProject.LanguageService
 {
     public class BooSource : Source
     {
-        private CompilerContext compileResult;
         private readonly BooLanguageService service;
-        private readonly BufferMap bufferMap = new BufferMap();
         private readonly NodeMap nodeMap;
         private readonly ITextBuffer buffer;
         private readonly IProjectManager projectManager;
-        private readonly IVsHierarchy hierarchyItem;
 
         public BooSource(BooLanguageService service, IVsTextLines buffer, Microsoft.VisualStudio.Package.Colorizer colorizer)
             : base(service, buffer, colorizer)
         {
             this.service = service;
             this.buffer = service.BufferAdapterService.GetDataBuffer(buffer);
-            bufferMap.Map(this.buffer, service.GetLanguagePreferences().TabSize);
-            nodeMap = new NodeMap(service, bufferMap);
+            
+            // ReSharper disable DoNotCallOverridableMethodsInConstructor
+            var hierarchyItem = new RunningDocumentTable(this.service.Site).GetHierarchyItem(GetFilePath());
+            // ReSharper restore DoNotCallOverridableMethodsInConstructor
 
-// ReSharper disable DoNotCallOverridableMethodsInConstructor
-            hierarchyItem = new RunningDocumentTable(this.service.Site).GetHierarchyItem(GetFilePath());
-// ReSharper restore DoNotCallOverridableMethodsInConstructor
             object value;
             ErrorHandler.ThrowOnFailure(hierarchyItem.GetProperty(VSConstants.VSITEMID_ROOT, (int) __VSHPROPID.VSHPROPID_Root, out value));
             var pointer = new IntPtr((int)value);
             try
             {
                 projectManager = Marshal.GetObjectForIUnknown(pointer) as IProjectManager;
+                nodeMap = new NodeMap(service, projectManager, hierarchyItem, this.buffer);
             }
             finally
             {
                 Marshal.Release(pointer);
             }
+
         }
 
         private BooCompiler compiler;
-        private Collection errorsMessages;
 
         internal void Compile(ParseRequest req)
         {
             lock (this)
             {
-                bufferMap.Map(buffer, service.GetLanguagePreferences().TabSize);
-                if (errorsMessages != null)
-                    errorsMessages.Dispose();
-                errorsMessages = new Collection(projectManager, hierarchyItem);
                 var lexer = BooParser.CreateBooLexer(service.GetLanguagePreferences().TabSize, "code stream", new StringReader(req.Text));
                 try
                 {
+                    projectManager.Compile();
                     nodeMap.Initialize();
                     nodeMap.MapTokens(lexer);
                     if (compiler == null)
@@ -94,11 +86,8 @@ namespace Hill30.BooProject.LanguageService
                     var parsingStep = (BooParsingStep)compiler.Parameters.Pipeline.Get(typeof(BooParsingStep));
                     parsingStep.TabSize = service.GetLanguagePreferences().TabSize;
                     compiler.Parameters.Input.Clear();
-                    compiler.Parameters.Input.Add(new StringInput(bufferMap.FilePath, req.Text));
-                    compileResult = compiler.Run();
-                    
-                    new FullAstWalker(nodeMap, bufferMap).Visit(compileResult.CompileUnit);
-                    errorsMessages.CreateMessages(compileResult.Errors, compileResult.Warnings);
+                    compiler.Parameters.Input.Add(new StringInput(GetFilePath(), req.Text));
+                    var compileResult = compiler.Run();
                     nodeMap.Complete(compileResult);
                 }
 // ReSharper disable EmptyGeneralCatchClause
@@ -113,7 +102,7 @@ namespace Hill30.BooProject.LanguageService
         private void PipelineAfterStep(object sender, CompilerStepEventArgs args)
         {
             if (args.Step == ((CompilerPipeline)sender)[0])
-                new ParsedAstWalker(nodeMap, bufferMap).Visit(args.Context.CompileUnit);
+                nodeMap.MapParsedNodes(args.Context);
         }
 
         public event EventHandler Recompiled;
@@ -124,17 +113,10 @@ namespace Hill30.BooProject.LanguageService
 
         internal BufferMap.BufferPoint MapPosition(int line, int pos)
         {
-            return bufferMap.LocationToPoint(line, pos);
+            return nodeMap.MapPosition(line, pos);
         }
 
-        internal SnapshotSpan SnapshotSpan { get { return new SnapshotSpan(bufferMap.CurrentSnapshot, 0, bufferMap.CurrentSnapshot.Length); } }
-
-        public override void Dispose()
-        {
-            if (errorsMessages != null)
-                errorsMessages.Dispose();
-            base.Dispose();
-        }
+        internal SnapshotSpan SnapshotSpan { get { return nodeMap.SnapshotSpan; } }
 
         internal SnapshotSpan GetErrorSnapshotSpan(LexicalInfo lexicalInfo)
         {
@@ -175,5 +157,17 @@ namespace Hill30.BooProject.LanguageService
             }
             return cluster.Goto(out span);
         }
+
+        public override CommentInfo GetCommentFormat()
+        {
+            return new CommentInfo {BlockStart = "/*", BlockEnd = "*/", UseLineComments = false};
+        }
+
+        public override void Dispose()
+        {
+            nodeMap.ClearErrorMessages();
+            base.Dispose();
+        }
+
     }
 }

@@ -14,6 +14,7 @@
 //   limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
 using Microsoft.VisualStudio.Project;
@@ -24,6 +25,7 @@ using VSLangProj;
 using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio;
 
 namespace Hill30.BooProject.Project
 {
@@ -31,6 +33,8 @@ namespace Hill30.BooProject.Project
     public interface IProjectManager
     {
         BooCompiler CreateCompiler();
+
+        void Compile();
 
         void AddTask(ErrorTask task);
 
@@ -185,6 +189,19 @@ namespace Hill30.BooProject.Project
             return service;
         }
 
+        IEnumerable<BooFileNode> GetFileEnumerator(HierarchyNode parent)
+        {
+            for (var node = parent.FirstChild; node != null; node = node.NextSibling)
+                if (node is FolderNode)
+                    foreach (var file in GetFileEnumerator(node))
+                        yield return file;
+                else
+                    if (node is BooFileNode)
+                        yield return (BooFileNode)node;
+                    else
+                        continue;
+        }
+
         #region IProjectManager Members
 
         public BooCompiler CreateCompiler()
@@ -192,6 +209,18 @@ namespace Hill30.BooProject.Project
             var pipeline = CompilerPipeline.GetPipeline("compile");
             pipeline.BreakOnErrors = false;
             return new BooCompiler( new CompilerParameters(true) { Pipeline = pipeline } );
+        }
+
+        public void Compile()
+        {
+            var pipeline = CompilerPipeline.GetPipeline("compile");
+            pipeline.BreakOnErrors = false;
+            var compiler = new BooCompiler( new CompilerParameters(true) { Pipeline = pipeline } );
+            foreach (var file in GetFileEnumerator(this))
+            {
+                compiler.Parameters.Input.Add(file.PrepareForCompilation());
+            }
+
         }
 
         public void AddTask(ErrorTask task)

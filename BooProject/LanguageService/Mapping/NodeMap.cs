@@ -16,13 +16,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Parser;
-using Microsoft.VisualStudio.Text.Classification;
-using Microsoft.VisualStudio.Text;
 using Hill30.BooProject.LanguageService.Colorizer;
-using Boo.Lang.Compiler;
 using Hill30.BooProject.LanguageService.Mapping.Nodes;
+using Hill30.BooProject.LanguageService.TaskItems;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Classification;
 
 namespace Hill30.BooProject.LanguageService.Mapping
 {
@@ -34,29 +36,32 @@ namespace Hill30.BooProject.LanguageService.Mapping
         private readonly BufferMap bufferMap;
         private readonly List<NodeCluster> nodeClusters = new List<NodeCluster>();
         private readonly List<MappedTypeDefinition> types = new List<MappedTypeDefinition>();
+        private readonly ITextBuffer buffer;
+        private readonly Collection errorsMessages;
 
-        public CompilerErrorCollection Errors { get; private set; }
-        public CompilerWarningCollection Warnings { get; private set; }
+        public CompilerErrorCollection Errors { get { return errorsMessages.Errors; } }
+        public CompilerWarningCollection Warnings { get { return errorsMessages.Warnings; } }
         public IList<ClassificationSpan> ClassificationSpans { get { return classificationSpans; } }
 
-        public NodeMap(BooLanguageService service, BufferMap bufferMap)
+        public NodeMap(BooLanguageService service, Project.IProjectManager projectManager, IVsHierarchy hierarchyItem, ITextBuffer buffer)
         {
             this.service = service;
-            this.bufferMap = bufferMap;
-            Errors = new CompilerErrorCollection();
-            Warnings = new CompilerWarningCollection();
+            bufferMap = new BufferMap();
+            this.buffer = buffer;
+            bufferMap.Map(buffer, service.GetLanguagePreferences().TabSize);
+            errorsMessages = new Collection(projectManager, hierarchyItem);
         }
 
         internal void Initialize()
         {
+            bufferMap.Map(buffer, service.GetLanguagePreferences().TabSize);
+            errorsMessages.Clear();
             nodeClusters.Clear();
             types.Clear();
             classificationSpans.Clear();
-            Errors.Clear();
-            Warnings.Clear();
         }
 
-        private antlr.IToken nextToken(antlr.TokenStream tokens)
+        private static antlr.IToken NextToken(antlr.TokenStream tokens)
         {
             while (true)
                 try { return tokens.nextToken(); }
@@ -70,7 +75,7 @@ namespace Hill30.BooProject.LanguageService.Mapping
             antlr.IToken token;
             var currentPos = 0;
 
-            while ((token = nextToken(tokens)).Type != BooLexer.EOF)
+            while ((token = NextToken(tokens)).Type != BooLexer.EOF)
             {
                 int length;
 
@@ -162,8 +167,25 @@ namespace Hill30.BooProject.LanguageService.Mapping
             ClustersForNode(node, cluster => node.Record(stage, cluster.Nodes));
         }
 
+        internal void MapParsedNodes(CompilerContext context)
+        {
+            new ParsedAstWalker(this, bufferMap).Visit(context.CompileUnit);
+            foreach (var error in context.Errors)
+            {
+                var cluster = GetNodeCluster(error.LexicalInfo);
+                if (cluster != null && cluster.Nodes
+                    .Where(n=>
+                        n.Type != MappedNodeType.TypeDefiniton
+                        && n.Type != MappedNodeType.TypeMemberDefinition
+                        ).Count() == 0)
+                    MapParsedNode(new ParsingError(bufferMap, error.LexicalInfo, cluster.Length));
+                }
+        }
+
         internal void Complete(CompilerContext compileResult)
         {
+            new FullAstWalker(this, bufferMap).Visit(compileResult.CompileUnit);
+
             foreach (var cluster in nodeClusters)
                 cluster.Resolve(
                     node =>
@@ -177,8 +199,7 @@ namespace Hill30.BooProject.LanguageService.Mapping
                         }
                     );
 
-            Errors = compileResult.Errors;
-            Warnings = compileResult.Warnings;
+            errorsMessages.CreateMessages(compileResult.Errors, compileResult.Warnings);
         }
 
         public NodeCluster GetNodeCluster(int line, int column)
@@ -225,6 +246,18 @@ namespace Hill30.BooProject.LanguageService.Mapping
             if (cluster == null)
                 return null;
             return cluster.Nodes.Where(n => n.Node == astNode).FirstOrDefault();
+        }
+
+        internal BufferMap.BufferPoint MapPosition(int line, int pos)
+        {
+            return bufferMap.LocationToPoint(line, pos);
+        }
+
+        internal SnapshotSpan SnapshotSpan { get { return new SnapshotSpan(bufferMap.CurrentSnapshot, 0, bufferMap.CurrentSnapshot.Length); } }
+
+        internal void ClearErrorMessages()
+        {
+            errorsMessages.Clear();
         }
     }
 }

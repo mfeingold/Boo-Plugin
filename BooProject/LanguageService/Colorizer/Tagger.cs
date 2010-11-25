@@ -46,10 +46,16 @@ namespace Hill30.BooProject.LanguageService.Colorizer
             }
 
             if (source != null)
+            {
                 foreach (var error in source.Errors)
-                    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo)
-                        , new ErrorTag(PredefinedErrorTypeNames.SyntaxError, "Error: " + error.Code + ' ' + error.Message));
-
+                    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo),
+                                                       new ErrorTag(PredefinedErrorTypeNames.SyntaxError,
+                                                                    "Error: " + error.Code + ' ' + error.Message));
+                foreach (var error in source.Warnings)
+                    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo),
+                                                       new ErrorTag(PredefinedErrorTypeNames.Warning,
+                                                                    "Warning: " + error.Code + ' ' + error.Message));
+            }
             yield break;
         }
 
