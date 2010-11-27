@@ -26,15 +26,20 @@ using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio;
+using Hill30.BooProject.AST;
 
 namespace Hill30.BooProject.Project
 {
     [ComVisible(true)]
     public interface IProjectManager
     {
-        BooCompiler CreateCompiler();
-
         void Compile();
+
+        IFileNode GetFileNode(string path);
+
+        
+
+        BooCompiler CreateCompiler();
 
         void AddTask(ErrorTask task);
 
@@ -155,13 +160,13 @@ namespace Hill30.BooProject.Project
             return base.IsCodeFile(fileName);
         }
 
-        public override bool Navigate(VsTextBuffer buffer, int line, int column)
-        {
-            var languageService = (LanguageService.BooLanguageService)GetService(typeof(LanguageService.BooLanguageService));
-            var source = (LanguageService.BooSource)languageService.GetOrCreateSource((IVsTextLines)buffer);
-            var pos = source.MapPosition(line, column);
-            return base.Navigate(buffer, pos.Line, pos.Column);
-        }
+        //public override bool Navigate(VsTextBuffer buffer, int line, int column)
+        //{
+        //    var languageService = (LanguageService.BooLanguageService)GetService(typeof(LanguageService.BooLanguageService));
+        //    var source = (LanguageService.BooSource)languageService.GetOrCreateSource((IVsTextLines)buffer);
+        //    var pos = source.MapPosition(line, column);
+        //    return base.Navigate(buffer, pos.Line, pos.Column);
+        //}
 
         #region Properties
 
@@ -204,23 +209,62 @@ namespace Hill30.BooProject.Project
 
         #region IProjectManager Members
 
+        BooCompiler compiler;
+
+        public void Compile()
+        {
+            lock (this)
+            {
+                if (compiler == null)
+                {
+                    var pipeline = CompilerPipeline.GetPipeline("compile");
+                    pipeline.BreakOnErrors = false;
+                    compiler = new BooCompiler(new CompilerParameters(true) { Pipeline = pipeline });
+                }
+            }
+
+            compiler.Parameters.Input.Clear();
+
+            var results = new Dictionary<string, Tuple<BooFileNode, CompileResults>>();
+            foreach (var file in GetFileEnumerator(this))
+                if (file.NeedsCompilation)
+                {
+                    var result = new CompileResults();
+                    var input = file.GetCompilerInput(result);
+                    results.Add(input.Name, new Tuple<BooFileNode, CompileResults>(file, result));
+                    compiler.Parameters.Input.Add(input);
+                }
+                //else
+                //    compiler.Parameters.References.Add(file.CompilerResults.CompileUnit);
+
+            CompilerStepEventHandler handler = 
+                (sender, args) => 
+            {
+                if (args.Step == ((CompilerPipeline)sender)[0])
+                    CompileResults.MapParsedNodes(results, args.Context);
+            };
+
+            compiler.Parameters.Pipeline.AfterStep += handler;
+            CompileResults.MapCompleted(results, compiler.Run());
+            compiler.Parameters.Pipeline.AfterStep -= handler;
+            foreach (var item in results.Values)
+                item.Item1.SetCompilerResults(item.Item2);
+        }
+
+        public IFileNode GetFileNode(string path)
+        {
+            foreach (var file in GetFileEnumerator(this))
+                if (file.Url == path)
+                    return file;
+            return null;
+        }
+
+
         public BooCompiler CreateCompiler()
         {
             var pipeline = CompilerPipeline.GetPipeline("compile");
             pipeline.BreakOnErrors = false;
-            return new BooCompiler( new CompilerParameters(true) { Pipeline = pipeline } );
-        }
-
-        public void Compile()
-        {
-            var pipeline = CompilerPipeline.GetPipeline("compile");
-            pipeline.BreakOnErrors = false;
-            var compiler = new BooCompiler( new CompilerParameters(true) { Pipeline = pipeline } );
-            foreach (var file in GetFileEnumerator(this))
-            {
-                compiler.Parameters.Input.Add(file.PrepareForCompilation());
-            }
-
+            return new BooCompiler(new CompilerParameters(true) { Pipeline = pipeline });
         }
 
         public void AddTask(ErrorTask task)

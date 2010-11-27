@@ -23,6 +23,7 @@ using Microsoft.VisualStudio.Utilities;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Text;
 
 namespace Hill30.BooProject.LanguageService.Colorizer
 {
@@ -31,16 +32,9 @@ namespace Hill30.BooProject.LanguageService.Colorizer
     [TagType(typeof(ErrorTag))]
     public class TaggerProvider : ITaggerProvider
     {
-        [Import]
-        private IVsEditorAdaptersFactoryService bufferAdapterService;
-
-        [Import(typeof(SVsServiceProvider))]
-        private IServiceProvider serviceProvider;
-
-        public ITagger<T> CreateTagger<T>(Microsoft.VisualStudio.Text.ITextBuffer buffer) where T : ITag
+        public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
         {
-            return (ITagger<T>)new Tagger((BooLanguageService)serviceProvider.GetService(typeof(BooLanguageService)),
-                (IVsTextLines)bufferAdapterService.GetBufferAdapter(buffer));
+            return (ITagger<T>)new Tagger(buffer);
         }
 
     }

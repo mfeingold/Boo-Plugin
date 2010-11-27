@@ -17,6 +17,8 @@ using System;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using Boo.Lang.Compiler.Ast;
+using Hill30.BooProject.AST;
+using Hill30.BooProject.Project;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -70,10 +72,10 @@ namespace Hill30.BooProject.LanguageService
             return true;
         }
 
-        public static TextSpan GetTextSpan(this Node node, BooSource source)
+        public static TextSpan GetTextSpan(this Node node, IFileNode fileNode)
         {
-            var start = source.MapPosition(node.LexicalInfo.Line, node.LexicalInfo.Column);
-            var end = source.MapPosition(node.EndSourceLocation.Line, node.EndSourceLocation.Column);
+            var start = fileNode.MapPosition(node.LexicalInfo.Line, node.LexicalInfo.Column);
+            var end = fileNode.MapPosition(node.EndSourceLocation.Line, node.EndSourceLocation.Column);
             return new TextSpan
             {
                 iStartLine = start.Line,

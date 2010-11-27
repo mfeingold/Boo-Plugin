@@ -17,24 +17,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel.Composition;
-using Microsoft.VisualStudio.Text.Classification;
-using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio.Utilities;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Editor;
-using Microsoft.VisualStudio.Shell;
+using Boo.Lang.Compiler.Ast;
 
-namespace Hill30.BooProject.LanguageService.Colorizer
+namespace Hill30.BooProject.AST.Nodes
 {
-    [Export(typeof(IClassifierProvider))]
-    [ContentType("Visual Boo")]
-    [Name("Boo Classifier")]
-    internal class ClassifierProvider : IClassifierProvider
+    public class MappedTypeDefinition : MappedNode
     {
-        public IClassifier GetClassifier(ITextBuffer textBuffer)
+        public TypeDefinition TypeNode { get; private set; }
+
+        public MappedTypeDefinition(CompileResults results, TypeDefinition node)
+            : base(results, node)
         {
-            return new Classifier(textBuffer);
+            TypeNode = node;
         }
+
+        public override MappedNodeType Type
+        {
+            get { return MappedNodeType.TypeDefiniton; }
+        }
+
     }
 }

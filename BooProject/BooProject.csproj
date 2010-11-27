@@ -92,39 +92,36 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompileResults\ASTAnchor.cs">
+    <Compile Include="AST\CompletedModuleWalker.cs" />
+    <Compile Include="AST\MappedToken.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CompileResults\BufferMap.cs" />
-    <Compile Include="CompileResults\CompileResults.cs" />
+    <Compile Include="AST\CompileResults.cs" />
+    <Compile Include="AST\Nodes\MappedAttribute.cs" />
+    <Compile Include="AST\Nodes\MappedMacroReference.cs" />
+    <Compile Include="AST\MappedNode.cs" />
+    <Compile Include="AST\Nodes\MappedReferenceExpression.cs" />
+    <Compile Include="AST\Nodes\MappedTypeDefinition.cs" />
+    <Compile Include="AST\Nodes\MappedTypeMemberDefinition.cs" />
+    <Compile Include="AST\Nodes\MappedTypeReference.cs" />
+    <Compile Include="AST\Nodes\MappedVariableDefinition.cs" />
+    <Compile Include="AST\ParsedModuleWalker.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GlobalServices.cs" />
     <Compile Include="LanguageService\BooAuthoringScope.cs" />
     <Compile Include="LanguageService\BooDeclarations.cs" />
     <Compile Include="LanguageService\BooSource.cs" />
-    <Compile Include="LanguageService\BooTypeAndMemberDropdownBars.cs" />
+    <Compile Include="LanguageService\BooTypeAndMemberDropdownBars.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="LanguageService\Colorizer\Classifier.cs" />
     <Compile Include="LanguageService\Colorizer\ClassifierProvider.cs" />
     <Compile Include="LanguageService\Colorizer\Formats.cs" />
     <Compile Include="LanguageService\Colorizer\Tagger.cs" />
     <Compile Include="LanguageService\Colorizer\TaggerProvider.cs" />
-    <Compile Include="LanguageService\Mapping\BufferMap.cs" />
-    <Compile Include="LanguageService\Mapping\FullASTWalker.cs" />
-    <Compile Include="LanguageService\Mapping\NodeCluster.cs" />
-    <Compile Include="LanguageService\Mapping\Nodes\MappedAttribute.cs" />
-    <Compile Include="LanguageService\Mapping\Nodes\MappedMacroReference.cs" />
-    <Compile Include="LanguageService\Mapping\Nodes\MappedTypeMemberDefinition.cs" />
-    <Compile Include="LanguageService\Mapping\Nodes\MappedVariableDefinition.cs" />
-    <Compile Include="LanguageService\Mapping\Nodes\MappedReferenceExpression.cs" />
-    <Compile Include="LanguageService\Mapping\NodeMap.cs" />
-    <Compile Include="LanguageService\Mapping\Nodes\MappedTypeReference.cs" />
-    <Compile Include="LanguageService\Mapping\Nodes\ParsingError.cs" />
     <Compile Include="LanguageService\Scanner\Scanner.cs" />
     <Compile Include="LanguageService\Scanner\ScanningLexer.cs" />
     <Compile Include="LanguageService\BooLanguageService.cs" />
-    <Compile Include="LanguageService\Mapping\ParsedASTWalker.cs" />
-    <Compile Include="LanguageService\Mapping\MappedNode.cs" />
-    <Compile Include="LanguageService\Mapping\Nodes\MappedTypeDefinition.cs" />
     <Compile Include="LanguageService\TaskItems\Collection.cs" />
     <Compile Include="LanguageService\TextSpanExtensions.cs" />
     <Compile Include="Project\Attributes\LocDisplayNameAttribute.cs" />

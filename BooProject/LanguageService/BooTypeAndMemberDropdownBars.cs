@@ -20,11 +20,10 @@ using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
-using Hill30.BooProject.LanguageService.Mapping;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
 using System.Diagnostics;
-using Hill30.BooProject.LanguageService.Mapping.Nodes;
+using Hill30.BooProject.Project;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -51,24 +50,21 @@ namespace Hill30.BooProject.LanguageService
 
     public class BooTypeAndMemberDropdownBars : TypeAndMemberDropdownBars
     {
-        private readonly BooLanguageService service;
-        private readonly BooSource source;
-        private List<MappedTypeDefinition> types = new List<MappedTypeDefinition>();
+        private BooLanguageService service;
         private bool recompiled;
+        private IFileNode fileNode;
 
-        public BooTypeAndMemberDropdownBars(BooLanguageService service, BooSource source)
-            :base(service)
+        public BooTypeAndMemberDropdownBars(BooLanguageService service, IFileNode fileNode)
+            : base(service)
         {
             this.service = service;
-            this.source = source;
-            Debug.Assert(source != null, "No Source available");
-            source.Recompiled += SourceRecompiled;
+            this.fileNode = fileNode;
+            fileNode.Recompiled += SourceRecompiled;
         }
 
         void SourceRecompiled(object sender, EventArgs e)
         {
             recompiled = true;
-            types = new List<MappedTypeDefinition>(source.GetTypes());
             service.Invoke(new Action(service.SynchronizeDropdowns), new object[]{});
         }
 
@@ -107,16 +103,16 @@ namespace Hill30.BooProject.LanguageService
                 recompiled = false;
                 dropDownTypes.Clear();
                 dropDownMembers.Clear();
-                foreach (var node in types)
+                foreach (var node in fileNode.Types)
                 {
-                    var type = node.Node;
-                    var name = node.Node.FullName;
+                    var type = node.TypeNode;
+                    var name = node.TypeNode.FullName;
                     ProcessMembers(type,
                         member =>
                             {
                                 dropDownMembers.Add(new DropDownMember(
                                                         member.FullName,
-                                                        member.GetTextSpan(source),
+                                                        member.GetTextSpan(fileNode),
                                                         BooDeclarations.GetIconForNode(member),
                                                         DROPDOWNFONTATTR.FONTATTR_GRAY
                                                         ));
@@ -139,19 +135,19 @@ namespace Hill30.BooProject.LanguageService
             var mIndex = -1;
             var sm = -1;
             TypeDefinition selectedTypeNode = null;
-            foreach (var type in types)
+            foreach (var type in fileNode.Types)
             {
                 sType++;
                 if (type.TextSpan.Contains(line, col))
                 {
-                    selectedTypeNode = type.Node;
+                    selectedTypeNode = type.TypeNode;
                     selectedType = sType;
                 }
-                ProcessMembers(type.Node, 
+                ProcessMembers(type.TypeNode, 
                     member => 
                         {
                             mIndex++;
-                            if (member.GetTextSpan(source).Contains(line, col))
+                            if (member.GetTextSpan(fileNode).Contains(line, col))
                                 sm = mIndex;
                         }
                     );
@@ -159,9 +155,9 @@ namespace Hill30.BooProject.LanguageService
             selectedMember = sm;
 
             mIndex = -1;
-            foreach (var type in types)
+            foreach (var type in fileNode.Types)
             {
-                ProcessMembers(type.Node,
+                ProcessMembers(type.TypeNode,
                     member =>
                         {
                             mIndex++;

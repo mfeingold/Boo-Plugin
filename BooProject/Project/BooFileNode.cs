@@ -22,25 +22,48 @@ using Boo.Lang.Compiler.IO;
 using Microsoft.VisualStudio.Shell.Interop;
 using System.IO;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Hill30.BooProject.AST;
+using System.Collections.Generic;
+using Microsoft.VisualStudio.Text.Classification;
+using Hill30.BooProject.AST.Nodes;
 
 namespace Hill30.BooProject.Project
 {
-    public class BooFileNode : FileNode
+    [ComVisible(true)]
+    public interface IFileNode
     {
-        private CompileResults.CompileResults results;
+        event EventHandler Recompiled;
+        
+        MappedToken GetMappedToken(int line, int col);
+
+        MappedToken GetAdjacentMappedToken(int line, int col);
+
+        IList<ClassificationSpan> ClassificationSpans { get; }
+
+        IEnumerable<MappedTypeDefinition> Types { get; }
+
+        CompileResults.BufferPoint MapPosition(int line, int column);
+    }
+    
+    
+    public class BooFileNode : FileNode, IFileNode
+    {
+        private CompileResults results;
+
+        private CompileResults GetResults()
+        {
+            return results;
+        }
 
         public BooFileNode(ProjectNode root, ProjectElement e)
 			: base(root, e)
 		{
-            results = new CompileResults.CompileResults();
+            results = new CompileResults();
 		}
 
-        public CompileResults.CompileResults CompilerResults
-        {
-            get { return results; }
-        }
+        public bool NeedsCompilation { get { return true; } }
 
-        public ICompilerInput PrepareForCompilation()
+        public ICompilerInput GetCompilerInput(CompileResults result)
         {
             IVsHierarchy hier;
             uint itemId;
@@ -67,13 +90,21 @@ namespace Hill30.BooProject.Project
                         System.Diagnostics.Debug.Assert(lines != null, "IVsTextLines does not implement IVsTextBuffer");
                     }
                 }
-                source = File.ReadAllText(lines.);
+                source = File.ReadAllText(Url);
             }
             else
                 source = File.ReadAllText(Url);
 
-            results.Initialize(Url, source);
-            return new StringInput(Url, source);
+            var path = Url;
+            result.Initialize(path, source);
+            return new StringInput(path, source);
+        }
+
+        public void SetCompilerResults(CompileResults results)
+        {
+            this.results = results;
+            if (Recompiled != null)
+                Recompiled(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -106,6 +137,22 @@ namespace Hill30.BooProject.Project
             }
             return service;
         }
+        #endregion
+
+        #region IFileNode Members
+
+        public event EventHandler Recompiled;
+
+        public MappedToken GetMappedToken(int line, int col) { return GetResults().GetMappedToken(line, col); }
+
+        public MappedToken GetAdjacentMappedToken(int line, int col) { return GetResults().GetAdjacentMappedToken(line, col); }
+
+        public IList<ClassificationSpan> ClassificationSpans { get { return GetResults().ClassificationSpans; } }
+
+        public IEnumerable<MappedTypeDefinition> Types { get { return GetResults().Types; } }
+
+        public CompileResults.BufferPoint MapPosition(int line, int column) { return GetResults().LocationToPoint(line, column); }
+
         #endregion
     }
 }

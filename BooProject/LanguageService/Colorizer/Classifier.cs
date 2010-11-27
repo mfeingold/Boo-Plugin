@@ -18,19 +18,20 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Hill30.BooProject.Project;
 
 namespace Hill30.BooProject.LanguageService.Colorizer
 {
     class Classifier : IClassifier
     {
-        private readonly BooLanguageService service;
-        private readonly IVsTextLines buffer;
-        private BooSource source;
+        private ITextBuffer buffer;
+        private IFileNode fileNode;
 
-        public Classifier(BooLanguageService service, IVsTextLines buffer)
+        public Classifier(ITextBuffer buffer)
         {
-            this.service = service;
             this.buffer = buffer;
+            fileNode = GlobalServices.GetFileNodeForBuffer(buffer);
+            fileNode.Recompiled += SourceRecompiled;
         }
 
         #region IClassifier Members
@@ -39,15 +40,9 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 
         public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span)
         {
-            if (source == null)
-            {
-                source = (BooSource) service.GetSource(buffer);
-                if (source != null)
-                    source.Recompiled += SourceRecompiled;
-            }
 
-            if (source != null)
-                return source.ClassificationSpans;
+            if (fileNode != null)
+                return fileNode.ClassificationSpans;
             
             return new List<ClassificationSpan>();
         }
@@ -57,7 +52,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         void SourceRecompiled(object sender, EventArgs e)
         {
             if (ClassificationChanged != null)
-                ClassificationChanged(sender, new ClassificationChangedEventArgs(source.SnapshotSpan));
+                ClassificationChanged(sender, new ClassificationChangedEventArgs(new SnapshotSpan(buffer.CurrentSnapshot, 0, buffer.CurrentSnapshot.Length)));
         }
     }
 }

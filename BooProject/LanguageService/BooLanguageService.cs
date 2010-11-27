@@ -42,8 +42,7 @@ namespace Hill30.BooProject.LanguageService
             var langService = new BooLanguageService();
             langService.SetSite(container);
 
-            var m = ((IComponentModel)langService.GetService(typeof(SComponentModel))).DefaultCompositionService;
-            m.SatisfyImportsOnce(langService);
+            ((IComponentModel)langService.GetService(typeof(SComponentModel))).DefaultCompositionService.SatisfyImportsOnce(langService);
 
             container.AddService(typeof(BooLanguageService), langService, true);
             langService.Start();
@@ -121,7 +120,10 @@ namespace Hill30.BooProject.LanguageService
 
         public override TypeAndMemberDropdownBars CreateDropDownHelper(IVsTextView forView)
         {
-            return new BooTypeAndMemberDropdownBars(this, (BooSource)GetSource(forView));
+            var fileNode = GlobalServices.GetFileNodeForView(forView);
+            if (fileNode == null)
+                return null;
+            return new BooTypeAndMemberDropdownBars(this, fileNode);
         }
 
         private void Start()

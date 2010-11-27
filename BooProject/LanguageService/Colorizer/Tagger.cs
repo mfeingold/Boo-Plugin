@@ -19,53 +19,45 @@ using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
+using Hill30.BooProject.Project;
 
 namespace Hill30.BooProject.LanguageService.Colorizer
 {
     class Tagger : ITagger<ErrorTag>
     {
-        private readonly BooLanguageService service;
-        private readonly IVsTextLines buffer;
-        private BooSource source;
+        private ITextBuffer buffer;
+        private IFileNode fileNode;
 
-        public Tagger(BooLanguageService service, IVsTextLines iVsTextLines)
+        public Tagger(ITextBuffer buffer)
         {
-            this.service = service;
-            buffer = iVsTextLines;
+            this.buffer = buffer;
+            fileNode = GlobalServices.GetFileNodeForBuffer(buffer);
+            fileNode.Recompiled += SourceRecompiled;
         }
 
         #region ITagger<ErrorTag> Members
 
         public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
-            if (source == null)
-            {
-                source = (BooSource)service.GetSource(buffer);
-                if (source != null)
-                    source.Recompiled += SourceRecompiled;
-            }
-
-            if (source != null)
-            {
-                foreach (var error in source.Errors)
-                    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo),
-                                                       new ErrorTag(PredefinedErrorTypeNames.SyntaxError,
-                                                                    "Error: " + error.Code + ' ' + error.Message));
-                foreach (var error in source.Warnings)
-                    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo),
-                                                       new ErrorTag(PredefinedErrorTypeNames.Warning,
-                                                                    "Warning: " + error.Code + ' ' + error.Message));
-            }
+            //foreach (var error in source.Errors)
+            //    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo),
+            //                                        new ErrorTag(PredefinedErrorTypeNames.SyntaxError,
+            //                                                    "Error: " + error.Code + ' ' + error.Message));
+            //foreach (var error in source.Warnings)
+            //    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo),
+            //                                        new ErrorTag(PredefinedErrorTypeNames.Warning,
+            //                                                    "Warning: " + error.Code + ' ' + error.Message));
             yield break;
         }
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         #endregion
+
         void SourceRecompiled(object sender, EventArgs e)
         {
             if (TagsChanged != null)
-                TagsChanged(sender, new SnapshotSpanEventArgs(source.SnapshotSpan));
+                TagsChanged(sender, new SnapshotSpanEventArgs(new SnapshotSpan(buffer.CurrentSnapshot, 0, buffer.CurrentSnapshot.Length)));
         }
     }
 }
