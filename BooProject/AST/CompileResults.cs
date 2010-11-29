@@ -27,6 +27,10 @@ using Boo.Lang.Compiler.Ast;
 using Hill30.BooProject.AST.Nodes;
 using Hill30.BooProject.Project;
 using Microsoft.VisualStudio.Text.Classification;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Hill30.BooProject.AST
 {
@@ -36,10 +40,18 @@ namespace Hill30.BooProject.AST
     public class CompileResults
     {
         private int[][] positionMap;
+        private int[] lineMap;
         private int lineSize;
         private readonly List<MappedToken> tokenMap = new List<MappedToken>();
         private readonly List<MappedTypeDefinition> types = new List<MappedTypeDefinition>();
         private readonly List<ClassificationSpan> classificationSpans = new List<ClassificationSpan>();
+        private readonly List<ErrorTask> tasks = new List<ErrorTask>();
+        private readonly BooFileNode fileNode;
+
+        public CompileResults(BooFileNode fileNode)
+        {
+            this.fileNode = fileNode;
+        }
 
         private static antlr.IToken NextToken(antlr.TokenStream tokens)
         {
@@ -79,6 +91,10 @@ namespace Hill30.BooProject.AST
             positionList.Add(sourcePos); // to map the <EOL> token
             mappings.Add(positionList.ToArray());
             positionMap = mappings.ToArray();
+            lineMap = new int[positionMap.Length];
+            lineMap[0] = 0;
+            for (var i = 1; i < lineMap.Length; i++)
+                lineMap[i] = lineMap[i - 1] + positionMap[i - 1].Length;
         }
 
         public void Initialize(string filePath, string source)
@@ -147,9 +163,9 @@ namespace Hill30.BooProject.AST
 
         public BufferPoint LocationToPoint(int line, int column)
         {
-            if (line == -1)
+            if (line == -1 || line > positionMap.Length)
                 line = positionMap.Length;
-            if (column == -1)
+            if (column == -1 || column > positionMap[line-1].Length)
                 column = positionMap[line - 1].Length;
             return new BufferPoint { Line = line - 1, Column = positionMap[line - 1][column - 1] };
         }
@@ -225,12 +241,23 @@ namespace Hill30.BooProject.AST
 
         private void MapParsingMessage(CompilerWarning warning)
         {
-//            throw new NotImplementedException();
+            MapParsingMessage(warning.LexicalInfo);
         }
 
         private void MapParsingMessage(CompilerError error)
         {
-//            throw new NotImplementedException();
+            MapParsingMessage(error.LexicalInfo);
+        }
+
+        private void MapParsingMessage(LexicalInfo location)
+        {
+            var token = GetMappedToken(location);
+            if (token != null && token.Nodes
+                .Where(n =>
+                    n.Type != MappedNodeType.TypeDefiniton
+                    && n.Type != MappedNodeType.TypeMemberDefinition
+                    ).Count() == 0)
+                MapParsedNode(new ParsingError(this, location, token.Length));
         }
 
         private void MapCompletedNodes(Module module)
@@ -240,12 +267,37 @@ namespace Hill30.BooProject.AST
 
         private void MapMessage(CompilerError error)
         {
-//            throw new NotImplementedException();
+            MapMessage(error.LexicalInfo, error.Code + ' ' + error.Message, TaskErrorCategory.Error);
         }
 
         private void MapMessage(CompilerWarning warning)
         {
-//            throw new NotImplementedException();
+            MapMessage(warning.LexicalInfo, warning.Code + ' ' + warning.Message, TaskErrorCategory.Warning);
+        }
+
+        private void MapMessage(LexicalInfo location, string message, TaskErrorCategory category)
+        {
+            var task = new ErrorTask
+            {
+                Document = location.FileName,
+                ErrorCategory = category,
+                Line = location.Line,
+                Column = location.Column,
+                Priority = TaskPriority.High,
+                Text = message,
+                HierarchyItem = fileNode,
+                Category = TaskCategory.CodeSense
+            };
+            task.Navigate += TaskNavigate;
+            tasks.Add(task);
+            ((BooProjectNode)fileNode.ProjectMgr).AddTask(task);       
+        }
+
+        private void TaskNavigate(object sender, EventArgs e)
+        {
+            var task = sender as ErrorTask;
+            if (task != null) 
+                fileNode.ProjectMgr.Navigate(task.Document, task.Line, task.Column);
         }
 
         internal MappedToken GetAdjacentMappedToken(int line, int column)
@@ -276,8 +328,40 @@ namespace Hill30.BooProject.AST
             return token.Nodes.Where(n => n.Node == node).FirstOrDefault();
         }
 
-        public IList<ClassificationSpan> ClassificationSpans { get { return classificationSpans; } }
-
         internal IEnumerable<MappedTypeDefinition> Types { get { return types; } }
+
+        internal IList<ClassificationSpan> GetClassificationSpans(Microsoft.VisualStudio.Text.SnapshotSpan span)
+        {
+            return classificationSpans;
+        }
+
+        private Span GetErrorSpan(SourceLocation lexicalInfo)
+        {
+            var pos = LocationToPoint(lexicalInfo);
+            var token = GetMappedToken(lexicalInfo);
+            if (token != null)
+            {
+                var textSpan = token.Nodes.LastOrDefault().TextSpan;
+                var start = lineMap[textSpan.iStartLine] + textSpan.iStartIndex;
+                return new Span(start, lineMap[textSpan.iEndLine] + textSpan.iEndIndex - start);
+            }
+            return new Span(0, lineMap[lineMap.Length-1] + positionMap[positionMap.Length-1].Length-1);
+        }
+
+        internal IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
+        {
+            foreach (var task in tasks)
+            {
+                yield return new TagSpan<ErrorTag>(
+                    new SnapshotSpan(
+                        spans[0].Snapshot,
+                        GetErrorSpan(new SourceLocation(task.Line, task.Column))),
+                    new ErrorTag(
+                        task.ErrorCategory == TaskErrorCategory.Error ? PredefinedErrorTypeNames.CompilerError : PredefinedErrorTypeNames.Warning,
+                        task.Text
+                        )
+                    );
+            }
+        }
     }
 }

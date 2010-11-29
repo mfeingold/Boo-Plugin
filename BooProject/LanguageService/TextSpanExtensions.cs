@@ -54,11 +54,6 @@ namespace Hill30.BooProject.LanguageService
             return new Span(start, end - start);
         }
 
-        public static SnapshotSpan GetSnapshotSpan(this TextSpan self, ITextSnapshot snapshot)
-        {
-            return new SnapshotSpan(snapshot, self.GetSpan(snapshot));
-        }
-
         public static bool Contains(this TextSpan self, int line, int column)
         {
             if (line < self.iStartLine)

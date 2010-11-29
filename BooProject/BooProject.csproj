@@ -105,6 +105,9 @@
     <Compile Include="AST\Nodes\MappedTypeMemberDefinition.cs" />
     <Compile Include="AST\Nodes\MappedTypeReference.cs" />
     <Compile Include="AST\Nodes\MappedVariableDefinition.cs" />
+    <Compile Include="AST\Nodes\ParsingError.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="AST\ParsedModuleWalker.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GlobalServices.cs" />

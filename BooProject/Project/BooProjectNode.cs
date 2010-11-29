@@ -229,7 +229,7 @@ namespace Hill30.BooProject.Project
             foreach (var file in GetFileEnumerator(this))
                 if (file.NeedsCompilation)
                 {
-                    var result = new CompileResults();
+                    var result = new CompileResults(file);
                     var input = file.GetCompilerInput(result);
                     results.Add(input.Name, new Tuple<BooFileNode, CompileResults>(file, result));
                     compiler.Parameters.Input.Add(input);

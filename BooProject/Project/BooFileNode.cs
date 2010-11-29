@@ -26,6 +26,8 @@ using Hill30.BooProject.AST;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Text.Classification;
 using Hill30.BooProject.AST.Nodes;
+using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.Text;
 
 namespace Hill30.BooProject.Project
 {
@@ -38,11 +40,13 @@ namespace Hill30.BooProject.Project
 
         MappedToken GetAdjacentMappedToken(int line, int col);
 
-        IList<ClassificationSpan> ClassificationSpans { get; }
-
         IEnumerable<MappedTypeDefinition> Types { get; }
 
         CompileResults.BufferPoint MapPosition(int line, int column);
+
+        IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans);
+
+        IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span);
     }
     
     
@@ -58,7 +62,7 @@ namespace Hill30.BooProject.Project
         public BooFileNode(ProjectNode root, ProjectElement e)
 			: base(root, e)
 		{
-            results = new CompileResults();
+            results = new CompileResults(this);
 		}
 
         public bool NeedsCompilation { get { return true; } }
@@ -90,7 +94,13 @@ namespace Hill30.BooProject.Project
                         System.Diagnostics.Debug.Assert(lines != null, "IVsTextLines does not implement IVsTextBuffer");
                     }
                 }
-                source = File.ReadAllText(Url);
+
+                int lineCount;
+                ErrorHandler.ThrowOnFailure(lines.GetLineCount(out lineCount));
+                int lineLength;
+                ErrorHandler.ThrowOnFailure(lines.GetLengthOfLine(lineCount - 1, out lineLength));
+
+                ErrorHandler.ThrowOnFailure(lines.GetLineText(0, 0, lineCount-1, lineLength, out source));
             }
             else
                 source = File.ReadAllText(Url);
@@ -147,11 +157,13 @@ namespace Hill30.BooProject.Project
 
         public MappedToken GetAdjacentMappedToken(int line, int col) { return GetResults().GetAdjacentMappedToken(line, col); }
 
-        public IList<ClassificationSpan> ClassificationSpans { get { return GetResults().ClassificationSpans; } }
-
         public IEnumerable<MappedTypeDefinition> Types { get { return GetResults().Types; } }
 
         public CompileResults.BufferPoint MapPosition(int line, int column) { return GetResults().LocationToPoint(line, column); }
+
+        public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span) { return GetResults().GetClassificationSpans(span); }
+
+        public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans) { return GetResults().GetTags(spans); }
 
         #endregion
     }

@@ -42,7 +42,7 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         {
 
             if (fileNode != null)
-                return fileNode.ClassificationSpans;
+                return fileNode.GetClassificationSpans(span);
             
             return new List<ClassificationSpan>();
         }

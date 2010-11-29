@@ -39,15 +39,9 @@ namespace Hill30.BooProject.LanguageService.Colorizer
 
         public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
-            //foreach (var error in source.Errors)
-            //    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo),
-            //                                        new ErrorTag(PredefinedErrorTypeNames.SyntaxError,
-            //                                                    "Error: " + error.Code + ' ' + error.Message));
-            //foreach (var error in source.Warnings)
-            //    yield return new TagSpan<ErrorTag>(source.GetErrorSnapshotSpan(error.LexicalInfo),
-            //                                        new ErrorTag(PredefinedErrorTypeNames.Warning,
-            //                                                    "Warning: " + error.Code + ' ' + error.Message));
-            yield break;
+            if (fileNode != null)
+                return fileNode.GetTags(spans);
+            return new List<ITagSpan<ErrorTag>>();
         }
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;

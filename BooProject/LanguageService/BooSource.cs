@@ -94,7 +94,7 @@ namespace Hill30.BooProject.LanguageService
 
         public event EventHandler Recompiled;
 
-        public IList<ClassificationSpan> ClassificationSpans { get { return fileNode.ClassificationSpans; } }
+        //public IList<ClassificationSpan> ClassificationSpans { get { return fileNode.ClassificationSpans; } }
 //        public CompilerErrorCollection Errors { get { return fileNode.Errors; } }
 //        public CompilerWarningCollection Warnings { get { return fileNode.Warnings; } }
 
