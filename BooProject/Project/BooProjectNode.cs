@@ -24,8 +24,6 @@ using EnvDTE;
 using VSLangProj;
 using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio;
 using Hill30.BooProject.AST;
 
 namespace Hill30.BooProject.Project
@@ -227,7 +225,7 @@ namespace Hill30.BooProject.Project
 
             var results = new Dictionary<string, Tuple<BooFileNode, CompileResults>>();
             foreach (var file in GetFileEnumerator(this))
-                if (file.NeedsCompilation)
+                if (IsCodeFile(file.Url) && file.NeedsCompilation)
                 {
                     var result = new CompileResults(file);
                     var input = file.GetCompilerInput(result);

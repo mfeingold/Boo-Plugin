@@ -47,12 +47,18 @@ namespace Hill30.BooProject.Project
         IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans);
 
         IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span);
+
+        void HideMessages();
+
+        void ShowMessages(IVsTextLines buffer);
     }
     
     
     public class BooFileNode : FileNode, IFileNode
     {
         private CompileResults results;
+        private bool hidden;
+        private bool needCompilation;
 
         private CompileResults GetResults()
         {
@@ -63,9 +69,11 @@ namespace Hill30.BooProject.Project
 			: base(root, e)
 		{
             results = new CompileResults(this);
-		}
+            hidden = true;
+            needCompilation = true;
+        }
 
-        public bool NeedsCompilation { get { return true; } }
+        public bool NeedsCompilation { get { return needCompilation; } }
 
         public ICompilerInput GetCompilerInput(CompileResults result)
         {
@@ -90,7 +98,7 @@ namespace Hill30.BooProject.Project
                     var bufferProvider = doc as IVsTextBufferProvider;
                     if (bufferProvider != null)
                     {
-                        Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(bufferProvider.GetTextBuffer(out lines));
+                        ErrorHandler.ThrowOnFailure(bufferProvider.GetTextBuffer(out lines));
                         System.Diagnostics.Debug.Assert(lines != null, "IVsTextLines does not implement IVsTextBuffer");
                     }
                 }
@@ -101,6 +109,8 @@ namespace Hill30.BooProject.Project
                 ErrorHandler.ThrowOnFailure(lines.GetLengthOfLine(lineCount - 1, out lineLength));
 
                 ErrorHandler.ThrowOnFailure(lines.GetLineText(0, 0, lineCount-1, lineLength, out source));
+
+                hidden = false;
             }
             else
                 source = File.ReadAllText(Url);
@@ -110,9 +120,13 @@ namespace Hill30.BooProject.Project
             return new StringInput(path, source);
         }
 
-        public void SetCompilerResults(CompileResults results)
+        public void SetCompilerResults(CompileResults newResults)
         {
-            this.results = results;
+            results.HideMessages();
+            results = newResults;
+            needCompilation = false;
+            if (!hidden)
+                results.ShowMessages();
             if (Recompiled != null)
                 Recompiled(this, EventArgs.Empty);
         }
@@ -126,7 +140,7 @@ namespace Hill30.BooProject.Project
         {
             get
             {
-                if (System.IO.Path.GetExtension(FileName) == ".boo")
+                if (Path.GetExtension(FileName) == ".boo")
                     return BooProjectNode.ImageOffset + (int)BooProjectNode.ProjectIcons.File;
                 return base.ImageIndex;
             }
@@ -164,6 +178,13 @@ namespace Hill30.BooProject.Project
         public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span) { return GetResults().GetClassificationSpans(span); }
 
         public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans) { return GetResults().GetTags(spans); }
+
+        public void HideMessages() { GetResults().HideMessages(); }
+
+        public void ShowMessages(IVsTextLines buffer)
+        {
+            GetResults().ShowMessages();
+        }
 
         #endregion
     }

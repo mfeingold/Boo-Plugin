@@ -19,18 +19,15 @@ using System.IO;
 using System.Linq;
 using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
-using Hill30.BooProject.LanguageService;
-using Boo.Lang.Compiler.IO;
 using Microsoft.VisualStudio.Shell;
-using CompilerParameters = Boo.Lang.Compiler.CompilerParameters;
 using Boo.Lang.Compiler.Ast;
 using Hill30.BooProject.AST.Nodes;
 using Hill30.BooProject.Project;
 using Microsoft.VisualStudio.Text.Classification;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
+using Hill30.BooProject.LanguageService;
 
 namespace Hill30.BooProject.AST
 {
@@ -44,13 +41,15 @@ namespace Hill30.BooProject.AST
         private int lineSize;
         private readonly List<MappedToken> tokenMap = new List<MappedToken>();
         private readonly List<MappedTypeDefinition> types = new List<MappedTypeDefinition>();
-        private readonly List<ClassificationSpan> classificationSpans = new List<ClassificationSpan>();
-        private readonly List<ErrorTask> tasks = new List<ErrorTask>();
+        private List<ClassificationSpan> classificationSpans;
+        private readonly List<CompilerMessage> messages = new List<CompilerMessage>();
         private readonly BooFileNode fileNode;
+        private readonly BooLanguageService service;
 
         public CompileResults(BooFileNode fileNode)
         {
             this.fileNode = fileNode;
+            service = (BooLanguageService) fileNode.GetService(typeof (BooLanguageService));
         }
 
         private static antlr.IToken NextToken(antlr.TokenStream tokens)
@@ -263,41 +262,18 @@ namespace Hill30.BooProject.AST
         private void MapCompletedNodes(Module module)
         {
             new CompletedModuleWalker(this).Visit(module);
+            foreach (var token in tokenMap)
+                token.Nodes.ForEach(n => n.Resolve());
         }
 
         private void MapMessage(CompilerError error)
         {
-            MapMessage(error.LexicalInfo, error.Code + ' ' + error.Message, TaskErrorCategory.Error);
+            messages.Add(new CompilerMessage(fileNode, error.LexicalInfo, error.Code, error.Message, TaskErrorCategory.Error));
         }
 
         private void MapMessage(CompilerWarning warning)
         {
-            MapMessage(warning.LexicalInfo, warning.Code + ' ' + warning.Message, TaskErrorCategory.Warning);
-        }
-
-        private void MapMessage(LexicalInfo location, string message, TaskErrorCategory category)
-        {
-            var task = new ErrorTask
-            {
-                Document = location.FileName,
-                ErrorCategory = category,
-                Line = location.Line,
-                Column = location.Column,
-                Priority = TaskPriority.High,
-                Text = message,
-                HierarchyItem = fileNode,
-                Category = TaskCategory.CodeSense
-            };
-            task.Navigate += TaskNavigate;
-            tasks.Add(task);
-            ((BooProjectNode)fileNode.ProjectMgr).AddTask(task);       
-        }
-
-        private void TaskNavigate(object sender, EventArgs e)
-        {
-            var task = sender as ErrorTask;
-            if (task != null) 
-                fileNode.ProjectMgr.Navigate(task.Document, task.Line, task.Column);
+            messages.Add(new CompilerMessage(fileNode, warning.LexicalInfo, warning.Code, warning.Message, TaskErrorCategory.Warning));
         }
 
         internal MappedToken GetAdjacentMappedToken(int line, int column)
@@ -328,37 +304,72 @@ namespace Hill30.BooProject.AST
             return token.Nodes.Where(n => n.Node == node).FirstOrDefault();
         }
 
+        public void ShowMessages()
+        {
+            messages.ForEach(m => m.Show());
+        }
+
+        public void HideMessages()
+        {
+            messages.ForEach(m => m.Hide());
+            // the spans have to be recalcualted becaise the next time we need them
+            // the buffer will be different and the spans will no longer be valid
+            classificationSpans = null;
+        }
+
         internal IEnumerable<MappedTypeDefinition> Types { get { return types; } }
 
-        internal IList<ClassificationSpan> GetClassificationSpans(Microsoft.VisualStudio.Text.SnapshotSpan span)
+        internal IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span)
         {
+            if (classificationSpans == null)
+            {
+                classificationSpans = new List<ClassificationSpan>();
+                foreach (var token in tokenMap)
+                    token.Nodes.ForEach(
+                        node =>
+                            {
+                                if (node.Format != null)
+                                    classificationSpans.Add(
+                                        new ClassificationSpan(
+                                            GetSnapshotSpan(span.Snapshot, node),
+                                            service.ClassificationTypeRegistry.GetClassificationType(
+                                                node.Format)));
+                            }
+                        );
+            }
             return classificationSpans;
         }
 
-        private Span GetErrorSpan(SourceLocation lexicalInfo)
+        private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, MappedNode node)
         {
-            var pos = LocationToPoint(lexicalInfo);
+            var start = snapshot.GetLineFromLineNumber(node.TextSpan.iStartLine).Start + node.TextSpan.iStartIndex;
+            var end = snapshot.GetLineFromLineNumber(node.TextSpan.iEndLine).Start + node.TextSpan.iEndIndex;
+            return new SnapshotSpan(start, end - start);
+        }
+
+        private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, SourceLocation lexicalInfo)
+        {
             var token = GetMappedToken(lexicalInfo);
             if (token != null)
             {
                 var textSpan = token.Nodes.LastOrDefault().TextSpan;
-                var start = lineMap[textSpan.iStartLine] + textSpan.iStartIndex;
-                return new Span(start, lineMap[textSpan.iEndLine] + textSpan.iEndIndex - start);
+                var start = snapshot.GetLineFromLineNumber(textSpan.iStartLine).Start + textSpan.iStartIndex;
+                return new SnapshotSpan(start, token.Length);
             }
-            return new Span(0, lineMap[lineMap.Length-1] + positionMap[positionMap.Length-1].Length-1);
+            var pos = LocationToPoint(lexicalInfo);
+            var line = snapshot.GetLineFromLineNumber(pos.Line);
+            return new SnapshotSpan(line.Start, line.Length);
         }
 
         internal IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
-            foreach (var task in tasks)
+            foreach (var task in messages)
             {
                 yield return new TagSpan<ErrorTag>(
-                    new SnapshotSpan(
-                        spans[0].Snapshot,
-                        GetErrorSpan(new SourceLocation(task.Line, task.Column))),
+                    GetSnapshotSpan(spans[0].Snapshot, new SourceLocation(task.LexicalInfo.Line, task.LexicalInfo.Column)),
                     new ErrorTag(
-                        task.ErrorCategory == TaskErrorCategory.Error ? PredefinedErrorTypeNames.CompilerError : PredefinedErrorTypeNames.Warning,
-                        task.Text
+                        task.ErrorCategory == TaskErrorCategory.Error ? PredefinedErrorTypeNames.SyntaxError : PredefinedErrorTypeNames.Warning,
+                        task.Message
                         )
                     );
             }

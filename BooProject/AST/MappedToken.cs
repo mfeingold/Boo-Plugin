@@ -51,7 +51,6 @@ namespace Hill30.BooProject.AST
         //        node.Resolve();
         //        process(node);
         //    }
-
         //}
 
         #region IComparable<MappedToken> Members

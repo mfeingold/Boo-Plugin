@@ -92,6 +92,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AST\CompilerMessage.cs" />
     <Compile Include="AST\CompletedModuleWalker.cs" />
     <Compile Include="AST\MappedToken.cs">
       <SubType>Code</SubType>
@@ -125,7 +126,6 @@
     <Compile Include="LanguageService\Scanner\Scanner.cs" />
     <Compile Include="LanguageService\Scanner\ScanningLexer.cs" />
     <Compile Include="LanguageService\BooLanguageService.cs" />
-    <Compile Include="LanguageService\TaskItems\Collection.cs" />
     <Compile Include="LanguageService\TextSpanExtensions.cs" />
     <Compile Include="Project\Attributes\LocDisplayNameAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
