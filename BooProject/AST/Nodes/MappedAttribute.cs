@@ -30,10 +30,7 @@ namespace Hill30.BooProject.AST.Nodes
 
         public override string Format
         {
-            get
-            {
-                return Formats.BooType;
-            }
+            get { return Formats.BooType; }
         }
 
         public override string QuickInfoTip

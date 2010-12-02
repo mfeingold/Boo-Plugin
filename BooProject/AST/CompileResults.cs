@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Parser;
 using Microsoft.VisualStudio.Shell;
 using Boo.Lang.Compiler.Ast;
@@ -264,10 +265,17 @@ namespace Hill30.BooProject.AST
             new CompletedModuleWalker(this).Visit(module);
             foreach (var token in tokenMap)
                 token.Nodes.ForEach(n => n.Resolve());
+            var compileUnit = new CompileUnit();
+            compileUnit.Modules.Add(module);
+            CompileUnit = new InternalCompileUnit(compileUnit);
         }
 
         private void MapMessage(CompilerError error)
         {
+            if (error.Code == "BCE0055")
+                // I do not care about internal compiler errors here
+                // In particular if an attribute type fails to resolve the CheckNeverUsedMethods step throws an exception
+                return; 
             messages.Add(new CompilerMessage(fileNode, error.LexicalInfo, error.Code, error.Message, TaskErrorCategory.Error));
         }
 
@@ -374,5 +382,7 @@ namespace Hill30.BooProject.AST
                     );
             }
         }
+
+        public Boo.Lang.Compiler.TypeSystem.ICompileUnit CompileUnit { get; private set; }
     }
 }

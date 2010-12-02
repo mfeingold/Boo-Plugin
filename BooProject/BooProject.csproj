@@ -63,6 +63,7 @@
     <Reference Include="Microsoft.VisualStudio.Editor, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.OLE.Interop" />
     <Reference Include="Microsoft.VisualStudio.Package.LanguageService.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Design, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0" />
@@ -111,6 +112,8 @@
     </Compile>
     <Compile Include="AST\ParsedModuleWalker.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="DesignTime\ResolvingUnit.cs" />
+    <Compile Include="DesignTime\ResovingNamespace.cs" />
     <Compile Include="GlobalServices.cs" />
     <Compile Include="LanguageService\BooAuthoringScope.cs" />
     <Compile Include="LanguageService\BooDeclarations.cs" />

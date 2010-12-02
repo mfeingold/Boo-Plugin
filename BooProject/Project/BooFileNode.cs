@@ -16,6 +16,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.TypeSystem;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Project;
 using Boo.Lang.Compiler.IO;
@@ -50,7 +51,9 @@ namespace Hill30.BooProject.Project
 
         void HideMessages();
 
-        void ShowMessages(IVsTextLines buffer);
+        void ShowMessages();
+
+        void SubmitForCompile();
     }
     
     
@@ -58,7 +61,6 @@ namespace Hill30.BooProject.Project
     {
         private CompileResults results;
         private bool hidden;
-        private bool needCompilation;
 
         private CompileResults GetResults()
         {
@@ -70,10 +72,7 @@ namespace Hill30.BooProject.Project
 		{
             results = new CompileResults(this);
             hidden = true;
-            needCompilation = true;
         }
-
-        public bool NeedsCompilation { get { return needCompilation; } }
 
         public ICompilerInput GetCompilerInput(CompileResults result)
         {
@@ -124,7 +123,6 @@ namespace Hill30.BooProject.Project
         {
             results.HideMessages();
             results = newResults;
-            needCompilation = false;
             if (!hidden)
                 results.ShowMessages();
             if (Recompiled != null)
@@ -163,6 +161,8 @@ namespace Hill30.BooProject.Project
         }
         #endregion
 
+        public ICompileUnit CompileUnit { get { return GetResults().CompileUnit; } }
+        
         #region IFileNode Members
 
         public event EventHandler Recompiled;
@@ -181,11 +181,11 @@ namespace Hill30.BooProject.Project
 
         public void HideMessages() { GetResults().HideMessages(); }
 
-        public void ShowMessages(IVsTextLines buffer)
-        {
-            GetResults().ShowMessages();
-        }
+        public void ShowMessages() { GetResults().ShowMessages(); }
+
+        public void SubmitForCompile() { ((BooProjectNode) ProjectMgr).SubmitForCompile(this); }
 
         #endregion
+
     }
 }

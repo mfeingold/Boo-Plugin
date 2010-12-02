@@ -13,9 +13,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Hill30.BooProject.AST;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.BooProject.Project;
+using System;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -29,12 +31,28 @@ namespace Hill30.BooProject.LanguageService
         {
             projectManager = GlobalServices.GetProjectManagerForFile(GetFilePath());
             fileNode = projectManager.GetFileNode(GetFilePath());
-            fileNode.ShowMessages(buffer);
+            fileNode.ShowMessages();
+            fileNode.Recompiled +=
+                (sender, eventArgs) => service.Invoke(
+                    new Action<BooLanguageService>(SynchronizeDropDowns), 
+                    new object[] {service}
+                                           );
+        }
+
+        static void SynchronizeDropDowns(BooLanguageService service)
+        {
+            service.SynchronizeDropdowns();
         }
 
         internal void Compile(ParseRequest req)
         {
             projectManager.Compile();
+        }
+
+        public override void OnChangeLineText(TextLineChange[] lineChange, int last)
+        {
+            base.OnChangeLineText(lineChange, last);
+            fileNode.SubmitForCompile();
         }
 
         internal string GetDataTipText(int line, int col, out TextSpan span)
@@ -70,6 +88,11 @@ namespace Hill30.BooProject.LanguageService
         public override CommentInfo GetCommentFormat()
         {
             return new CommentInfo {BlockStart = "/*", BlockEnd = "*/", UseLineComments = false};
+        }
+
+        public CompileResults.BufferPoint MapPosition(int line, int column)
+        {
+            return fileNode.MapPosition(line, column);
         }
 
         public override void Dispose()

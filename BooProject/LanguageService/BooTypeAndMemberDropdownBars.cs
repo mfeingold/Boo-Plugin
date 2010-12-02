@@ -108,16 +108,12 @@ namespace Hill30.BooProject.LanguageService
                     var type = node.TypeNode;
                     var name = node.TypeNode.FullName;
                     ProcessMembers(type,
-                        member =>
-                            {
-                                dropDownMembers.Add(new DropDownMember(
-                                                        member.FullName,
-                                                        member.GetTextSpan(fileNode),
-                                                        BooDeclarations.GetIconForNode(member),
-                                                        DROPDOWNFONTATTR.FONTATTR_GRAY
-                                                        ));
-                            }
-                        );
+                        member => dropDownMembers.Add(new DropDownMember(
+                                                          member.FullName,
+                                                          member.GetTextSpan(fileNode),
+                                                          BooDeclarations.GetIconForNode(member),
+                                                          DROPDOWNFONTATTR.FONTATTR_GRAY
+                                                          )));
 
                     if (node.Node.NodeType == NodeType.Module)
                         continue;
@@ -153,6 +149,9 @@ namespace Hill30.BooProject.LanguageService
                     );
             }
             selectedMember = sm;
+
+            if (dropDownMembers.Count == 0)
+                return true;
 
             mIndex = -1;
             foreach (var type in fileNode.Types)

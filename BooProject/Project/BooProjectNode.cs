@@ -15,16 +15,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
+using Hill30.BooProject.DesignTime;
 using Microsoft.VisualStudio.Project;
 using System.Windows.Forms;
 using System.Drawing;
 using EnvDTE;
+using Microsoft.VisualStudio.TextManager.Interop;
 using VSLangProj;
 using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell;
 using Hill30.BooProject.AST;
+using Hill30.BooProject.LanguageService;
 
 namespace Hill30.BooProject.Project
 {
@@ -32,18 +37,7 @@ namespace Hill30.BooProject.Project
     public interface IProjectManager
     {
         void Compile();
-
         IFileNode GetFileNode(string path);
-
-        
-
-        BooCompiler CreateCompiler();
-
-        void AddTask(ErrorTask task);
-
-        void RemoveTask(ErrorTask task);
-
-        void NavigateTo(ErrorTask errorTask);
     }
 
     [ComVisible(true)]
@@ -147,7 +141,7 @@ namespace Hill30.BooProject.Project
             node.OleServiceProvider.AddService(typeof(EnvDTE.Project), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
             node.OleServiceProvider.AddService(typeof(ProjectItem), node.ServiceCreator, false);
             node.OleServiceProvider.AddService(typeof(VSProject), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
-
+            SubmitForCompile(node);
             return node;
         }
 
@@ -158,13 +152,29 @@ namespace Hill30.BooProject.Project
             return base.IsCodeFile(fileName);
         }
 
-        //public override bool Navigate(VsTextBuffer buffer, int line, int column)
-        //{
-        //    var languageService = (LanguageService.BooLanguageService)GetService(typeof(LanguageService.BooLanguageService));
-        //    var source = (LanguageService.BooSource)languageService.GetOrCreateSource((IVsTextLines)buffer);
-        //    var pos = source.MapPosition(line, column);
-        //    return base.Navigate(buffer, pos.Line, pos.Column);
-        //}
+        public override bool Navigate(VsTextBuffer buffer, int line, int column)
+        {
+            var source = (BooSource)GlobalServices.LanguageService.GetOrCreateSource((IVsTextLines)buffer);
+            var pos = source.MapPosition(line, column);
+            return base.Navigate(buffer, pos.Line, pos.Column);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && resolver != null)
+                resolver.Dispose();
+            base.Dispose(disposing);
+        }
+
+        public void AddTask(ErrorTask task)
+        {
+            TaskProvider.Tasks.Add(task);
+        }
+
+        public void RemoveTask(ErrorTask task)
+        {
+            TaskProvider.Tasks.Remove(task);
+        }
 
         #region Properties
 
@@ -192,7 +202,7 @@ namespace Hill30.BooProject.Project
             return service;
         }
 
-        IEnumerable<BooFileNode> GetFileEnumerator(HierarchyNode parent)
+        static IEnumerable<BooFileNode> GetFileEnumerator(HierarchyNode parent)
         {
             for (var node = parent.FirstChild; node != null; node = node.NextSibling)
                 if (node is FolderNode)
@@ -207,7 +217,19 @@ namespace Hill30.BooProject.Project
 
         #region IProjectManager Members
 
-        BooCompiler compiler;
+        private BooCompiler compiler;
+        private ResolvingUnit resolver;
+
+        private readonly List<BooFileNode> compileList = new List<BooFileNode>();
+
+        internal void SubmitForCompile(BooFileNode file)
+        {
+            if (IsCodeFile(file.Url) && file.ItemNode.ItemName == "Compile")
+                lock (compileList)
+                {
+                    compileList.Add(file);
+                }
+        }
 
         public void Compile()
         {
@@ -218,22 +240,34 @@ namespace Hill30.BooProject.Project
                     var pipeline = CompilerPipeline.GetPipeline("compile");
                     pipeline.BreakOnErrors = false;
                     compiler = new BooCompiler(new CompilerParameters(true) { Pipeline = pipeline });
+                    resolver = new ResolvingUnit(this);
                 }
             }
 
+            List<BooFileNode> localCompileList;
+            lock (compileList)
+            {
+                localCompileList = new List<BooFileNode>(compileList);
+                compileList.Clear();
+            }
+            if (localCompileList.Count == 0)
+                return;
+
             compiler.Parameters.Input.Clear();
+            compiler.Parameters.References.Clear();
+            compiler.Parameters.References.Add(resolver);
 
             var results = new Dictionary<string, Tuple<BooFileNode, CompileResults>>();
             foreach (var file in GetFileEnumerator(this))
-                if (IsCodeFile(file.Url) && file.NeedsCompilation)
+                if (localCompileList.Contains(file))
                 {
                     var result = new CompileResults(file);
                     var input = file.GetCompilerInput(result);
                     results.Add(input.Name, new Tuple<BooFileNode, CompileResults>(file, result));
                     compiler.Parameters.Input.Add(input);
                 }
-                //else
-                //    compiler.Parameters.References.Add(file.CompilerResults.CompileUnit);
+                else
+                    compiler.Parameters.References.Add(file.CompileUnit);
 
             CompilerStepEventHandler handler = 
                 (sender, args) => 
@@ -251,36 +285,9 @@ namespace Hill30.BooProject.Project
 
         public IFileNode GetFileNode(string path)
         {
-            foreach (var file in GetFileEnumerator(this))
-                if (file.Url == path)
-                    return file;
-            return null;
-        }
-
-
-        public BooCompiler CreateCompiler()
-        {
-            var pipeline = CompilerPipeline.GetPipeline("compile");
-            pipeline.BreakOnErrors = false;
-            return new BooCompiler(new CompilerParameters(true) { Pipeline = pipeline });
-        }
-
-        public void AddTask(ErrorTask task)
-        {
-            TaskProvider.Tasks.Add(task);
-        }
-
-        public void RemoveTask(ErrorTask task)
-        {
-            TaskProvider.Tasks.Remove(task);
-        }
-
-        public void NavigateTo(ErrorTask task)
-        {
-            Navigate(task.Document, task.Line, task.Column);
+            return GetFileEnumerator(this).FirstOrDefault(file => file.Url == path);
         }
 
         #endregion
-
     }
 }

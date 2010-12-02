@@ -28,6 +28,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Shell.Design;
 
 namespace Hill30.BooProject
 {
@@ -37,6 +38,8 @@ namespace Hill30.BooProject
         public static readonly IVsRunningDocumentTable RDT = (IVsRunningDocumentTable)Package.GetGlobalService(typeof(SVsRunningDocumentTable));
 
         public static readonly BooLanguageService LanguageService = (BooLanguageService)Package.GetGlobalService(typeof (BooLanguageService));
+
+        public static readonly DynamicTypeService TypeService = (DynamicTypeService)Package.GetGlobalService(typeof(DynamicTypeService));
 
         public static IFileNode GetFileNodeForBuffer(ITextBuffer buffer) { return handler.GetFileNodeForBufferImpl(buffer); }
 
