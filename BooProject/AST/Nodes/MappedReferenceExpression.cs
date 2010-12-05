@@ -115,13 +115,13 @@ namespace Hill30.BooProject.AST.Nodes
 
         protected internal override MappedNode DeclarationNode { get { return declarationNode; } }
 
-        //public override BooDeclarations Declarations
-        //{
-        //    get
-        //    {
-        //        return new BooDeclarations(Node, varType, true);
-        //    }
-        //}
+        public override BooDeclarations Declarations
+        {
+            get
+            {
+                return new BooDeclarations(Node, varType, true);
+            }
+        }
 
         internal override void Record(RecordingStage stage, List<MappedNode> list)
         {
