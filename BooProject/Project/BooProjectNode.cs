@@ -30,6 +30,8 @@ using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell;
 using Hill30.BooProject.AST;
 using Hill30.BooProject.LanguageService;
+using Hill30.BooProject.Project.ProjectProperties;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Hill30.BooProject.Project
 {
@@ -73,7 +75,12 @@ namespace Hill30.BooProject.Project
         }
 
         public BooProjectNode()
+//            :base()
         {
+            OleServiceProvider.AddService(typeof(EnvDTE.Project), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
+            OleServiceProvider.AddService(typeof(VSProject), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
+            OleServiceProvider.AddService(typeof(SVsDesignTimeAssemblyResolution), this, false);
+
             SupportsProjectDesigner = true;
             CanProjectDeleteItems = true;
             imageOffset = InitializeImageList();
@@ -127,6 +134,11 @@ namespace Hill30.BooProject.Project
             {
                 return imageOffset + (int)ProjectIcons.Project;
             }
+        }
+
+        protected override NodeProperties CreatePropertiesObject()
+        {
+            return new BooProjectNodeProperties(this);
         }
 
         /// <summary>
@@ -202,14 +214,14 @@ namespace Hill30.BooProject.Project
             return service;
         }
 
-        static IEnumerable<BooFileNode> GetFileEnumerator(HierarchyNode parent)
+        IEnumerable<BooFileNode> GetFileEnumerator(HierarchyNode parent)
         {
             for (var node = parent.FirstChild; node != null; node = node.NextSibling)
                 if (node is FolderNode)
                     foreach (var file in GetFileEnumerator(node))
                         yield return file;
                 else
-                    if (node is BooFileNode)
+                    if (node is BooFileNode && IsCodeFile(node.Url))
                         yield return (BooFileNode)node;
                     else
                         continue;

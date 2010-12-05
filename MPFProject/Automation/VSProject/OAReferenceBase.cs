@@ -138,7 +138,7 @@ namespace Microsoft.VisualStudio.Project.Automation
 
 		public virtual string PublicKeyToken
 		{
-			get { throw new NotImplementedException(); }
+			get { return ""; }
 		}
 
 		public virtual void Remove()
