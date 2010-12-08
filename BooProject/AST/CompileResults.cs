@@ -358,7 +358,7 @@ namespace Hill30.BooProject.AST
         private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, SourceLocation lexicalInfo)
         {
             var token = GetMappedToken(lexicalInfo);
-            if (token != null)
+            if (token != null && token.Nodes.Count > 0)
             {
                 var textSpan = token.Nodes.LastOrDefault().TextSpan;
                 var start = snapshot.GetLineFromLineNumber(textSpan.iStartLine).Start + textSpan.iStartIndex;

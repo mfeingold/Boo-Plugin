@@ -32,6 +32,7 @@ using Hill30.BooProject.AST;
 using Hill30.BooProject.LanguageService;
 using Hill30.BooProject.Project.ProjectProperties;
 using Microsoft.VisualStudio.Shell.Interop;
+using Boo.Lang.Parser;
 
 namespace Hill30.BooProject.Project
 {
@@ -75,7 +76,6 @@ namespace Hill30.BooProject.Project
         }
 
         public BooProjectNode()
-//            :base()
         {
             OleServiceProvider.AddService(typeof(EnvDTE.Project), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
             OleServiceProvider.AddService(typeof(VSProject), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
@@ -264,6 +264,8 @@ namespace Hill30.BooProject.Project
             }
             if (localCompileList.Count == 0)
                 return;
+
+            ((BooParsingStep)compiler.Parameters.Pipeline[0]).TabSize = GlobalServices.LanguageService.GetLanguagePreferences().TabSize;
 
             compiler.Parameters.Input.Clear();
             compiler.Parameters.References.Clear();

@@ -400,8 +400,8 @@ namespace Microsoft.VisualStudio.Project
                     BuildErrorEventArgs errorArgs = (BuildErrorEventArgs)errorEvent;
                     task.Document = errorArgs.File;
                     task.ErrorCategory = TaskErrorCategory.Error;
-                    task.Line = errorArgs.LineNumber;
-                    task.Column = errorArgs.ColumnNumber;
+                    task.Line = errorArgs.LineNumber-1;
+                    task.Column = errorArgs.ColumnNumber-1;
                     task.Priority = TaskPriority.High;
                 }
                 else if (errorEvent is BuildWarningEventArgs)
@@ -409,8 +409,8 @@ namespace Microsoft.VisualStudio.Project
                     BuildWarningEventArgs warningArgs = (BuildWarningEventArgs)errorEvent;
                     task.Document = warningArgs.File;
                     task.ErrorCategory = TaskErrorCategory.Warning;
-                    task.Line = warningArgs.LineNumber;
-                    task.Column = warningArgs.ColumnNumber;
+                    task.Line = warningArgs.LineNumber-1;
+                    task.Column = warningArgs.ColumnNumber-1;
                     task.Priority = TaskPriority.Normal;
                 }
 

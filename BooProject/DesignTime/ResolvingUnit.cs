@@ -26,7 +26,7 @@ namespace Hill30.BooProject.DesignTime
 //            typeResolver.ReferenceAssembly(new AssemblyName("mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"));
 //            var t = typeResolver.GetAssembly(new AssemblyName("System"));
             //var ts = GlobalServices.TypeService.GetTypeDiscoveryService(projectManager).GetTypes(typeof(object), true);
-            var t = typeResolver.GetType("System.Uri");
+            var t = typeResolver.GetAssembly(new AssemblyName("System"));
           
             //var list = new System.Collections.ArrayList(ts);
             //var types = GlobalServices.TypeService.GetTypeDiscoveryService(projectManager).GetTypes(typeof(Object), false);
