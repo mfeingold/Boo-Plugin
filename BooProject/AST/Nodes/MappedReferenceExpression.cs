@@ -94,7 +94,10 @@ namespace Hill30.BooProject.AST.Nodes
                     {
                         var declaration = ((InternalMethod)entity).Method;
                         declarationNode = CompileResults.GetMappedNode(declaration);
-                        varType = TypeSystemServices.GetType(declaration.ReturnType);
+                        if (entity is InternalConstructor)
+                            varType = ((InternalConstructor) entity).DeclaringType;
+                        else
+                            varType = TypeSystemServices.GetType(declaration.ReturnType);
                     }
                     if (entity is InternalProperty)
                     {

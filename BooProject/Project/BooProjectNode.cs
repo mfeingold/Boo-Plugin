@@ -15,11 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Boo.Lang.Compiler;
-using Hill30.BooProject.DesignTime;
+using Hill30.BooProject.Compilation;
 using Microsoft.VisualStudio.Project;
 using System.Windows.Forms;
 using System.Drawing;
@@ -28,7 +26,6 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using VSLangProj;
 using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell;
-using Hill30.BooProject.AST;
 using Hill30.BooProject.LanguageService;
 
 namespace Hill30.BooProject.Project
@@ -54,6 +51,7 @@ namespace Hill30.BooProject.Project
         private static readonly ImageList imageList;
         private static int imageOffset;
         private VSProject vsProject;
+        private readonly ComplerManager compilerManager;
 
         static BooProjectNode()
         {
@@ -77,6 +75,7 @@ namespace Hill30.BooProject.Project
             SupportsProjectDesigner = true;
             CanProjectDeleteItems = true;
             imageOffset = InitializeImageList();
+            compilerManager = new ComplerManager(this);
         }
 
         private int InitializeImageList()
@@ -141,7 +140,7 @@ namespace Hill30.BooProject.Project
             node.OleServiceProvider.AddService(typeof(EnvDTE.Project), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
             node.OleServiceProvider.AddService(typeof(ProjectItem), node.ServiceCreator, false);
             node.OleServiceProvider.AddService(typeof(VSProject), new OleServiceProvider.ServiceCreatorCallback(CreateServices), false);
-            SubmitForCompile(node);
+            compilerManager.SubmitForCompile(node);
             return node;
         }
 
@@ -161,8 +160,8 @@ namespace Hill30.BooProject.Project
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && resolver != null)
-                resolver.Dispose();
+            if (disposing)
+                compilerManager.Dispose();
             base.Dispose(disposing);
         }
 
@@ -202,7 +201,7 @@ namespace Hill30.BooProject.Project
             return service;
         }
 
-        static IEnumerable<BooFileNode> GetFileEnumerator(HierarchyNode parent)
+        public static IEnumerable<BooFileNode> GetFileEnumerator(HierarchyNode parent)
         {
             for (var node = parent.FirstChild; node != null; node = node.NextSibling)
                 if (node is FolderNode)
@@ -215,72 +214,17 @@ namespace Hill30.BooProject.Project
                         continue;
         }
 
-        #region IProjectManager Members
 
-        private BooCompiler compiler;
-        private ResolvingUnit resolver;
-
-        private readonly List<BooFileNode> compileList = new List<BooFileNode>();
-
-        internal void SubmitForCompile(BooFileNode file)
+        public void SubmitForCompile(BooFileNode file)
         {
-            if (IsCodeFile(file.Url) && file.ItemNode.ItemName == "Compile")
-                lock (compileList)
-                {
-                    compileList.Add(file);
-                }
+            compilerManager.SubmitForCompile(file);
         }
+
+        #region IProjectManager Members
 
         public void Compile()
         {
-            lock (this)
-            {
-                if (compiler == null)
-                {
-                    var pipeline = CompilerPipeline.GetPipeline("compile");
-                    pipeline.BreakOnErrors = false;
-                    compiler = new BooCompiler(new CompilerParameters(true) { Pipeline = pipeline });
-                    resolver = new ResolvingUnit(this);
-                }
-            }
-
-            List<BooFileNode> localCompileList;
-            lock (compileList)
-            {
-                localCompileList = new List<BooFileNode>(compileList);
-                compileList.Clear();
-            }
-            if (localCompileList.Count == 0)
-                return;
-
-            compiler.Parameters.Input.Clear();
-            compiler.Parameters.References.Clear();
-            compiler.Parameters.References.Add(resolver);
-
-            var results = new Dictionary<string, Tuple<BooFileNode, CompileResults>>();
-            foreach (var file in GetFileEnumerator(this))
-                if (localCompileList.Contains(file))
-                {
-                    var result = new CompileResults(file);
-                    var input = file.GetCompilerInput(result);
-                    results.Add(input.Name, new Tuple<BooFileNode, CompileResults>(file, result));
-                    compiler.Parameters.Input.Add(input);
-                }
-                else
-                    compiler.Parameters.References.Add(file.CompileUnit);
-
-            CompilerStepEventHandler handler = 
-                (sender, args) => 
-            {
-                if (args.Step == ((CompilerPipeline)sender)[0])
-                    CompileResults.MapParsedNodes(results, args.Context);
-            };
-
-            compiler.Parameters.Pipeline.AfterStep += handler;
-            CompileResults.MapCompleted(results, compiler.Run());
-            compiler.Parameters.Pipeline.AfterStep -= handler;
-            foreach (var item in results.Values)
-                item.Item1.SetCompilerResults(item.Item2);
+            compilerManager.Compile();
         }
 
         public IFileNode GetFileNode(string path)

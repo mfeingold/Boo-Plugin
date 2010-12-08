@@ -111,6 +111,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AST\ParsedModuleWalker.cs" />
+    <Compile Include="Compilation\ComplerManager.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DesignTime\ResolvingUnit.cs" />
     <Compile Include="DesignTime\ResovingNamespace.cs" />
