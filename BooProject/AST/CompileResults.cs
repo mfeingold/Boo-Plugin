@@ -29,6 +29,8 @@ using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Hill30.BooProject.LanguageService;
+using Microsoft.VisualStudio.TextManager.Interop;
+using Hill30.BooProject.LanguageService.Colorizer;
 
 namespace Hill30.BooProject.AST
 {
@@ -38,7 +40,6 @@ namespace Hill30.BooProject.AST
     public class CompileResults
     {
         private int[][] positionMap;
-        private int[] lineMap;
         private int lineSize;
         private readonly List<MappedToken> tokenMap = new List<MappedToken>();
         private readonly List<MappedTypeDefinition> types = new List<MappedTypeDefinition>();
@@ -46,6 +47,8 @@ namespace Hill30.BooProject.AST
         private readonly List<CompilerMessage> messages = new List<CompilerMessage>();
         private readonly BooFileNode fileNode;
         private readonly BooLanguageService service;
+        private readonly List<TextSpan> whitespaces = new List<TextSpan>();
+        private ITextSnapshot currentSnapshot;
 
         public CompileResults(BooFileNode fileNode)
         {
@@ -91,10 +94,6 @@ namespace Hill30.BooProject.AST
             positionList.Add(sourcePos); // to map the <EOL> token
             mappings.Add(positionList.ToArray());
             positionMap = mappings.ToArray();
-            lineMap = new int[positionMap.Length];
-            lineMap[0] = 0;
-            for (var i = 1; i < lineMap.Length; i++)
-                lineMap[i] = lineMap[i - 1] + positionMap[i - 1].Length;
         }
 
         public void Initialize(string filePath, string source)
@@ -107,6 +106,9 @@ namespace Hill30.BooProject.AST
 
         private void MapTokens(int tabSize, string source)
         {
+
+            var endLine = 0;
+            var endIndex = 0;
 
             var tokens = BooParser.CreateBooLexer(tabSize, "code stream", new StringReader(source));
 
@@ -136,8 +138,13 @@ namespace Hill30.BooProject.AST
                 }
 
                 var startIndex = positionMap[token.getLine() - 1][token.getColumn() - 1];
-                var endIndex = positionMap[token.getLine() - 1][token.getColumn() - 1 + length];
                 var startLine = token.getLine() - 1;
+
+                if (startLine > endLine || startLine == endLine && startIndex > endIndex)
+                    whitespaces.Add(new TextSpan() { iStartLine = endLine, iStartIndex = endIndex, iEndLine = startLine, iEndIndex = startIndex });
+
+                endIndex = positionMap[token.getLine() - 1][token.getColumn() - 1 + length];
+                endLine = startLine;
 
                 var cluster = new MappedToken(
                     startLine * lineSize + startIndex,
@@ -148,11 +155,13 @@ namespace Hill30.BooProject.AST
                     && tokenMap[tokenMap.Count() - 1].Index >= cluster.Index)
                     throw new ArgumentException("Token Mapping order");
                 tokenMap.Add(cluster);
-
-//                currentPos = tokenHandler(currentPos, token);
             }
 
-//            tokenHandler(currentPos, token);
+            var sIndex = positionMap[token.getLine() - 1][token.getColumn() - 1];
+            var sLine = token.getLine() - 1;
+
+            if (sLine > endLine || sLine == endLine && sIndex > endIndex)
+                whitespaces.Add(new TextSpan() { iStartLine = endLine, iStartIndex = endIndex, iEndLine = sLine, iEndIndex = sIndex });
         }
 
         public struct BufferPoint
@@ -327,11 +336,41 @@ namespace Hill30.BooProject.AST
 
         internal IEnumerable<MappedTypeDefinition> Types { get { return types; } }
 
+        private bool IsValidSnapshot(ITextSnapshot snapshot)
+        {
+            if (currentSnapshot == null)
+                currentSnapshot = snapshot;
+            return currentSnapshot == snapshot;
+        }
+
+        private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, MappedNode node)
+        {
+            // no need for snapshot validation here - it is only called from GetClassificationSpan after validation is done
+            var start = snapshot.GetLineFromLineNumber(node.TextSpan.iStartLine).Start + node.TextSpan.iStartIndex;
+            var end = snapshot.GetLineFromLineNumber(node.TextSpan.iEndLine).Start + node.TextSpan.iEndIndex;
+            return new SnapshotSpan(start, end - start);
+        }
+
         internal IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span)
         {
             if (classificationSpans == null)
             {
                 classificationSpans = new List<ClassificationSpan>();
+                if (!IsValidSnapshot(span.Snapshot))
+                    return classificationSpans;
+
+                foreach (var whitespace in whitespaces)
+                {
+                    var startIndex = span.Snapshot.GetLineFromLineNumber(whitespace.iStartLine).Start + whitespace.iStartIndex;
+                    var endIndex = span.Snapshot.GetLineFromLineNumber(whitespace.iEndLine).Start + whitespace.iEndIndex;
+
+                    classificationSpans.Add(
+                        new ClassificationSpan
+                            (new SnapshotSpan(span.Snapshot, startIndex, endIndex - startIndex),
+                                service.ClassificationTypeRegistry.GetClassificationType(Formats.BooBlockComment)
+                            ));
+                }
+
                 foreach (var token in tokenMap)
                     token.Nodes.ForEach(
                         node =>
@@ -348,15 +387,9 @@ namespace Hill30.BooProject.AST
             return classificationSpans;
         }
 
-        private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, MappedNode node)
-        {
-            var start = snapshot.GetLineFromLineNumber(node.TextSpan.iStartLine).Start + node.TextSpan.iStartIndex;
-            var end = snapshot.GetLineFromLineNumber(node.TextSpan.iEndLine).Start + node.TextSpan.iEndIndex;
-            return new SnapshotSpan(start, end - start);
-        }
-
         private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, SourceLocation lexicalInfo)
         {
+            // no need for snapshot validation here - it is only called from GetTags after validation is done
             var token = GetMappedToken(lexicalInfo);
             if (token != null && token.Nodes.Count > 0)
             {
@@ -371,6 +404,9 @@ namespace Hill30.BooProject.AST
 
         internal IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
+            if (spans.Count == 0 || !IsValidSnapshot(spans[0].Snapshot))
+                yield break;
+
             foreach (var task in messages)
             {
                 yield return new TagSpan<ErrorTag>(
