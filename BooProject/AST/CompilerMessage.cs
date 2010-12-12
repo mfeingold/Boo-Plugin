@@ -47,8 +47,8 @@ namespace Hill30.BooProject.AST
             {
                 Document = LexicalInfo.FileName,
                 ErrorCategory = ErrorCategory,
-                Line = LexicalInfo.Line,
-                Column = LexicalInfo.Column,
+                Line = LexicalInfo.Line-1,
+                Column = LexicalInfo.Column-1,
                 Priority = TaskPriority.High,
                 Text = Message,
                 HierarchyItem = fileNode,

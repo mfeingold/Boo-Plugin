@@ -42,11 +42,11 @@ namespace Hill30.BooProject.DesignTime
                 resultingSet.Add(CompilerParameters.SharedTypeSystemProvider.Map(type));
                 return true;
             }
-            if ((typesToConsider & EntityType.Namespace) == EntityType.Namespace && resultingSet.Count == 0)
-            {
-                resultingSet.Add(new ResovingNamespace(this, name));
-                return true;
-            }
+            //if ((typesToConsider & EntityType.Namespace) == EntityType.Namespace && resultingSet.Count == 0)
+            //{
+            //    resultingSet.Add(new ResovingNamespace(this, name));
+            //    return true;
+            //}
             return false;
         }
     }

@@ -2543,7 +2543,7 @@ namespace Microsoft.VisualStudio.Project
                 }
             }
 
-            return Navigate(buffer, line, column);
+            return Navigate(buffer, line+1, column+1);
         }
 
         public virtual bool Navigate(VsTextBuffer buffer, int line, int column)

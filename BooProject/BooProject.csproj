@@ -46,10 +46,13 @@
     </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="EnvDTE90, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Engine" />
@@ -88,7 +91,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="VSLangProj, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -113,6 +116,7 @@
     <Compile Include="AST\ParsedModuleWalker.cs" />
     <Compile Include="Compilation\ComplerManager.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="DesignTime\References.cs" />
     <Compile Include="DesignTime\ResolvingUnit.cs" />
     <Compile Include="DesignTime\ResovingNamespace.cs" />
     <Compile Include="GlobalServices.cs" />
@@ -141,6 +145,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="BooProjectPackage.cs" />
     <Compile Include="Project\ProjectProperties\Build.cs" />
+    <Compile Include="Project\ProjectProperties\BooProjectNodeProperties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PkgCmdID.cs" />
     <Compile Include="Resources.cs">
