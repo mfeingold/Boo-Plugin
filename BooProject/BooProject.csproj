@@ -114,11 +114,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AST\ParsedModuleWalker.cs" />
-    <Compile Include="Compilation\ComplerManager.cs" />
+    <Compile Include="Compilation\CompilerManager.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="DesignTime\References.cs" />
-    <Compile Include="DesignTime\ResolvingUnit.cs" />
-    <Compile Include="DesignTime\ResovingNamespace.cs" />
     <Compile Include="GlobalServices.cs" />
     <Compile Include="LanguageService\BooAuthoringScope.cs" />
     <Compile Include="LanguageService\BooDeclarations.cs" />

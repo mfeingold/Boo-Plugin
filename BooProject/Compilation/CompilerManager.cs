@@ -14,7 +14,7 @@ using Microsoft.VisualStudio.Project.Automation;
 
 namespace Hill30.BooProject.Compilation
 {
-    public class ComplerManager
+    public class CompilerManager
     {
         private readonly BooCompiler compiler;
         private readonly List<BooFileNode> compileList = new List<BooFileNode>();
@@ -24,7 +24,7 @@ namespace Hill30.BooProject.Compilation
         private readonly List<Assembly> references = new List<Assembly>();
         private bool initialized;
 
-        public ComplerManager(BooProjectNode projectManager)
+        public CompilerManager(BooProjectNode projectManager)
         {
             this.projectManager = projectManager;
             var pipeline = CompilerPipeline.GetPipeline("compile");

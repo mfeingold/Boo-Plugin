@@ -54,7 +54,7 @@ namespace Hill30.BooProject.Project
         private static readonly ImageList imageList;
         private static int imageOffset;
         private VSProject vsProject;
-        private ComplerManager compilerManager;
+        private CompilerManager compilerManager;
 
         static BooProjectNode()
         {
@@ -82,7 +82,7 @@ namespace Hill30.BooProject.Project
             SupportsProjectDesigner = true;
             CanProjectDeleteItems = true;
             imageOffset = InitializeImageList();
-            compilerManager = new ComplerManager(this);
+            compilerManager = new CompilerManager(this);
         }
 
         private int InitializeImageList()
