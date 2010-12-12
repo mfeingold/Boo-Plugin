@@ -44,15 +44,6 @@ namespace Hill30.BooProject.AST
         public int Length { get; private set; }
         public List<MappedNode> Nodes { get { return nodes; } }
 
-        //public void Resolve(Action<MappedNode> process)
-        //{
-        //    foreach (var node in Nodes)
-        //    {
-        //        node.Resolve();
-        //        process(node);
-        //    }
-        //}
-
         #region IComparable<MappedToken> Members
 
         public int CompareTo(MappedToken other)
@@ -61,7 +52,6 @@ namespace Hill30.BooProject.AST
         }
 
         #endregion
-
 
         internal string GetDataTiptext(out TextSpan span)
         {
