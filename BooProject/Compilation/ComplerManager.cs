@@ -36,17 +36,32 @@ namespace Hill30.BooProject.Compilation
         {
             resolverContext = GlobalServices.TypeService.GetContextTypeResolver(projectManager);
             typeResolver = GlobalServices.TypeService.GetTypeResolutionService(projectManager);
+            references.Add(typeResolver.GetAssembly(new AssemblyName("mscorlib")));
             foreach (Reference reference in projectManager.VSProject.References)
             {
-                switch (reference.Type)
+                var assemblyReference = reference as OAAssemblyReference;
+                if (assemblyReference != null)
                 {
-                    case prjReferenceType.prjReferenceTypeAssembly:
-                        if (!File.Exists(reference.Path))
-                            break;
-                        references.Add(typeResolver.GetAssembly(new AssemblyName(reference.Path)));
-                        break;
-                    default:
-                        break;
+                    var name = assemblyReference.Name;
+                    if (name != null)
+                    {
+                        if (!string.IsNullOrEmpty(assemblyReference.Version))
+                            name += ", Version=" + assemblyReference.Version;
+                        if (!string.IsNullOrEmpty(assemblyReference.Culture))
+                            name += ", Culture=" + assemblyReference.Culture;
+                        if (!string.IsNullOrEmpty(assemblyReference.PublicKeyToken))
+                            name += ", PublicKeyToken=" + assemblyReference.PublicKeyToken;
+
+                        try
+                        {
+                            references.Add(typeResolver.GetAssembly(new AssemblyName(name)));
+                        }
+                        catch (Exception e)
+                        {
+                            var s = e.Message;
+                        }
+
+                    }
                 }
             }
         }
@@ -68,7 +83,7 @@ namespace Hill30.BooProject.Compilation
             {
                 if (!initialized)
                 {
-                    //Initialize();
+                    Initialize();
                     initialized = true;
                 }
                 localCompileList = new List<BooFileNode>(compileList);

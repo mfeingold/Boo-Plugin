@@ -2147,18 +2147,25 @@ namespace Microsoft.VisualStudio.Project
             ProjectOptions options = CreateProjectOptions();
 			options.Config = config;
 
-			string targetFrameworkMoniker = GetProjectProperty("TargetFrameworkMoniker", false);
+            string targetFramework = GetProjectProperty("TargetFrameworkIdentifier", false);
+            if (string.IsNullOrEmpty(targetFramework))
+                targetFramework = ".NETFramework";
 
-			if (!string.IsNullOrEmpty(targetFrameworkMoniker))
+			string targetFrameworkVersion = GetProjectProperty("TargetFrameworkVersion", false);
+            if (string.IsNullOrEmpty(targetFrameworkVersion))
+                targetFrameworkVersion = "v3.5";
+
+			string targetFrameworkProfile = GetProjectProperty("TargetFrameworkProfile", false);
+            if (!string.IsNullOrEmpty(targetFrameworkProfile))
+                targetFrameworkProfile = ",Profile=" + targetFrameworkProfile;
+
+			try
 			{
-				try
-				{
-					options.TargetFrameworkMoniker = new FrameworkName(targetFrameworkMoniker);
-				}
-				catch (ArgumentException e)
-				{
-					Trace.WriteLine("Exception : " + e.Message);
-				}
+				options.TargetFrameworkMoniker = new FrameworkName(targetFramework + ",Version=" + targetFrameworkVersion + targetFrameworkProfile);
+			}
+			catch (ArgumentException e)
+			{
+				Trace.WriteLine("Exception : " + e.Message);
 			}
 
 			if (config == null)
