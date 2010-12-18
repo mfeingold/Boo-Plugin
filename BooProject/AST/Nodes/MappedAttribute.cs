@@ -22,6 +22,7 @@ namespace Hill30.BooProject.AST.Nodes
     public class MappedAttribute : MappedNode
     {
         private string quickInfoTip;
+        private string format;
 
         public MappedAttribute(CompileResults results, Attribute node)
             : base(results, node, node.Name.Length)
@@ -30,7 +31,7 @@ namespace Hill30.BooProject.AST.Nodes
 
         public override string Format
         {
-            get { return Formats.BooType; }
+            get { return format; }
         }
 
         public override string QuickInfoTip
@@ -51,6 +52,7 @@ namespace Hill30.BooProject.AST.Nodes
                 if (type is Error)
                     return;
                 quickInfoTip = "class " + type.FullName;
+                format = Formats.BooType;
             }
             catch
             {

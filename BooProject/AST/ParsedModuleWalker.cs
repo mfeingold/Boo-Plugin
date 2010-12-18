@@ -118,5 +118,12 @@ namespace Hill30.BooProject.AST
                 results.MapParsedNode(new MappedAttribute(results, node));
             base.OnAttribute(node);
         }
+
+        public override void OnImport(Import node)
+        {
+            if (node.LexicalInfo != null)
+                results.MapParsedNode(new MappedImport(results, node));
+            base.OnImport(node);
+        }
     }
 }

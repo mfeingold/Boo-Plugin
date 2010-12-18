@@ -44,6 +44,9 @@
     <Reference Include="Boo.Lang">
       <HintPath>$(BooBinPath)\Boo.Lang.dll</HintPath>
     </Reference>
+    <Reference Include="Boo.Microsoft.Build.Tasks, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <HintPath>..\..\..\temp\Boo.Microsoft.Build.Tasks.dll</HintPath>
+    </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <EmbedInteropTypes>False</EmbedInteropTypes>
@@ -103,6 +106,7 @@
     </Compile>
     <Compile Include="AST\CompileResults.cs" />
     <Compile Include="AST\Nodes\MappedAttribute.cs" />
+    <Compile Include="AST\Nodes\MappedImport.cs" />
     <Compile Include="AST\Nodes\MappedMacroReference.cs" />
     <Compile Include="AST\MappedNode.cs" />
     <Compile Include="AST\Nodes\MappedReferenceExpression.cs" />

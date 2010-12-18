@@ -54,6 +54,7 @@ namespace Hill30.BooProject.AST
         {
             this.fileNode = fileNode;
             service = (BooLanguageService) fileNode.GetService(typeof (BooLanguageService));
+            Initialize(fileNode.Url, File.ReadAllText(fileNode.Url));
         }
 
         private static antlr.IToken NextToken(antlr.TokenStream tokens)

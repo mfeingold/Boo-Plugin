@@ -28,6 +28,7 @@ namespace Hill30.BooProject.AST
         VraiableReference,
         VariableDefinition,
         TypeMemberDefinition,
+        Import,
         ParsingError
     }
 
