@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
@@ -8,9 +7,9 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Parser;
 using Hill30.BooProject.AST;
 using Hill30.BooProject.Project;
+using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell.Design;
 using VSLangProj;
-using Microsoft.VisualStudio.Project.Automation;
 
 namespace Hill30.BooProject.Compilation
 {
@@ -36,32 +35,50 @@ namespace Hill30.BooProject.Compilation
         {
             resolverContext = GlobalServices.TypeService.GetContextTypeResolver(projectManager);
             typeResolver = GlobalServices.TypeService.GetTypeResolutionService(projectManager);
-            references.Add(typeResolver.GetAssembly(new AssemblyName("mscorlib")));
             foreach (Reference reference in projectManager.VSProject.References)
             {
-                var assemblyReference = reference as OAAssemblyReference;
-                if (assemblyReference != null)
+                try
                 {
-                    var name = assemblyReference.Name;
-                    if (name != null)
+                    var assemblyReference = reference as OAAssemblyReference;
+                    if (assemblyReference != null)
                     {
-                        if (!string.IsNullOrEmpty(assemblyReference.Version))
-                            name += ", Version=" + assemblyReference.Version;
-                        if (!string.IsNullOrEmpty(assemblyReference.Culture))
-                            name += ", Culture=" + assemblyReference.Culture;
-                        if (!string.IsNullOrEmpty(assemblyReference.PublicKeyToken))
-                            name += ", PublicKeyToken=" + assemblyReference.PublicKeyToken;
-
-                        try
+                        var name = assemblyReference.Name;
+                        if (name != null)
                         {
+                            if (!string.IsNullOrEmpty(assemblyReference.Version))
+                                name += ", Version=" + assemblyReference.Version;
+                            if (!string.IsNullOrEmpty(assemblyReference.Culture))
+                                name += ", Culture=" + assemblyReference.Culture;
+                            if (!string.IsNullOrEmpty(assemblyReference.PublicKeyToken))
+                                name += ", PublicKeyToken=" + assemblyReference.PublicKeyToken;
+
                             references.Add(typeResolver.GetAssembly(new AssemblyName(name)));
-                        }
-                        catch (Exception e)
-                        {
-                            var s = e.Message;
-                        }
 
+                        }
                     }
+                    var projectReference = reference as OAProjectReference;
+                    if (projectReference != null)
+                    {
+                        var project = projectReference.SourceProject;
+                        if (project != null)
+                        {
+                            var configurationManager = project.ConfigurationManager;
+                            var activeConfiguration = configurationManager.ActiveConfiguration;
+                            var outputGroups = activeConfiguration.OutputGroups;
+                            for (int i = 0; i < outputGroups.Count; i++)
+                            {
+                                var group = outputGroups.Item(i + 1);
+                                var canonicalName = group.CanonicalName;
+                                if ((group.FileCount > 0) && (canonicalName.Equals("Built")))
+                                    foreach (string file in group.FileNames as Array)
+                                        references.Add(typeResolver.GetAssembly(new AssemblyName(Path.GetFileNameWithoutExtension(file))));
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    continue;
                 }
             }
         }

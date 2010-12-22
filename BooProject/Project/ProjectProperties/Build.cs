@@ -46,7 +46,7 @@ namespace Hill30.BooProject.Project.ProjectProperties
         #region Properties
 
         /// <summary>
-        /// Gets or sets Assembly Name.
+        /// Gets or sets Conditional Symblos.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
         [ResourcesCategoryAttribute(Resources.GeneralCaption)]
@@ -59,7 +59,7 @@ namespace Hill30.BooProject.Project.ProjectProperties
         }
 
         /// <summary>
-        /// Gets or sets Assembly Name.
+        /// Gets or sets whether Debug Symbol is set.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
         [ResourcesCategoryAttribute(Resources.GeneralCaption)]
@@ -72,7 +72,7 @@ namespace Hill30.BooProject.Project.ProjectProperties
         }
 
         /// <summary>
-        /// Gets or sets Assembly Name.
+        /// Gets or sets whether Trace Symbol is set.
         /// </summary>
         /// <remarks>IsDirty flag was switched to true.</remarks>
         [ResourcesCategoryAttribute(Resources.GeneralCaption)]
