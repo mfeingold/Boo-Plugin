@@ -380,7 +380,7 @@ namespace Microsoft.VisualStudio.Project
 	/// <summary>
 	/// This class is used for the events raised by a HierarchyNode object.
 	/// </summary>
-	internal class HierarchyNodeEventArgs : EventArgs
+	public class HierarchyNodeEventArgs : EventArgs
 	{
 		private HierarchyNode child;
 

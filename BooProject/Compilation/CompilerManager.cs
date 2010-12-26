@@ -10,76 +10,124 @@ using Hill30.BooProject.Project;
 using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Shell.Design;
 using VSLangProj;
+using Boo.Lang.Compiler.Ast;
+using Microsoft.VisualStudio.Project;
+using Microsoft.VisualStudio.Package;
 
 namespace Hill30.BooProject.Compilation
 {
     public class CompilerManager
     {
-        private readonly BooCompiler compiler;
         private readonly List<BooFileNode> compileList = new List<BooFileNode>();
         private readonly BooProjectNode projectManager;
         private DynamicTypeService.ContextTypeResolver resolverContext;
         private ITypeResolutionService typeResolver;
-        private readonly List<Assembly> references = new List<Assembly>();
-        private bool initialized;
+        private Dictionary<uint, AssemblyEntry> references = new Dictionary<uint, AssemblyEntry>();
+        private bool referencesDirty;
 
         public CompilerManager(BooProjectNode projectManager)
         {
             this.projectManager = projectManager;
-            var pipeline = CompilerPipeline.GetPipeline("compile");
-            pipeline.BreakOnErrors = false;
-            compiler = new BooCompiler(new CompilerParameters(false) { Pipeline = pipeline });
         }
 
-        private void Initialize()
+        public void Initialize()
         {
             resolverContext = GlobalServices.TypeService.GetContextTypeResolver(projectManager);
             typeResolver = GlobalServices.TypeService.GetTypeResolutionService(projectManager);
-            foreach (Reference reference in projectManager.VSProject.References)
+            GlobalServices.TypeService.AssemblyRefreshed += AssemblyRefreshed;
+            GlobalServices.TypeService.AssemblyObsolete += AssemblyObsolete;
+        }
+
+        private void AssemblyRefreshed(object sender, AssemblyRefreshedEventArgs args)
+        {
+            foreach (var reference in references.Values)
+                reference.Refresh(args.RefreshedAssembly);
+            UpdateReferences();
+        }
+
+        private void AssemblyObsolete(object sender, AssemblyObsoleteEventArgs args)
+        {
+            foreach (var reference in references.Values)
+                reference.Refresh(args.ObsoleteAssembly);
+            UpdateReferences();
+        }
+
+        internal void AddReference(ReferenceNode referenceNode)
+        {
+            references.Add(referenceNode.ID, new AssemblyEntry(this, referenceNode));
+            UpdateReferences();
+        }
+
+        class AssemblyEntry
+        {
+            CompilerManager manager;
+            ReferenceNode reference;
+            Assembly assembly;
+            public AssemblyEntry(CompilerManager manager, ReferenceNode reference)
             {
-                try
-                {
-                    var assemblyReference = reference as OAAssemblyReference;
-                    if (assemblyReference != null)
-                    {
-                        var name = assemblyReference.Name;
-                        if (name != null)
-                        {
-                            if (!string.IsNullOrEmpty(assemblyReference.Version))
-                                name += ", Version=" + assemblyReference.Version;
-                            if (!string.IsNullOrEmpty(assemblyReference.Culture))
-                                name += ", Culture=" + assemblyReference.Culture;
-                            if (!string.IsNullOrEmpty(assemblyReference.PublicKeyToken))
-                                name += ", PublicKeyToken=" + assemblyReference.PublicKeyToken;
+                this.manager = manager;
+                this.reference = reference;
+            }
 
-                            references.Add(typeResolver.GetAssembly(new AssemblyName(name)));
+            private AssemblyName GetAssemblyName()
+            {
+                var assemblyReference = reference as AssemblyReferenceNode;
+                if (assemblyReference != null)
+                    return assemblyReference.AssemblyName;
 
-                        }
-                    }
-                    var projectReference = reference as OAProjectReference;
-                    if (projectReference != null)
+                var projectReference = reference as ProjectReferenceNode;
+                if (projectReference != null)
+                    // Now get the name of the assembly from the project.
+                    // Some project system throw if the property does not exist. We expect an ArgumentException.
+                    try
                     {
-                        var project = projectReference.SourceProject;
-                        if (project != null)
-                        {
-                            var configurationManager = project.ConfigurationManager;
-                            var activeConfiguration = configurationManager.ActiveConfiguration;
-                            var outputGroups = activeConfiguration.OutputGroups;
-                            for (int i = 0; i < outputGroups.Count; i++)
-                            {
-                                var group = outputGroups.Item(i + 1);
-                                var canonicalName = group.CanonicalName;
-                                if ((group.FileCount > 0) && (canonicalName.Equals("Built")))
-                                    foreach (string file in group.FileNames as Array)
-                                        references.Add(typeResolver.GetAssembly(new AssemblyName(Path.GetFileNameWithoutExtension(file))));
-                            }
-                        }
+                        var assemblyNameProperty = projectReference.ReferencedProjectObject.Properties.Item("OutputFileName");
+                        return new AssemblyName(Path.GetFileNameWithoutExtension(assemblyNameProperty.Value.ToString()));
                     }
-                }
-                catch
+                    catch (ArgumentException)
+                    {
+                    }
+                return null;
+            }
+
+            public void Refresh(Assembly target)
+            {
+                if (assembly != null && assembly.FullName == target.FullName)
+                    assembly = null;// target;
+            }
+            
+            public Assembly Assembly { 
+                get 
                 {
-                    continue;
+                    if (assembly == null)
+                    {
+                        var assemblyName = GetAssemblyName();
+                        if (assemblyName != null)
+                            // type resolver must always operate on the same thread
+                            GlobalServices.LanguageService.Invoke(new Action (() => assembly = manager.typeResolver.GetAssembly(assemblyName)), new object[] {});
+                    }
+                    return assembly;
+                } 
+            }
+        }
+
+        internal void RemoveReference(ReferenceNode referenceNode)
+        {
+            references.Remove(referenceNode.ID);
+            UpdateReferences();
+        }
+
+        private void UpdateReferences()
+        {
+            var sources = GlobalServices.LanguageService.GetSources();
+            lock (compileList)
+            {
+                lock (sources)
+                {
+                    foreach (Source source in sources)
+                        source.IsDirty = true;
                 }
+                referencesDirty = true;
             }
         }
 
@@ -96,28 +144,32 @@ namespace Hill30.BooProject.Compilation
         {
 
             List<BooFileNode> localCompileList;
+            bool recompileAll;
             lock (compileList)
             {
-                if (!initialized)
-                {
-                    Initialize();
-                    initialized = true;
-                }
                 localCompileList = new List<BooFileNode>(compileList);
                 compileList.Clear();
+                if (localCompileList.Count == 0 && !referencesDirty)
+                    return;
+                recompileAll = referencesDirty;
+                referencesDirty = false;
             }
-            if (localCompileList.Count == 0)
-                return;
+
+            var pipeline = CompilerPipeline.GetPipeline("compile");
+            pipeline.BreakOnErrors = false;
+            var compiler = new BooCompiler(new CompilerParameters(false) { Pipeline = pipeline });
 
             ((BooParsingStep)compiler.Parameters.Pipeline[0]).TabSize = GlobalServices.LanguageService.GetLanguagePreferences().TabSize;
 
             compiler.Parameters.Input.Clear();
             compiler.Parameters.References.Clear();
-            references.ForEach(a => compiler.Parameters.References.Add(a));
+            foreach (var a in references.Values)
+                if (a.Assembly != null)
+                    compiler.Parameters.References.Add(a.Assembly);
 
             var results = new Dictionary<string, Tuple<BooFileNode, CompileResults>>();
             foreach (var file in BooProjectNode.GetFileEnumerator(projectManager))
-                if (localCompileList.Contains(file))
+                if (recompileAll || localCompileList.Contains(file))
                 {
                     var result = new CompileResults(file);
                     var input = file.GetCompilerInput(result);
@@ -127,23 +179,31 @@ namespace Hill30.BooProject.Compilation
                 else
                     compiler.Parameters.References.Add(file.CompileUnit);
 
-            CompilerStepEventHandler handler =
+            compiler.Parameters.Pipeline.AfterStep += new CompilerStepEventHandler(
                 (sender, args) =>
                 {
                     if (args.Step == ((CompilerPipeline)sender)[0])
                         CompileResults.MapParsedNodes(results, args.Context);
-                };
+                });
 
-            compiler.Parameters.Pipeline.AfterStep += handler;
-            CompileResults.MapCompleted(results, compiler.Run());
-            compiler.Parameters.Pipeline.AfterStep -= handler;
+            CompilerContext compilerOutput = null;
+
+            // as a part of compilation process compiler might request assembly load which triggers an assembly 
+            // resolve event to be processed by type resolver. Such processing has to happen on the same thread the
+            // resolver has been created on
+            GlobalServices.LanguageService.Invoke(new Action(() => compilerOutput = compiler.Run()), new object[] { });
+            CompileResults.MapCompleted(results, compilerOutput);
+
             foreach (var item in results.Values)
                 item.Item1.SetCompilerResults(item.Item2);
         }
 
         public void Dispose()
         {
-            ((IDisposable)resolverContext).Dispose();
+            if (resolverContext != null)
+                ((IDisposable)resolverContext).Dispose();
+            GlobalServices.TypeService.AssemblyRefreshed -= AssemblyRefreshed;
         }
+
     }
 }

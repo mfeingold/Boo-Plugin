@@ -122,7 +122,7 @@ namespace Microsoft.VisualStudio.Project
 		/// <summary>
 		/// Gets the automation object for the referenced project.
 		/// </summary>
-        internal EnvDTE.Project ReferencedProjectObject
+        public EnvDTE.Project ReferencedProjectObject
         {
             get
             {

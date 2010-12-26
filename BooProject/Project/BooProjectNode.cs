@@ -140,6 +140,30 @@ namespace Hill30.BooProject.Project
             return new BooProjectNodeProperties(this);
         }
 
+        protected override ReferenceContainerNode CreateReferenceContainerNode()
+        {
+            var result = base.CreateReferenceContainerNode();
+            result.OnChildAdded += new EventHandler<HierarchyNodeEventArgs>(result_OnChildAdded);
+            result.OnChildRemoved += new EventHandler<HierarchyNodeEventArgs>(result_OnChildRemoved);
+            return result;
+        }
+
+        void result_OnChildAdded(object sender, HierarchyNodeEventArgs e)
+        {
+            compilerManager.AddReference((ReferenceNode)e.Child);
+        }
+
+        void result_OnChildRemoved(object sender, HierarchyNodeEventArgs e)
+        {
+            compilerManager.RemoveReference((ReferenceNode)e.Child);
+        }
+
+        public override int OnAggregationComplete()
+        {
+            compilerManager.Initialize();
+            return base.OnAggregationComplete();
+        }
+
         /// <summary>
         /// Creates the file node.
         /// </summary>

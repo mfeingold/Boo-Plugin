@@ -55,7 +55,7 @@ namespace Microsoft.VisualStudio.Project
 		/// The name of the assembly this reference represents.
 		/// </summary>
 		/// <value></value>
-		internal System.Reflection.AssemblyName AssemblyName
+		public System.Reflection.AssemblyName AssemblyName
 		{
 			get
 			{
