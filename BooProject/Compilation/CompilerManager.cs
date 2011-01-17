@@ -51,20 +51,29 @@ namespace Hill30.BooProject.Compilation
             typeResolver = GlobalServices.TypeService.GetTypeResolutionService(projectManager);
             GlobalServices.TypeService.AssemblyRefreshed += AssemblyRefreshed;
             GlobalServices.TypeService.AssemblyObsolete += AssemblyObsolete;
+            GlobalServices.TypeService.AssemblyDeleted += AssemblyDeleted;
+        }
+
+        private void ResetAssemblyReferences(Assembly assembly)
+        {
+            foreach (var reference in references.Values)
+                reference.Refresh(assembly);
+            UpdateReferences();
         }
 
         private void AssemblyRefreshed(object sender, AssemblyRefreshedEventArgs args)
         {
-            foreach (var reference in references.Values)
-                reference.Refresh(args.RefreshedAssembly);
-            UpdateReferences();
+            ResetAssemblyReferences(args.RefreshedAssembly);
         }
 
         private void AssemblyObsolete(object sender, AssemblyObsoleteEventArgs args)
         {
-            foreach (var reference in references.Values)
-                reference.Refresh(args.ObsoleteAssembly);
-            UpdateReferences();
+            ResetAssemblyReferences(args.ObsoleteAssembly);
+        }
+
+        void AssemblyDeleted(object sender, AssemblyDeletedEventArgs args)
+        {
+            ResetAssemblyReferences(args.DeletedAssembly);
         }
 
         internal void AddReference(ReferenceNode referenceNode)
@@ -184,7 +193,7 @@ namespace Hill30.BooProject.Compilation
 
             var results = new Dictionary<string, Tuple<BooFileNode, CompileResults>>();
             foreach (var file in BooProjectNode.GetFileEnumerator(projectManager))
-                if (recompileAll || localCompileList.Contains(file))
+                if (recompileAll || localCompileList.Contains(file) || file.CompileUnit == null)
                 {
                     var result = new CompileResults(file);
                     var input = file.GetCompilerInput(result);
@@ -218,6 +227,8 @@ namespace Hill30.BooProject.Compilation
             if (resolverContext != null)
                 ((IDisposable)resolverContext).Dispose();
             GlobalServices.TypeService.AssemblyRefreshed -= AssemblyRefreshed;
+            GlobalServices.TypeService.AssemblyObsolete -= AssemblyObsolete;
+            GlobalServices.TypeService.AssemblyDeleted -= AssemblyDeleted;
         }
 
     }

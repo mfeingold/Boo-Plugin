@@ -32,6 +32,7 @@ using Hill30.BooProject.LanguageService;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.BooProject.LanguageService.Colorizer;
 using Boo.Lang.Compiler.IO;
+using Boo.Lang.Compiler.TypeSystem;
 
 namespace Hill30.BooProject.AST
 {
@@ -199,7 +200,8 @@ namespace Hill30.BooProject.AST
         internal static void MapCompleted(Dictionary<string, Tuple<BooFileNode, CompileResults>> results, CompilerContext compilerContext)
         {
             foreach (var module in compilerContext.CompileUnit.Modules)
-                results[module.LexicalInfo.FullPath].Item2.MapCompletedNodes(module);
+                if (module.LexicalInfo.FullPath != null)
+                        results[module.LexicalInfo.FullPath].Item2.MapCompletedNodes(module);
 
             foreach (var error in compilerContext.Errors)
                 results[error.LexicalInfo.FullPath].Item2.MapMessage(error);
@@ -243,7 +245,7 @@ namespace Hill30.BooProject.AST
 
         internal void MapNode(RecordingStage stage, MappedNode node)
         {
-            TokensForNode(node, cluster => node.Record(stage, cluster.Nodes));
+            TokensForNode(node, token => node.Record(stage, token.Nodes));
         }
 
         private void MapParsingMessage(CompilerWarning warning)
@@ -293,11 +295,15 @@ namespace Hill30.BooProject.AST
 
         internal MappedToken GetAdjacentMappedToken(int line, int column)
         {
+            if (tokenMap.Count == 0)
+                return null;
             return tokenMap[Lookup(IndexOfBufferPoint(line, column))];
         }
 
         public MappedToken GetMappedToken(int line, int column)
         {
+            if (tokenMap.Count == 0)
+                return null;
             var index = IndexOfBufferPoint(line, column);
             var token = tokenMap[Lookup(index)];
             if (token.Index + token.Length >= index)
@@ -307,6 +313,8 @@ namespace Hill30.BooProject.AST
 
         public MappedToken GetMappedToken(SourceLocation location)
         {
+            if (tokenMap.Count == 0)
+                return null;
             var bufferPoint = LocationToPoint(location);
             return GetMappedToken(bufferPoint.Line, bufferPoint.Column);
         }
@@ -395,6 +403,6 @@ namespace Hill30.BooProject.AST
             }
         }
 
-        public Boo.Lang.Compiler.TypeSystem.ICompileUnit CompileUnit { get; private set; }
+        public ICompileUnit CompileUnit { get; private set; }
     }
 }
