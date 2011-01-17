@@ -53,6 +53,8 @@ namespace Hill30.BooProject.Project
 
         void ShowMessages();
 
+        void Bind(ITextBuffer textBuffer);
+
         void SubmitForCompile();
     }
     
@@ -60,6 +62,8 @@ namespace Hill30.BooProject.Project
     public class BooFileNode : FileNode, IFileNode
     {
         private CompileResults results;
+        private ITextBuffer textBuffer;
+        private ITextSnapshot originalSnapshot;
         private bool hidden;
 
         private CompileResults GetResults()
@@ -70,53 +74,26 @@ namespace Hill30.BooProject.Project
         public BooFileNode(ProjectNode root, ProjectElement e)
 			: base(root, e)
 		{
-            results = new CompileResults(this);
+            results = new CompileResults(this);//, textBuffer);
             hidden = true;
+        }
+
+        public void Bind(ITextBuffer textBuffer)
+        {
+            this.textBuffer = textBuffer;
+            if (textBuffer == null)
+                hidden = true;
+            else
+                originalSnapshot = textBuffer.CurrentSnapshot;
         }
 
         public ICompilerInput GetCompilerInput(CompileResults result)
         {
-            IVsHierarchy hier;
-            uint itemId;
-            IntPtr docData;
-            uint cookie;
-
-            string source;
-            if (ErrorHandler.Succeeded(
-                GlobalServices.RDT.FindAndLockDocument((uint)_VSRDTFLAGS.RDT_NoLock, Url, out hier, out itemId, out docData,
-                                                   out cookie))
-                && docData != IntPtr.Zero
-                )
-            {
-                var doc = Marshal.GetObjectForIUnknown(docData);
-                Marshal.Release(docData);
-
-                var lines = doc as IVsTextLines;
-                if (lines == null)
-                {
-                    var bufferProvider = doc as IVsTextBufferProvider;
-                    if (bufferProvider != null)
-                    {
-                        ErrorHandler.ThrowOnFailure(bufferProvider.GetTextBuffer(out lines));
-                        System.Diagnostics.Debug.Assert(lines != null, "IVsTextLines does not implement IVsTextBuffer");
-                    }
-                }
-
-                int lineCount;
-                ErrorHandler.ThrowOnFailure(lines.GetLineCount(out lineCount));
-                int lineLength;
-                ErrorHandler.ThrowOnFailure(lines.GetLengthOfLine(lineCount - 1, out lineLength));
-
-                ErrorHandler.ThrowOnFailure(lines.GetLineText(0, 0, lineCount-1, lineLength, out source));
-
-                hidden = false;
-            }
-            else
-                source = File.ReadAllText(Url);
-
-            var path = Url;
-            result.Initialize(path, source);
-            return new StringInput(path, source);
+            if (textBuffer == null)
+                return result.Initialize(File.ReadAllText(Url));
+            hidden = false;
+            originalSnapshot = textBuffer.CurrentSnapshot;
+            return result.Initialize(originalSnapshot.GetText());
         }
 
         public void SetCompilerResults(CompileResults newResults)
@@ -145,6 +122,7 @@ namespace Hill30.BooProject.Project
         }
 
         #region Private implementation
+   
         internal OleServiceProvider.ServiceCreatorCallback ServiceCreator
         {
             get { return CreateServices; }
@@ -159,9 +137,23 @@ namespace Hill30.BooProject.Project
             }
             return service;
         }
+        
         #endregion
 
         public ICompileUnit CompileUnit { get { return GetResults().CompileUnit; } }
+
+        private SnapshotSpan SnapshotCreator(TextSpan textspan)
+        {
+            if (textBuffer == null)
+                return default(SnapshotSpan);
+
+            var startIndex = originalSnapshot.GetLineFromLineNumber(textspan.iStartLine).Start + textspan.iStartIndex;
+            var endLine = originalSnapshot.GetLineFromLineNumber(textspan.iEndLine);
+            if (textspan.iEndIndex == -1)
+                return new SnapshotSpan(originalSnapshot, startIndex, endLine.Start + endLine.Length - startIndex);
+            else
+                return new SnapshotSpan(originalSnapshot, startIndex, endLine.Start + textspan.iEndIndex - startIndex);
+        }
         
         #region IFileNode Members
 
@@ -175,9 +167,9 @@ namespace Hill30.BooProject.Project
 
         public CompileResults.BufferPoint MapPosition(int line, int column) { return GetResults().LocationToPoint(line, column); }
 
-        public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span) { return GetResults().GetClassificationSpans(span); }
+        public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span) { return GetResults().GetClassificationSpans(span, SnapshotCreator); }
 
-        public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans) { return GetResults().GetTags(spans); }
+        public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans) { return GetResults().GetTags(spans, SnapshotCreator); }
 
         public void HideMessages() { GetResults().HideMessages(); }
 

@@ -31,7 +31,8 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         {
             this.buffer = buffer;
             fileNode = GlobalServices.GetFileNodeForBuffer(buffer);
-            fileNode.Recompiled += SourceRecompiled;
+            if (fileNode != null)
+                fileNode.Recompiled += SourceRecompiled;
         }
 
         #region IClassifier Members

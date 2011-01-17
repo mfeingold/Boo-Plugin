@@ -47,15 +47,36 @@ namespace Hill30.BooProject
 
         public static IFileNode GetFileNodeForView(IVsTextView view) { return handler.GetFileNodeForViewImpl(view);}
 
+        public static ITextBuffer GetBufferForVsBuffer(IVsTextBuffer buffer) { return handler.GetBufferForVsBufferImpl(buffer); }
+
         private static readonly GlobalServices handler = new GlobalServices();
 
         private GlobalServices()
         {
             ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).DefaultCompositionService.SatisfyImportsOnce(this);
+            documentFactoryService.TextDocumentCreated += documentFactoryService_TextDocumentCreated;
+            documentFactoryService.TextDocumentDisposed += new EventHandler<TextDocumentEventArgs>(documentFactoryService_TextDocumentDisposed);
+        }
+
+        void documentFactoryService_TextDocumentCreated(object sender, TextDocumentEventArgs e)
+        {
+            var fileNode = GetFileNodeForFileImpl(e.TextDocument.FilePath);
+            if (fileNode != null)
+                fileNode.Bind(e.TextDocument.TextBuffer);
+        }
+
+        void documentFactoryService_TextDocumentDisposed(object sender, TextDocumentEventArgs e)
+        {
+            var fileNode = GetFileNodeForFileImpl(e.TextDocument.FilePath);
+            if (fileNode != null)
+                fileNode.Bind(null);
         }
 
         [Import]
         private IVsEditorAdaptersFactoryService bufferAdapterService;
+
+        [Import]
+        private ITextDocumentFactoryService documentFactoryService;
 
         [Import(typeof(SVsServiceProvider))]
         private IServiceProvider serviceProvider;
@@ -91,15 +112,25 @@ namespace Hill30.BooProject
             return GetFileNodeForBuffer(bufferAdapterService.GetDocumentBuffer(buffer));
         }
 
+        private ITextBuffer GetBufferForVsBufferImpl(IVsTextBuffer buffer)
+        {
+            return (ITextBuffer)LanguageService.Invoke(new Action(()=> bufferAdapterService.GetDocumentBuffer(buffer)), new object[] {});
+        }
+
         private IProjectManager GetProjectManagerForFileImpl(string filePath)
         {
-
             var hier = new RunningDocumentTable(serviceProvider).GetHierarchyItem(filePath);
 
             if (hier == null)
                 return null;
 
             object value;
+
+            if (ErrorHandler.Failed(hier.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_TypeName, out value)))
+                return null;
+
+            if (value.ToString() != BooProjectNode.ProjectName)
+                return null;
 
             if (ErrorHandler.Failed(hier.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_Root, out value)))
                 return null;
@@ -114,5 +145,6 @@ namespace Hill30.BooProject
                 Marshal.Release(pointer);
             }
         }
-    }
+
+     }
 }

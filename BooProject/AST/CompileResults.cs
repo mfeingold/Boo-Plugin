@@ -31,6 +31,7 @@ using Microsoft.VisualStudio.Text.Adornments;
 using Hill30.BooProject.LanguageService;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.BooProject.LanguageService.Colorizer;
+using Boo.Lang.Compiler.IO;
 
 namespace Hill30.BooProject.AST
 {
@@ -43,18 +44,15 @@ namespace Hill30.BooProject.AST
         private int lineSize;
         private readonly List<MappedToken> tokenMap = new List<MappedToken>();
         private readonly List<MappedTypeDefinition> types = new List<MappedTypeDefinition>();
-        private List<ClassificationSpan> classificationSpans;
         private readonly List<CompilerMessage> messages = new List<CompilerMessage>();
         private readonly BooFileNode fileNode;
         private readonly BooLanguageService service;
         private readonly List<TextSpan> whitespaces = new List<TextSpan>();
-        private ITextSnapshot currentSnapshot;
 
         public CompileResults(BooFileNode fileNode)
         {
             this.fileNode = fileNode;
             service = (BooLanguageService) fileNode.GetService(typeof (BooLanguageService));
-            Initialize(fileNode.Url, File.ReadAllText(fileNode.Url));
         }
 
         private static antlr.IToken NextToken(antlr.TokenStream tokens)
@@ -97,12 +95,13 @@ namespace Hill30.BooProject.AST
             positionMap = mappings.ToArray();
         }
 
-        public void Initialize(string filePath, string source)
+        public ICompilerInput Initialize(string source)
         {
             var tabSize = GlobalServices.LanguageService.GetLanguagePreferences().TabSize;
             ExpandTabs(source, tabSize);
             tokenMap.Clear();
             MapTokens(tabSize, source);
+            return new StringInput(fileNode.Url, source);
         }
 
         private void MapTokens(int tabSize, string source)
@@ -114,8 +113,6 @@ namespace Hill30.BooProject.AST
             var tokens = BooParser.CreateBooLexer(tabSize, "code stream", new StringReader(source));
 
             antlr.IToken token;
-            var currentPos = 0;
-
             while ((token = NextToken(tokens)).Type != BooLexer.EOF)
             {
                 int length;
@@ -330,88 +327,66 @@ namespace Hill30.BooProject.AST
         public void HideMessages()
         {
             messages.ForEach(m => m.Hide());
-            // the spans have to be recalcualted becaise the next time we need them
-            // the buffer will be different and the spans will no longer be valid
-            classificationSpans = null;
         }
 
         internal IEnumerable<MappedTypeDefinition> Types { get { return types; } }
 
-        private bool IsValidSnapshot(ITextSnapshot snapshot)
+        private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, SourceLocation lexicalInfo, Func<TextSpan, SnapshotSpan> snapshotCreator)
         {
-            if (currentSnapshot == null)
-                currentSnapshot = snapshot;
-            return currentSnapshot == snapshot;
+            var token = GetMappedToken(lexicalInfo);
+            if (token != null && token.Nodes.Count > 0)
+                return snapshotCreator(token.Nodes.Last().TextSpan).TranslateTo(snapshot, SpanTrackingMode.EdgeNegative);
+
+            var pos = LocationToPoint(lexicalInfo);
+            return snapshotCreator(
+                new TextSpan
+                    {
+                        iStartLine = pos.Line,
+                        iStartIndex = pos.Column,
+                        iEndLine = pos.Line,
+                        iEndIndex = -1
+                    }
+                ).TranslateTo(snapshot, SpanTrackingMode.EdgeNegative);
         }
 
-        private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, MappedNode node)
+        internal IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span, Func<TextSpan, SnapshotSpan> snapshotCreator)
         {
-            // no need for snapshot validation here - it is only called from GetClassificationSpan after validation is done
-            var start = snapshot.GetLineFromLineNumber(node.TextSpan.iStartLine).Start + node.TextSpan.iStartIndex;
-            var end = snapshot.GetLineFromLineNumber(node.TextSpan.iEndLine).Start + node.TextSpan.iEndIndex;
-            return new SnapshotSpan(start, end - start);
-        }
+            var classificationSpans = new List<ClassificationSpan>();
 
-        internal IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span)
-        {
-            if (classificationSpans == null)
+            foreach (var whitespace in whitespaces)
             {
-                classificationSpans = new List<ClassificationSpan>();
-                if (!IsValidSnapshot(span.Snapshot))
-                    return classificationSpans;
-
-                foreach (var whitespace in whitespaces)
-                {
-                    var startIndex = span.Snapshot.GetLineFromLineNumber(whitespace.iStartLine).Start + whitespace.iStartIndex;
-                    var endIndex = span.Snapshot.GetLineFromLineNumber(whitespace.iEndLine).Start + whitespace.iEndIndex;
-
-                    classificationSpans.Add(
-                        new ClassificationSpan
-                            (new SnapshotSpan(span.Snapshot, startIndex, endIndex - startIndex),
-                                service.ClassificationTypeRegistry.GetClassificationType(Formats.BooBlockComment)
-                            ));
-                }
-
-                foreach (var token in tokenMap)
-                    token.Nodes.ForEach(
-                        node =>
-                            {
-                                if (node.Format != null)
-                                    classificationSpans.Add(
-                                        new ClassificationSpan(
-                                            GetSnapshotSpan(span.Snapshot, node),
-                                            service.ClassificationTypeRegistry.GetClassificationType(
-                                                node.Format)));
-                            }
-                        );
+                classificationSpans.Add(
+                    new ClassificationSpan
+                        (snapshotCreator(whitespace).TranslateTo(span.Snapshot, SpanTrackingMode.EdgeNegative),
+                            service.ClassificationTypeRegistry.GetClassificationType(Formats.BooBlockComment)
+                        ));
             }
+
+            foreach (var token in tokenMap)
+                token.Nodes.ForEach(
+                    node =>
+                        {
+                            if (node.Format != null)
+                                classificationSpans.Add(
+                                    new ClassificationSpan(
+                                        snapshotCreator(node.TextSpan).TranslateTo(span.Snapshot, SpanTrackingMode.EdgeNegative),
+                                        service.ClassificationTypeRegistry.GetClassificationType(
+                                            node.Format)));
+                        }
+                    );
+
             return classificationSpans;
         }
 
-        private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, SourceLocation lexicalInfo)
+        internal IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans, Func<TextSpan, SnapshotSpan> snapshotCreator)
         {
-            // no need for snapshot validation here - it is only called from GetTags after validation is done
-            var token = GetMappedToken(lexicalInfo);
-            if (token != null && token.Nodes.Count > 0)
-            {
-                var textSpan = token.Nodes.LastOrDefault().TextSpan;
-                var start = snapshot.GetLineFromLineNumber(textSpan.iStartLine).Start + textSpan.iStartIndex;
-                return new SnapshotSpan(start, token.Length);
-            }
-            var pos = LocationToPoint(lexicalInfo);
-            var line = snapshot.GetLineFromLineNumber(pos.Line);
-            return new SnapshotSpan(line.Start, line.Length);
-        }
-
-        internal IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
-        {
-            if (spans.Count == 0 || !IsValidSnapshot(spans[0].Snapshot))
+            if (spans.Count == 0)
                 yield break;
 
             foreach (var task in messages)
             {
                 yield return new TagSpan<ErrorTag>(
-                    GetSnapshotSpan(spans[0].Snapshot, new SourceLocation(task.LexicalInfo.Line, task.LexicalInfo.Column)),
+                    GetSnapshotSpan(spans[0].Snapshot, new SourceLocation(task.LexicalInfo.Line, task.LexicalInfo.Column), snapshotCreator),
                     new ErrorTag(
                         task.ErrorCategory == TaskErrorCategory.Error ? PredefinedErrorTypeNames.SyntaxError : PredefinedErrorTypeNames.Warning,
                         task.Message
