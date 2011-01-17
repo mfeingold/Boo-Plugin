@@ -51,7 +51,7 @@ namespace Hill30.BooProject.LanguageService
     public class BooTypeAndMemberDropdownBars : TypeAndMemberDropdownBars
     {
         private BooLanguageService service;
-        private bool recompiled;
+        private bool isDirty;
         private IFileNode fileNode;
 
         public BooTypeAndMemberDropdownBars(BooLanguageService service, IFileNode fileNode)
@@ -59,12 +59,13 @@ namespace Hill30.BooProject.LanguageService
         {
             this.service = service;
             this.fileNode = fileNode;
+            isDirty = true;
             fileNode.Recompiled += SourceRecompiled;
         }
 
         void SourceRecompiled(object sender, EventArgs e)
         {
-            recompiled = true;
+            isDirty = true;
             service.Invoke(new Action(service.SynchronizeDropdowns), new object[]{});
         }
 
@@ -98,9 +99,9 @@ namespace Hill30.BooProject.LanguageService
             ref int selectedType, 
             ref int selectedMember)
         {
-            if (recompiled)
+            if (isDirty)
             {
-                recompiled = false;
+                isDirty = false;
                 dropDownTypes.Clear();
                 dropDownMembers.Clear();
                 foreach (var node in fileNode.Types)
@@ -115,11 +116,11 @@ namespace Hill30.BooProject.LanguageService
                                                           DROPDOWNFONTATTR.FONTATTR_GRAY
                                                           )));
 
-                    if (node.Node.NodeType == NodeType.Module)
-                        continue;
                     dropDownTypes.Add(
                         new DropDownMember(
-                            name,
+                            node.Node.NodeType == NodeType.Module
+                                ? "<Module>"
+                                : name,
                             node.TextSpan,
                             BooDeclarations.GetIconForNode(type),
                             DROPDOWNFONTATTR.FONTATTR_PLAIN));
@@ -133,6 +134,7 @@ namespace Hill30.BooProject.LanguageService
             TypeDefinition selectedTypeNode = null;
             foreach (var type in fileNode.Types)
             {
+                    
                 sType++;
                 if (type.TextSpan.Contains(line, col))
                 {

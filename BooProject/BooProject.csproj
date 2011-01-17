@@ -99,12 +99,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AST\CompilerMessage.cs" />
-    <Compile Include="AST\CompletedModuleWalker.cs" />
+    <Compile Include="Compilation\CompilerMessage.cs" />
+    <Compile Include="AST\Walkers\CompletedModuleWalker.cs" />
     <Compile Include="AST\MappedToken.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AST\CompileResults.cs" />
+    <Compile Include="Compilation\CompileResults.cs" />
     <Compile Include="AST\Nodes\MappedAttribute.cs" />
     <Compile Include="AST\Nodes\MappedImport.cs" />
     <Compile Include="AST\Nodes\MappedMacroReference.cs" />
@@ -117,7 +117,7 @@
     <Compile Include="AST\Nodes\ParsingError.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AST\ParsedModuleWalker.cs" />
+    <Compile Include="AST\Walkers\ParsedModuleWalker.cs" />
     <Compile Include="Compilation\CompilerManager.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GlobalServices.cs" />
