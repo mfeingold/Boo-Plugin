@@ -89,20 +89,20 @@ namespace Hill30.BooProject.AST
         public virtual string QuickInfoTip { get { return null; } }
         public virtual string Format { get { return null; } }
         public virtual BooDeclarations Declarations { get { return new BooDeclarations(); } }
-        protected virtual void ResolveImpl() { }
+        protected virtual void ResolveImpl(MappedToken token) { }
         internal protected virtual MappedNode DeclarationNode { get { return null; } }
         public abstract MappedNodeType Type { get; }
 
-        internal void Resolve()
+        internal void Resolve(MappedToken token)
         {
             if (!resolved)
-                ResolveImpl();
+                ResolveImpl(token);
             resolved = true;
         }
 
-        internal virtual void Record(RecordingStage stage, List<MappedNode> list)
+        internal virtual void Record(RecordingStage stage, MappedToken token)
         {
-            list.Add(this);
+            token.Nodes.Add(this);
         }
     }
 }

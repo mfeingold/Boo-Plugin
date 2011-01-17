@@ -44,7 +44,7 @@ namespace Hill30.BooProject.AST.Nodes
             get { return MappedNodeType.TypeReference; }
         }
 
-        protected override void ResolveImpl()
+        protected override void ResolveImpl(MappedToken token)
         {
             try
             {

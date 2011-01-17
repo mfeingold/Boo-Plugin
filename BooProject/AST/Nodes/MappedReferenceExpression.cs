@@ -21,6 +21,8 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Hill30.BooProject.LanguageService;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Hill30.BooProject.LanguageService.Colorizer;
 
 namespace Hill30.BooProject.AST.Nodes
 {
@@ -29,6 +31,8 @@ namespace Hill30.BooProject.AST.Nodes
         private string quickInfoTip;
         private MappedNode declarationNode;
         private IType varType;
+        private string format;
+        private bool isTypeReference;
 
         public MappedReferenceExpression(CompileResults results, ReferenceExpression node)
             : base(results, node, node.Name.Length)
@@ -50,7 +54,7 @@ namespace Hill30.BooProject.AST.Nodes
             get { return quickInfoTip; }
         }
 
-        protected override void ResolveImpl()
+        protected override void ResolveImpl(MappedToken token)
         {
             switch (Node.NodeType)
             {
@@ -69,9 +73,15 @@ namespace Hill30.BooProject.AST.Nodes
                 case NodeType.MemberReferenceExpression:
                 case NodeType.ReferenceExpression:
                     var expression = (ReferenceExpression)Node;
-                    if (expression.ExpressionType == null || expression.ExpressionType.EntityType == EntityType.Error)
+                    IEntity entity;
+                    try
+                    {
+                        entity = TypeSystemServices.GetEntity(expression);
+                    }
+                    catch
+                    {
                         break;
-                    var entity = TypeSystemServices.GetEntity(expression);
+                    }
                     var prefix = "";
                     if (entity is InternalParameter)
                     {
@@ -109,39 +119,49 @@ namespace Hill30.BooProject.AST.Nodes
                         varType = TypeSystemServices.GetType(Node);
                         declarationNode = CompileResults.GetMappedNode(((InternalEvent)entity).Event);
                     }
-                    quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
+                    if (entity is ExternalType)
+                    {
+                        varType = ((ExternalType)entity).Type;
+                        format = Formats.BooType;
+                        isTypeReference = true;
+                    }
+                    if (entity is AbstractInternalType)
+                    {
+                        varType = ((AbstractInternalType)entity).Type;
+                        format = Formats.BooType;
+                        isTypeReference = true;
+                        declarationNode = CompileResults.GetMappedNode(((AbstractInternalType)entity).TypeDefinition);
+                    }
+                    if (expression.ExpressionType != null)
+                        quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
                     break;
                 default:
                     break;
             }
         }
 
+        public override string Format { get { return format; } }
+
         protected internal override MappedNode DeclarationNode { get { return declarationNode; } }
 
-        public override BooDeclarations Declarations
-        {
-            get
-            {
-                return new BooDeclarations(Node, varType, true);
-            }
-        }
+        public override BooDeclarations Declarations { get { return new BooDeclarations(Node, varType, !isTypeReference); } }
 
-        internal override void Record(RecordingStage stage, List<MappedNode> list)
+        internal override void Record(RecordingStage stage, MappedToken token)
         {
             switch (stage)
             {
                 case RecordingStage.Completed:
-                    var macro = list.Where(
+                    var macro = token.Nodes.Where(
                         node => (node.Node is MacroStatement &&
                                     ((MacroStatement)node.Node).Name == ((ReferenceExpression)Node).Name)
                         ).FirstOrDefault();
                     if (macro != null)
-                        list.Remove(macro);
+                        token.Nodes.Remove(macro);
                     break;
                 default:
                     break;
             }
-            base.Record(stage, list);
+            base.Record(stage, token);
         }
     }
 }

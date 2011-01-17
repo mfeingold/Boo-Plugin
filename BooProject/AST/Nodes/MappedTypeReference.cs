@@ -21,6 +21,8 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Hill30.BooProject.LanguageService.Colorizer;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Internal;
+using Hill30.BooProject.LanguageService;
 
 namespace Hill30.BooProject.AST.Nodes
 {
@@ -28,28 +30,20 @@ namespace Hill30.BooProject.AST.Nodes
     {
         private string format;
         private string quickInfoTip;
+        private MappedNode declaringNode;
+        private IType type;
 
         public MappedTypeReference(CompileResults results, SimpleTypeReference node)
             : base(results, node, node.Name.Length)
-        {
-        }
+        { }
 
-        public override MappedNodeType Type
-        {
-            get { return MappedNodeType.TypeReference; }
-        }
+        public override MappedNodeType Type { get { return MappedNodeType.TypeReference; } }
 
-        public override string Format
-        {
-            get { return format; }
-        }
+        public override string Format { get { return format; } }
 
-        public override string QuickInfoTip
-        {
-            get { return quickInfoTip; }
-        }
+        public override string QuickInfoTip { get { return quickInfoTip; } }
 
-        protected override void ResolveImpl()
+        protected override void ResolveImpl(MappedToken token)
         {
             try
             {
@@ -57,26 +51,30 @@ namespace Hill30.BooProject.AST.Nodes
                 if (type is Error)
                     return;
 
+                this.type = type;
+
                 format = Formats.BooType;
-                var clrType = type as ExternalType;
-                if (clrType != null)
-                {
-                    var prefix = "struct ";
-                    if (clrType.ActualType.IsClass)
-                        prefix = "class ";
-                    if (clrType.ActualType.IsInterface)
-                        prefix = "interface ";
-                    if (clrType.ActualType.IsEnum)
-                        prefix = "enumeration ";
-                    quickInfoTip = prefix + clrType.ActualType.FullName;
-                }
-                else
-                    quickInfoTip = "class " + type.FullName;
+                var prefix = "struct ";
+                if (type.IsClass)
+                    prefix = "class ";
+                if (type.IsInterface)
+                    prefix = "interface ";
+                if (type.IsEnum)
+                    prefix = "enumeration ";
+                quickInfoTip = prefix + type.FullName;
+
+                var internalType = type as AbstractInternalType;
+                if (internalType != null)
+                    declaringNode = CompileResults.GetMappedNode(internalType.Node);
+
             }
             catch (Exception)
             {
                 return;
             }
         }
+
+        protected internal override MappedNode DeclarationNode { get { return declaringNode; } }
+
     }
 }

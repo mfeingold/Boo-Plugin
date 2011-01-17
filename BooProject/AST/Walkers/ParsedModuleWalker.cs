@@ -79,6 +79,13 @@ namespace Hill30.BooProject.AST
             base.OnSimpleTypeReference(node);
         }
 
+        public override void OnGenericTypeReference(GenericTypeReference node)
+        {
+            if (node.LexicalInfo != null)
+                results.MapParsedNode(new MappedTypeReference(results, node));
+            base.OnGenericTypeReference(node);
+        }
+
         public override void OnReferenceExpression(ReferenceExpression node)
         {
             if (node.LexicalInfo != null)

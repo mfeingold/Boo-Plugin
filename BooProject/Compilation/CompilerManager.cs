@@ -28,6 +28,7 @@ using VSLangProj;
 using Boo.Lang.Compiler.Ast;
 using Microsoft.VisualStudio.Project;
 using Microsoft.VisualStudio.Package;
+using Microsoft.VisualStudio;
 
 namespace Hill30.BooProject.Compilation
 {
@@ -47,6 +48,7 @@ namespace Hill30.BooProject.Compilation
 
         public void Initialize()
         {
+            references.Add((uint)VSConstants.VSITEMID.Root, new AssemblyEntry(this, new AssemblyName("mscorlib")));
             resolverContext = GlobalServices.TypeService.GetContextTypeResolver(projectManager);
             typeResolver = GlobalServices.TypeService.GetTypeResolutionService(projectManager);
             GlobalServices.TypeService.AssemblyRefreshed += AssemblyRefreshed;
@@ -87,6 +89,14 @@ namespace Hill30.BooProject.Compilation
             CompilerManager manager;
             ReferenceNode reference;
             Assembly assembly;
+            AssemblyName assemblyName;
+
+            public AssemblyEntry(CompilerManager manager, AssemblyName assemblyName)
+            {
+                this.manager = manager;
+                this.assemblyName = assemblyName;
+            }
+
             public AssemblyEntry(CompilerManager manager, ReferenceNode reference)
             {
                 this.manager = manager;
@@ -125,7 +135,7 @@ namespace Hill30.BooProject.Compilation
                 {
                     if (assembly == null)
                     {
-                        var assemblyName = GetAssemblyName();
+                        var assemblyName = this.assemblyName ?? GetAssemblyName();
                         if (assemblyName != null)
                             // type resolver must always operate on the same thread
                             GlobalServices.LanguageService.Invoke(new Action (() => assembly = manager.typeResolver.GetAssembly(assemblyName)), new object[] {});

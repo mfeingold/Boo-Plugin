@@ -245,7 +245,7 @@ namespace Hill30.BooProject.AST
 
         internal void MapNode(RecordingStage stage, MappedNode node)
         {
-            TokensForNode(node, token => node.Record(stage, token.Nodes));
+            TokensForNode(node, token => node.Record(stage, token));
         }
 
         private void MapParsingMessage(CompilerWarning warning)
@@ -273,7 +273,7 @@ namespace Hill30.BooProject.AST
         {
             new CompletedModuleWalker(this).Visit(module);
             foreach (var token in tokenMap)
-                token.Nodes.ForEach(n => n.Resolve());
+                token.Nodes.ForEach(n => n.Resolve(token));
             var compileUnit = new CompileUnit();
             compileUnit.Modules.Add(module);
             CompileUnit = new InternalCompileUnit(compileUnit);
