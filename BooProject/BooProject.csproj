@@ -35,17 +35,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Boo.Lang">
-      <HintPath>..\..\boo-0.9.3.3457-bin\bin\Boo.Lang.dll</HintPath>
+      <HintPath>$(BooBinPath)\Boo.Lang.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang.Compiler, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL" />
     <Reference Include="Boo.Lang.Parser">
-      <HintPath>..\..\boo-0.9.3.3457-bin\bin\Boo.Lang.Parser.dll</HintPath>
+      <HintPath>$(BooBinPath)\\Boo.Lang.Parser.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang">
       <HintPath>$(BooBinPath)\Boo.Lang.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Microsoft.Build.Tasks, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <HintPath>..\..\..\temp\Boo.Microsoft.Build.Tasks.dll</HintPath>
+      <HintPath>$(BooBinPath)\Boo.Microsoft.Build.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">

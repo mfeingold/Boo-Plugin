@@ -13,13 +13,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Hill30.BooProject.Compilation;
 using Hill30.BooProject.LanguageService;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Hill30.BooProject.LanguageService.Colorizer;

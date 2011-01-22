@@ -20,6 +20,8 @@ using System.Linq;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Parser;
+using Hill30.BooProject.AST;
+using Hill30.BooProject.AST.Walkers;
 using Microsoft.VisualStudio.Shell;
 using Boo.Lang.Compiler.Ast;
 using Hill30.BooProject.AST.Nodes;
@@ -34,7 +36,7 @@ using Hill30.BooProject.LanguageService.Colorizer;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.TypeSystem;
 
-namespace Hill30.BooProject.AST
+namespace Hill30.BooProject.Compilation
 {
     /// <summary>
     /// The cached AST for a Boo source file
@@ -65,7 +67,7 @@ namespace Hill30.BooProject.AST
                 // ReSharper restore EmptyGeneralCatchClause
         }
 
-        private void ExpandTabs(string source, int tabSize)
+        private void ExpandTabs(IEnumerable<char> source, int tabSize)
         {
             var sourcePos = 0;
             var mappedPos = 0;
@@ -140,7 +142,7 @@ namespace Hill30.BooProject.AST
                 var startLine = token.getLine() - 1;
 
                 if (startLine > endLine || startLine == endLine && startIndex > endIndex)
-                    whitespaces.Add(new TextSpan() { iStartLine = endLine, iStartIndex = endIndex, iEndLine = startLine, iEndIndex = startIndex });
+                    whitespaces.Add(new TextSpan { iStartLine = endLine, iStartIndex = endIndex, iEndLine = startLine, iEndIndex = startIndex });
 
                 endIndex = positionMap[token.getLine() - 1][token.getColumn() - 1 + length];
                 endLine = startLine;
@@ -160,7 +162,7 @@ namespace Hill30.BooProject.AST
             var sLine = token.getLine() - 1;
 
             if (sLine > endLine || sLine == endLine && sIndex > endIndex)
-                whitespaces.Add(new TextSpan() { iStartLine = endLine, iStartIndex = endIndex, iEndLine = sLine, iEndIndex = sIndex });
+                whitespaces.Add(new TextSpan { iStartLine = endLine, iStartIndex = endIndex, iEndLine = sLine, iEndIndex = sIndex });
         }
 
         public struct BufferPoint
@@ -359,16 +361,14 @@ namespace Hill30.BooProject.AST
 
         internal IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span, Func<TextSpan, SnapshotSpan> snapshotCreator)
         {
-            var classificationSpans = new List<ClassificationSpan>();
-
-            foreach (var whitespace in whitespaces)
-            {
-                classificationSpans.Add(
-                    new ClassificationSpan
-                        (snapshotCreator(whitespace).TranslateTo(span.Snapshot, SpanTrackingMode.EdgeNegative),
+            var classificationSpans = 
+                whitespaces.Select(
+                    whitespace => 
+                        new ClassificationSpan(
+                            snapshotCreator(whitespace).TranslateTo(span.Snapshot, SpanTrackingMode.EdgeNegative), 
                             service.ClassificationTypeRegistry.GetClassificationType(Formats.BooBlockComment)
-                        ));
-            }
+                            )
+                        ).ToList();
 
             foreach (var token in tokenMap)
                 token.Nodes.ForEach(

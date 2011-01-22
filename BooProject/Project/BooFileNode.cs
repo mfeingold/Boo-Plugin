@@ -14,21 +14,19 @@
 //   limitations under the License.
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Project;
-using Boo.Lang.Compiler.IO;
-using Microsoft.VisualStudio.Shell.Interop;
-using System.IO;
-using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.BooProject.AST;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.Text.Classification;
 using Hill30.BooProject.AST.Nodes;
-using Microsoft.VisualStudio.Text.Tagging;
+using Hill30.BooProject.Compilation;
+using Microsoft.VisualStudio.Project;
 using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Classification;
+using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Hill30.BooProject.Project
 {
@@ -74,17 +72,17 @@ namespace Hill30.BooProject.Project
         public BooFileNode(ProjectNode root, ProjectElement e)
 			: base(root, e)
 		{
-            results = new CompileResults(this);//, textBuffer);
+            results = new CompileResults(this);
             hidden = true;
         }
 
-        public void Bind(ITextBuffer textBuffer)
+        public void Bind(ITextBuffer buffer)
         {
-            this.textBuffer = textBuffer;
-            if (textBuffer == null)
+            textBuffer = buffer;
+            if (buffer == null)
                 hidden = true;
             else
-                originalSnapshot = textBuffer.CurrentSnapshot;
+                originalSnapshot = buffer.CurrentSnapshot;
         }
 
         public ICompilerInput GetCompilerInput(CompileResults result)
@@ -149,10 +147,10 @@ namespace Hill30.BooProject.Project
 
             var startIndex = originalSnapshot.GetLineFromLineNumber(textspan.iStartLine).Start + textspan.iStartIndex;
             var endLine = originalSnapshot.GetLineFromLineNumber(textspan.iEndLine);
-            if (textspan.iEndIndex == -1)
-                return new SnapshotSpan(originalSnapshot, startIndex, endLine.Start + endLine.Length - startIndex);
-            else
-                return new SnapshotSpan(originalSnapshot, startIndex, endLine.Start + textspan.iEndIndex - startIndex);
+            return 
+                textspan.iEndIndex == -1 
+                ? new SnapshotSpan(originalSnapshot, startIndex, endLine.Start + endLine.Length - startIndex) 
+                : new SnapshotSpan(originalSnapshot, startIndex, endLine.Start + textspan.iEndIndex - startIndex);
         }
         
         #region IFileNode Members

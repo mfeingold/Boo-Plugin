@@ -14,6 +14,8 @@
 //   limitations under the License.
 
 using Boo.Lang.Compiler.Ast;
+using Hill30.BooProject.Compilation;
+
 namespace Hill30.BooProject.AST.Nodes
 {
     public class ParsingError: MappedNode

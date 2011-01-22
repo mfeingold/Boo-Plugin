@@ -13,8 +13,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
+using Hill30.BooProject.Compilation;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.BooProject.LanguageService;
 

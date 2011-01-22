@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Project;
-using VSLangProj;
-using System.ComponentModel;
 using System.Runtime.InteropServices;
 
 namespace Hill30.BooProject.Project.ProjectProperties
@@ -17,13 +12,15 @@ namespace Hill30.BooProject.Project.ProjectProperties
 		{
 		}
 
-        [Browsable(false)]
-        public References DesignTimeReferences
-        {
-            get
-            {
-                return null;
-            }
-        }
+        // this is a remnant of my struggle with the cross project type resolution. I will have to revisit it 
+        // in the future 
+        //[Browsable(false)]
+        //public References DesignTimeReferences
+        //{
+        //    get
+        //    {
+        //        return null;
+        //    }
+        //}
     }
 }

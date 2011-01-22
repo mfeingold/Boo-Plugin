@@ -14,15 +14,11 @@
 //   limitations under the License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Hill30.BooProject.Compilation;
 using Hill30.BooProject.LanguageService.Colorizer;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Internal;
-using Hill30.BooProject.LanguageService;
 
 namespace Hill30.BooProject.AST.Nodes
 {

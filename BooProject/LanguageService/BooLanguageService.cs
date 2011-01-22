@@ -46,6 +46,30 @@ namespace Hill30.BooProject.LanguageService
 
             container.AddService(typeof(BooLanguageService), langService, true);
             langService.Start();
+
+            // as stupid as it looks this timer is necessary to keep the parsing thread alive
+            // without it the parsing thread will be shut down after 10 sec of inactivity, which means that
+            // the next parsing request will trigger creating of a different parsing thread which will break 
+            // the type resolver supplied by DynamicTypeService
+            langService.keepAliveTimer = new System.Threading.Timer(langService.KeepAlive, langService, 7000, 7000);
+        }
+
+// ReSharper disable UnaccessedField.Local
+        private System.Threading.Timer keepAliveTimer;
+// ReSharper restore UnaccessedField.Local
+
+        private void KeepAlive(object langService)
+        {
+            using( 
+                BeginParse
+                    (
+                        new ParseRequest(0,0, new TokenInfo(), null, null, ParseReason.None, null, null, false)
+                        , null
+                    )
+                .AsyncWaitHandle
+                )
+            {
+            }
         }
 
         internal static void Stop(IServiceContainer container)

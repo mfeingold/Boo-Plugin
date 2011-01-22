@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Hill30.BooProject.AST.Nodes;
+using Hill30.BooProject.Compilation;
 
-namespace Hill30.BooProject.AST
+namespace Hill30.BooProject.AST.Walkers
 {
     public class ParsedModuleWalker : DepthFirstVisitor
     {

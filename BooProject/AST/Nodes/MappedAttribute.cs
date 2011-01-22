@@ -14,6 +14,7 @@
 //   limitations under the License.
 
 using Boo.Lang.Compiler.Ast;
+using Hill30.BooProject.Compilation;
 using Hill30.BooProject.LanguageService.Colorizer;
 using Boo.Lang.Compiler.TypeSystem;
 

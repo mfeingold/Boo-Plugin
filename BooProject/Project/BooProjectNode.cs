@@ -29,7 +29,6 @@ using Microsoft.VisualStudio.Shell;
 using Hill30.BooProject.LanguageService;
 using Hill30.BooProject.Project.ProjectProperties;
 using Microsoft.VisualStudio.Shell.Interop;
-using Boo.Lang.Parser;
 
 namespace Hill30.BooProject.Project
 {
@@ -54,7 +53,7 @@ namespace Hill30.BooProject.Project
         private static readonly ImageList imageList;
         private static int imageOffset;
         private VSProject vsProject;
-        private CompilerManager compilerManager;
+        private readonly CompilerManager compilerManager;
 
         static BooProjectNode()
         {
@@ -68,8 +67,10 @@ namespace Hill30.BooProject.Project
         static Bitmap GetIcon(string name)
         {
             return new Bitmap(
+// ReSharper disable AssignNullToNotNullAttribute
                 typeof(BooProjectNode).Assembly.GetManifestResourceStream(
                     "Hill30.BooProject.Resources." + name + ".bmp")
+// ReSharper restore AssignNullToNotNullAttribute
                 );
         }
 
@@ -96,7 +97,7 @@ namespace Hill30.BooProject.Project
             return result;
         }
 
-        internal const string ProjectName = "BooProject";
+        internal const string PROJECT_NAME = "BooProject";
 
         public override Guid ProjectGuid
         {
@@ -105,7 +106,7 @@ namespace Hill30.BooProject.Project
 
         public override string ProjectType
         {
-            get { return ProjectName; }
+            get { return PROJECT_NAME; }
         }
 
         protected override Guid[] GetConfigurationIndependentPropertyPages()
@@ -118,7 +119,7 @@ namespace Hill30.BooProject.Project
         protected override Guid[] GetConfigurationDependentPropertyPages()
         {
             var result = new Guid[1];
-            result[0] = typeof(ProjectProperties.Build).GUID;
+            result[0] = typeof(Build).GUID;
             return result;
         }
 
@@ -143,8 +144,8 @@ namespace Hill30.BooProject.Project
         protected override ReferenceContainerNode CreateReferenceContainerNode()
         {
             var result = base.CreateReferenceContainerNode();
-            result.OnChildAdded += new EventHandler<HierarchyNodeEventArgs>(result_OnChildAdded);
-            result.OnChildRemoved += new EventHandler<HierarchyNodeEventArgs>(result_OnChildRemoved);
+            result.OnChildAdded += result_OnChildAdded;
+            result.OnChildRemoved += result_OnChildRemoved;
             return result;
         }
 

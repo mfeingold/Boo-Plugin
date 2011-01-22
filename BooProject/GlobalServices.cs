@@ -14,10 +14,7 @@
 //   limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
-using System.Text;
 using Hill30.BooProject.LanguageService;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -55,17 +52,21 @@ namespace Hill30.BooProject
         {
             ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).DefaultCompositionService.SatisfyImportsOnce(this);
             documentFactoryService.TextDocumentCreated += documentFactoryService_TextDocumentCreated;
-            documentFactoryService.TextDocumentDisposed += new EventHandler<TextDocumentEventArgs>(documentFactoryService_TextDocumentDisposed);
+            documentFactoryService.TextDocumentDisposed += documentFactoryService_TextDocumentDisposed;
         }
 
+// ReSharper disable InconsistentNaming
         void documentFactoryService_TextDocumentCreated(object sender, TextDocumentEventArgs e)
+// ReSharper restore InconsistentNaming
         {
             var fileNode = GetFileNodeForFileImpl(e.TextDocument.FilePath);
             if (fileNode != null)
                 fileNode.Bind(e.TextDocument.TextBuffer);
         }
 
+// ReSharper disable InconsistentNaming
         void documentFactoryService_TextDocumentDisposed(object sender, TextDocumentEventArgs e)
+// ReSharper restore InconsistentNaming
         {
             var fileNode = GetFileNodeForFileImpl(e.TextDocument.FilePath);
             if (fileNode != null)
@@ -129,7 +130,7 @@ namespace Hill30.BooProject
             if (ErrorHandler.Failed(hier.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_TypeName, out value)))
                 return null;
 
-            if (value.ToString() != BooProjectNode.ProjectName)
+            if (value.ToString() != BooProjectNode.PROJECT_NAME)
                 return null;
 
             if (ErrorHandler.Failed(hier.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_Root, out value)))

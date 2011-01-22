@@ -18,7 +18,7 @@ using Boo.Lang.Compiler.Ast;
 using Hill30.BooProject.Project;
 using Microsoft.VisualStudio.Shell;
 
-namespace Hill30.BooProject.AST
+namespace Hill30.BooProject.Compilation
 {
     public class CompilerMessage
     {
