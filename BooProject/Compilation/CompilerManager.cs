@@ -188,7 +188,7 @@ namespace Hill30.BooProject.Compilation
             pipeline.BreakOnErrors = false;
             var compiler = new BooCompiler(new CompilerParameters(false) { Pipeline = pipeline });
 
-            ((BooParsingStep)compiler.Parameters.Pipeline[0]).TabSize = GlobalServices.LanguageService.GetLanguagePreferences().TabSize;
+//            ((BooParsingStep)compiler.Parameters.Pipeline[0]).TabSize = GlobalServices.LanguageService.GetLanguagePreferences().TabSize;
 
             compiler.Parameters.Input.Clear();
             compiler.Parameters.References.Clear();
@@ -213,17 +213,21 @@ namespace Hill30.BooProject.Compilation
             compiler.Parameters.Pipeline.AfterStep += 
                 (sender, args) =>
                     {
-                        if (args.Step == ((CompilerPipeline) sender)[0])
+                        if (args.Step == pipeline[0])
                             CompileResults.MapParsedNodes(results, args.Context);
+                        if (args.Step == pipeline[pipeline.Count - 1])
+                        {
+                            CompileResults.MapCompleted(results, args.Context);
+                            foreach (var item in results.Values)
+                                item.Item1.SetCompilerResults(item.Item2);
+                        }
                     };
 
             // as a part of compilation process compiler might request assembly load which triggers an assembly 
             // resolve event to be processed by type resolver. Such processing has to happen on the same thread the
             // resolver has been created on
-            CompileResults.MapCompleted(results, compiler.Run());
+            compiler.Run();
 
-            foreach (var item in results.Values)
-                item.Item1.SetCompilerResults(item.Item2);
         }
 
         public void Dispose()

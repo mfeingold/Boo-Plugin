@@ -37,12 +37,11 @@
     <Reference Include="Boo.Lang">
       <HintPath>$(BooBinPath)\Boo.Lang.dll</HintPath>
     </Reference>
-    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL" />
     <Reference Include="Boo.Lang.Parser">
-      <HintPath>$(BooBinPath)\\Boo.Lang.Parser.dll</HintPath>
+      <HintPath>$(BooBinPath)\Boo.Lang.Parser.dll</HintPath>
     </Reference>
-    <Reference Include="Boo.Lang">
-      <HintPath>$(BooBinPath)\Boo.Lang.dll</HintPath>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>$(BooBinPath)\Boo.Lang.Compiler.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Microsoft.Build.Tasks, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
       <HintPath>$(BooBinPath)\Boo.Microsoft.Build.Tasks.dll</HintPath>
