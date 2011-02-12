@@ -40,8 +40,26 @@
     <Reference Include="Boo.Lang.Compiler">
       <HintPath>$(BooBinPath)\Boo.Lang.Compiler.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.CoreUtility, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Package.LanguageService.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Shell.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Text.Data, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Text.Logic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Text.UI, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Text.UI.Wpf, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,9 +67,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
-    <Compile Include="CompilerManager.cs" />
+    <Compile Include="AST\MappedNode.cs" />
+    <Compile Include="AST\MappedToken.cs" />
+    <Compile Include="AST\Nodes\MappedAttribute.cs" />
+    <Compile Include="AST\Nodes\MappedImport.cs" />
+    <Compile Include="AST\Nodes\MappedMacroReference.cs" />
+    <Compile Include="AST\Nodes\MappedReferenceExpression.cs" />
+    <Compile Include="AST\Nodes\MappedTypeDefinition.cs" />
+    <Compile Include="AST\Nodes\MappedTypeMemberDefinition.cs" />
+    <Compile Include="AST\Nodes\MappedTypeReference.cs" />
+    <Compile Include="AST\Nodes\MappedVariableDefinition.cs" />
+    <Compile Include="AST\Nodes\ParsingError.cs" />
+    <Compile Include="AST\Walkers\CompletedModuleWalker.cs" />
+    <Compile Include="AST\Walkers\ParsedModuleWalker.cs" />
+    <Compile Include="BooDeclarations.cs" />
+    <Compile Include="CompilerMessage.cs" />
+    <Compile Include="IFileNode.cs" />
+    <Compile Include="CompileResults.cs" />
+    <Compile Include="Formats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TextSpanExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MPFProject\Microsoft.VisualStudio.Project.csproj">
+      <Project>{CACB60A9-1E76-4F92-8831-B134A658C695}</Project>
+      <Name>Microsoft.VisualStudio.Project</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

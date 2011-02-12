@@ -98,26 +98,54 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Compilation\CompilerMessage.cs" />
-    <Compile Include="AST\Walkers\CompletedModuleWalker.cs" />
+    <Compile Include="AST\MappedNode.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="AST\MappedToken.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Compilation\CompileResults.cs" />
-    <Compile Include="AST\Nodes\MappedAttribute.cs" />
-    <Compile Include="AST\Nodes\MappedImport.cs" />
-    <Compile Include="AST\Nodes\MappedMacroReference.cs" />
-    <Compile Include="AST\MappedNode.cs" />
-    <Compile Include="AST\Nodes\MappedReferenceExpression.cs" />
-    <Compile Include="AST\Nodes\MappedTypeDefinition.cs" />
-    <Compile Include="AST\Nodes\MappedTypeMemberDefinition.cs" />
-    <Compile Include="AST\Nodes\MappedTypeReference.cs" />
-    <Compile Include="AST\Nodes\MappedVariableDefinition.cs" />
+    <Compile Include="AST\Nodes\MappedAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Nodes\MappedImport.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Nodes\MappedMacroReference.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Nodes\MappedReferenceExpression.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Nodes\MappedTypeDefinition.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Nodes\MappedTypeMemberDefinition.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Nodes\MappedTypeReference.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Nodes\MappedVariableDefinition.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="AST\Nodes\ParsingError.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AST\Walkers\ParsedModuleWalker.cs" />
-    <Compile Include="Compilation\CompilerManager.cs" />
+    <Compile Include="AST\Walkers\CompletedModuleWalker.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Walkers\ParsedModuleWalker.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\CompileResults.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\CompilerManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\CompilerMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Constants.cs" />
     <Compile Include="GlobalServices.cs" />
     <Compile Include="LanguageService\BooAuthoringScope.cs" />
