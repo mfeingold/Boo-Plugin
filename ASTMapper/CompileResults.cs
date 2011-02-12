@@ -178,7 +178,7 @@ namespace Hill30.BooProject.Compilation
 
         public bool IsDirty { get { return true; } }
 
-        internal static void MapParsedNodes(Dictionary<string, Tuple<FileNode, CompileResults>> results, CompilerContext compilerContext)
+        public static void MapParsedNodes(Dictionary<string, Tuple<FileNode, CompileResults>> results, CompilerContext compilerContext)
         {
             foreach (var module in compilerContext.CompileUnit.Modules)
                 results[module.LexicalInfo.FullPath].Item2.MapParsedNodes(module);
@@ -190,7 +190,7 @@ namespace Hill30.BooProject.Compilation
                 results[warning.LexicalInfo.FullPath].Item2.MapParsingMessage(warning);
         }
 
-        internal static void MapCompleted(Dictionary<string, Tuple<FileNode, CompileResults>> results, CompilerContext compilerContext)
+        public static void MapCompleted(Dictionary<string, Tuple<FileNode, CompileResults>> results, CompilerContext compilerContext)
         {
             foreach (var module in compilerContext.CompileUnit.Modules)
                 if (module.LexicalInfo.FullPath != null)
@@ -286,7 +286,7 @@ namespace Hill30.BooProject.Compilation
             messages.Add(new CompilerMessage(warning.LexicalInfo, warning.Code, warning.Message, TaskErrorCategory.Warning));
         }
 
-        internal MappedToken GetAdjacentMappedToken(int line, int column)
+        public MappedToken GetAdjacentMappedToken(int line, int column)
         {
             if (tokenMap.Count == 0)
                 return null;
@@ -330,7 +330,7 @@ namespace Hill30.BooProject.Compilation
             messages.ForEach(m => m.Hide(hider));
         }
 
-        internal IEnumerable<MappedTypeDefinition> Types { get { return types; } }
+        public IEnumerable<MappedTypeDefinition> Types { get { return types; } }
 
         private SnapshotSpan GetSnapshotSpan(ITextSnapshot snapshot, SourceLocation lexicalInfo, Func<TextSpan, SnapshotSpan> snapshotCreator)
         {
@@ -350,7 +350,7 @@ namespace Hill30.BooProject.Compilation
                 ).TranslateTo(snapshot, SpanTrackingMode.EdgeNegative);
         }
 
-        internal IList<ClassificationSpan> GetClassificationSpans(IClassificationTypeRegistryService classificationRegistry, SnapshotSpan span, Func<TextSpan, SnapshotSpan> snapshotCreator)
+        public IList<ClassificationSpan> GetClassificationSpans(IClassificationTypeRegistryService classificationRegistry, SnapshotSpan span, Func<TextSpan, SnapshotSpan> snapshotCreator)
         {
             var classificationSpans =
                 whitespaces.Select(
@@ -377,7 +377,7 @@ namespace Hill30.BooProject.Compilation
             return classificationSpans;
         }
 
-        internal IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans, Func<TextSpan, SnapshotSpan> snapshotCreator)
+        public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans, Func<TextSpan, SnapshotSpan> snapshotCreator)
         {
             if (spans.Count == 0)
                 yield break;

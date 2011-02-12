@@ -53,7 +53,7 @@ namespace Hill30.BooProject.AST
 
         #endregion
 
-        internal string GetDataTiptext(out TextSpan span)
+        public string GetDataTiptext(out TextSpan span)
         {
             var tip = "";
             span = new TextSpan();
@@ -67,7 +67,7 @@ namespace Hill30.BooProject.AST
             return tip;
         }
 
-        internal Declarations GetDeclarations(TokenInfo info, ParseReason reason)
+        public Declarations GetDeclarations(TokenInfo info, ParseReason reason)
         {
             var node = Nodes.Where(n => n.Declarations.GetCount() > 0).FirstOrDefault();
             if (node == null)
@@ -75,7 +75,7 @@ namespace Hill30.BooProject.AST
             return node.Declarations;
         }
 
-        internal string Goto(out TextSpan span)
+        public string Goto(out TextSpan span)
         {
             var node = nodes.Where(n => n.DeclarationNode != null).FirstOrDefault();
             if (node != null)

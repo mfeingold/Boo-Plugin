@@ -34,17 +34,21 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Boo.Lang">
-      <HintPath>$(BooBinPath)\Boo.Lang.dll</HintPath>
+    <Reference Include="Boo.Lang, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Boo_files\Boo.Lang.dll</HintPath>
     </Reference>
-    <Reference Include="Boo.Lang.Parser">
-      <HintPath>$(BooBinPath)\Boo.Lang.Parser.dll</HintPath>
+    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Boo_files\Boo.Lang.Compiler.dll</HintPath>
     </Reference>
-    <Reference Include="Boo.Lang.Compiler">
-      <HintPath>$(BooBinPath)\Boo.Lang.Compiler.dll</HintPath>
+    <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Boo_files\Boo.Lang.Parser.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Microsoft.Build.Tasks, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <HintPath>$(BooBinPath)\Boo.Microsoft.Build.Tasks.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Boo_files\Boo.Microsoft.Build.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -98,58 +102,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AST\MappedNode.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\MappedToken.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\MappedAttribute.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\MappedImport.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\MappedMacroReference.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\MappedReferenceExpression.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\MappedTypeDefinition.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\MappedTypeMemberDefinition.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\MappedTypeReference.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\MappedVariableDefinition.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Nodes\ParsingError.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Walkers\CompletedModuleWalker.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AST\Walkers\ParsedModuleWalker.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\CompileResults.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Compilation\CompilerManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\CompilerMessage.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Constants.cs" />
     <Compile Include="GlobalServices.cs" />
     <Compile Include="LanguageService\BooAuthoringScope.cs" />
-    <Compile Include="LanguageService\BooDeclarations.cs" />
     <Compile Include="LanguageService\BooSource.cs" />
     <Compile Include="LanguageService\BooTypeAndMemberDropdownBars.cs">
       <SubType>Code</SubType>
@@ -162,7 +120,6 @@
     <Compile Include="LanguageService\Scanner\Scanner.cs" />
     <Compile Include="LanguageService\Scanner\ScanningLexer.cs" />
     <Compile Include="LanguageService\BooLanguageService.cs" />
-    <Compile Include="LanguageService\TextSpanExtensions.cs" />
     <Compile Include="Project\Attributes\LocDisplayNameAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesDescriptionAttribute.cs" />
@@ -325,6 +282,10 @@
     <ZipItem Include="Templates\Items\Boo Class\Class.boo" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ASTMapper\ASTMapper.csproj">
+      <Project>{BDFA48AF-B8D8-4802-96C5-EF65BC1A2F00}</Project>
+      <Name>ASTMapper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MPFProject\Microsoft.VisualStudio.Project.csproj">
       <Project>{CACB60A9-1E76-4F92-8831-B134A658C695}</Project>
       <Name>Microsoft.VisualStudio.Project</Name>

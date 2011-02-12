@@ -198,13 +198,13 @@ namespace Hill30.BooProject.Compilation
                 if (assembly != null)
                     compiler.Parameters.References.Add(assembly);
             }
-            var results = new Dictionary<string, Tuple<BooFileNode, CompileResults>>();
+            var results = new Dictionary<string, Tuple<FileNode, CompileResults>>();
             foreach (var file in BooProjectNode.GetFileEnumerator(projectManager))
                 if (recompileAll || localCompileList.Contains(file) || file.CompileUnit == null)
                 {
-                    var result = new CompileResults(file);
+                    var result = new CompileResults();
                     var input = file.GetCompilerInput(result);
-                    results.Add(input.Name, new Tuple<BooFileNode, CompileResults>(file, result));
+                    results.Add(input.Name, new Tuple<FileNode, CompileResults>(file, result));
                     compiler.Parameters.Input.Add(input);
                 }
                 else
@@ -219,7 +219,7 @@ namespace Hill30.BooProject.Compilation
                         {
                             CompileResults.MapCompleted(results, args.Context);
                             foreach (var item in results.Values)
-                                item.Item1.SetCompilerResults(item.Item2);
+                                ((BooFileNode)item.Item1).SetCompilerResults(item.Item2);
                         }
                     };
 

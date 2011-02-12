@@ -27,35 +27,11 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Shell;
+using Hill30.BooProject.LanguageService;
 
 namespace Hill30.BooProject.Project
 {
-    [ComVisible(true)]
-    public interface IFileNode
-    {
-        event EventHandler Recompiled;
-        
-        MappedToken GetMappedToken(int line, int col);
-
-        MappedToken GetAdjacentMappedToken(int line, int col);
-
-        IEnumerable<MappedTypeDefinition> Types { get; }
-
-        CompileResults.BufferPoint MapPosition(int line, int column);
-
-        IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans);
-
-        IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span);
-
-        void HideMessages();
-
-        void ShowMessages();
-
-        void Bind(ITextBuffer textBuffer);
-
-        void SubmitForCompile();
-    }
-    
     
     public class BooFileNode : FileNode, IFileNode
     {
@@ -63,6 +39,7 @@ namespace Hill30.BooProject.Project
         private ITextBuffer textBuffer;
         private ITextSnapshot originalSnapshot;
         private bool hidden;
+        private BooLanguageService languageService;
 
         private CompileResults GetResults()
         {
@@ -72,7 +49,8 @@ namespace Hill30.BooProject.Project
         public BooFileNode(ProjectNode root, ProjectElement e)
 			: base(root, e)
 		{
-            results = new CompileResults(this);
+            results = new CompileResults();
+            languageService = (BooLanguageService)GetService(typeof(BooLanguageService));
             hidden = true;
         }
 
@@ -85,23 +63,28 @@ namespace Hill30.BooProject.Project
                 originalSnapshot = buffer.CurrentSnapshot;
         }
 
-        public ICompilerInput GetCompilerInput(CompileResults result)
+        public ICompilerInput GetCompilerInput(CompileResults results)
         {
             if (textBuffer == null)
-                return result.Initialize(File.ReadAllText(Url));
+                return results.Initialize(Url, File.ReadAllText(Url), GlobalServices.LanguageService.GetLanguagePreferences().TabSize);
             hidden = false;
             originalSnapshot = textBuffer.CurrentSnapshot;
-            return result.Initialize(originalSnapshot.GetText());
+            return results.Initialize(Url, originalSnapshot.GetText(), GlobalServices.LanguageService.GetLanguagePreferences().TabSize);
         }
 
         public void SetCompilerResults(CompileResults newResults)
         {
-            results.HideMessages();
+            results.HideMessages(((BooProjectNode)ProjectMgr).RemoveTask);
             results = newResults;
             if (!hidden)
-                results.ShowMessages();
+                results.ShowMessages(((BooProjectNode)ProjectMgr).AddTask, Navigate);
             if (Recompiled != null)
                 Recompiled(this, EventArgs.Empty);
+        }
+
+        private void Navigate(ErrorTask target)
+        {
+            ProjectMgr.Navigate(target.Document, target.Line, target.Column);
         }
 
         /// <summary>
@@ -165,13 +148,16 @@ namespace Hill30.BooProject.Project
 
         public CompileResults.BufferPoint MapPosition(int line, int column) { return GetResults().LocationToPoint(line, column); }
 
-        public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span) { return GetResults().GetClassificationSpans(span, SnapshotCreator); }
+        public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span) 
+        {
+            return GetResults().GetClassificationSpans(languageService.ClassificationTypeRegistry, span, SnapshotCreator); 
+        }
 
         public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans) { return GetResults().GetTags(spans, SnapshotCreator); }
 
-        public void HideMessages() { GetResults().HideMessages(); }
+        public void HideMessages() { GetResults().HideMessages(((BooProjectNode)ProjectMgr).RemoveTask); }
 
-        public void ShowMessages() { GetResults().ShowMessages(); }
+        public void ShowMessages() { GetResults().ShowMessages(((BooProjectNode)ProjectMgr).AddTask, Navigate); }
 
         public void SubmitForCompile() { ((BooProjectNode) ProjectMgr).SubmitForCompile(this); }
 
