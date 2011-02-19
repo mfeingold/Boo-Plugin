@@ -15,15 +15,8 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Internal;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
-using System.Diagnostics;
-using Hill30.BooProject.Project;
 using Hill30.Boo.ASTMapper;
 
 namespace Hill30.BooProject.LanguageService

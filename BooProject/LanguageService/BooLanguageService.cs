@@ -107,7 +107,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override IScanner GetScanner(IVsTextLines buffer)
         {
-            return new Scanner.Scanner(this);
+            return new Hill30.Boo.ASTMapper.Scanner.Scanner(() => GetLanguagePreferences().TabSize);
         }
 
         public override string Name

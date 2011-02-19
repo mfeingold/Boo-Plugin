@@ -15,10 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using Boo.Lang.Parser;
 using System.IO;
+using Boo.Lang.Parser;
 
-namespace Hill30.BooProject.LanguageService.Scanner
+namespace Hill30.Boo.ASTMapper.Scanner
 {
     class ScanningLexer
     {
