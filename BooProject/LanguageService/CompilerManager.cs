@@ -17,14 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using Boo.Lang.Compiler;
-using Boo.Lang.Parser;
 using Hill30.BooProject.Project;
-using Microsoft.VisualStudio.Shell.Design;
-using Microsoft.VisualStudio.Project;
-using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Package;
+using Microsoft.VisualStudio.Project;
+using Microsoft.VisualStudio.Shell.Design;
+using Hill30.Boo.ASTMapper;
 
 namespace Hill30.BooProject.Compilation
 {
@@ -184,49 +184,23 @@ namespace Hill30.BooProject.Compilation
                 referencesDirty = false;
             }
 
-            var pipeline = CompilerPipeline.GetPipeline("compile");
-            pipeline.BreakOnErrors = false;
-            var compiler = new BooCompiler(new CompilerParameters(false) { Pipeline = pipeline });
-
-//            ((BooParsingStep)compiler.Parameters.Pipeline[0]).TabSize = GlobalServices.LanguageService.GetLanguagePreferences().TabSize;
-
-            compiler.Parameters.Input.Clear();
-            compiler.Parameters.References.Clear();
-            foreach (var a in references.Values)
-            {
-                var assembly = a.GetAssembly(typeResolver.GetAssembly);
-                if (assembly != null)
-                    compiler.Parameters.References.Add(assembly);
-            }
-            var results = new Dictionary<string, Tuple<FileNode, CompileResults>>();
+            var results = new Dictionary<BooFileNode, CompileResults>();
             foreach (var file in BooProjectNode.GetFileEnumerator(projectManager))
-                if (recompileAll || localCompileList.Contains(file) || file.CompileUnit == null)
+                if (recompileAll || localCompileList.Contains(file))
                 {
-                    var result = new CompileResults();
-                    var input = file.GetCompilerInput(result);
-                    results.Add(input.Name, new Tuple<FileNode, CompileResults>(file, result));
-                    compiler.Parameters.Input.Add(input);
+                    // this seemingly redundant variable ensures that each closure below has its own copy of
+                    // the file reference. Without it they share the same copy decalred in the loop statemenet
+                    // essentially all of them will point to the last element in the loop
+                    var localfile = file;
+                    results.Add(file, new CompileResults(() => localfile.Url, localfile.GetCompilerInput));
                 }
                 else
-                    compiler.Parameters.References.Add(file.CompileUnit);
+                    results.Add(file, file.GetCompileResults());
 
-            compiler.Parameters.Pipeline.AfterStep += 
-                (sender, args) =>
-                    {
-                        if (args.Step == pipeline[0])
-                            CompileResults.MapParsedNodes(results, args.Context);
-                        if (args.Step == pipeline[pipeline.Count - 1])
-                        {
-                            CompileResults.MapCompleted(results, args.Context);
-                            foreach (var item in results.Values)
-                                ((BooFileNode)item.Item1).SetCompilerResults(item.Item2);
-                        }
-                    };
+            Hill30.Boo.ASTMapper.CompilerManager.Compile(references.Values.Select(ae => ae.GetAssembly(typeResolver.GetAssembly)).Where(a => a != null), results.Values);
 
-            // as a part of compilation process compiler might request assembly load which triggers an assembly 
-            // resolve event to be processed by type resolver. Such processing has to happen on the same thread the
-            // resolver has been created on
-            compiler.Run();
+            foreach (var result in results)
+                result.Key.SetCompilerResults(result.Value);
 
         }
 

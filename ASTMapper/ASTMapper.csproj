@@ -90,7 +90,9 @@
     <Compile Include="AST\Walkers\CompletedModuleWalker.cs" />
     <Compile Include="AST\Walkers\ParsedModuleWalker.cs" />
     <Compile Include="BooDeclarations.cs" />
+    <Compile Include="CompilerManager.cs" />
     <Compile Include="CompilerMessage.cs" />
+    <Compile Include="DropdownBarsManager.cs" />
     <Compile Include="IFileNode.cs" />
     <Compile Include="CompileResults.cs" />
     <Compile Include="Formats.cs" />

@@ -21,7 +21,7 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Package;
 using Hill30.BooProject.LanguageService;
 
-namespace Hill30.BooProject.AST
+namespace Hill30.Boo.ASTMapper.AST
 {
     public class MappedToken : IComparable<MappedToken>
     {

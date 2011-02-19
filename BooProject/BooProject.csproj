@@ -102,7 +102,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Compilation\CompilerManager.cs">
+    <Compile Include="LanguageService\CompilerManager.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Constants.cs" />

@@ -14,11 +14,9 @@
 //   limitations under the License.
 
 using Boo.Lang.Compiler.Ast;
-using Hill30.BooProject.Compilation;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Hill30.BooProject.LanguageService;
 
-namespace Hill30.BooProject.AST
+namespace Hill30.Boo.ASTMapper.AST
 {
     public enum MappedNodeType
     {

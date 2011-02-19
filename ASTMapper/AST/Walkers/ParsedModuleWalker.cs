@@ -1,9 +1,8 @@
 ﻿using System;
 using Boo.Lang.Compiler.Ast;
-using Hill30.BooProject.AST.Nodes;
-using Hill30.BooProject.Compilation;
+using Hill30.Boo.ASTMapper.AST.Nodes;
 
-namespace Hill30.BooProject.AST.Walkers
+namespace Hill30.Boo.ASTMapper.AST.Walkers
 {
     public class ParsedModuleWalker : DepthFirstVisitor
     {
@@ -117,7 +116,7 @@ namespace Hill30.BooProject.AST.Walkers
             // Do Nothing
         }
 
-        public override void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
+        public override void OnAttribute(global::Boo.Lang.Compiler.Ast.Attribute node)
         {
             if (node.LexicalInfo != null)
                 results.MapParsedNode(new MappedAttribute(results, node));

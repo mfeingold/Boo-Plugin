@@ -13,11 +13,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Hill30.BooProject.Compilation;
+using System;
+using Hill30.Boo.ASTMapper;
+using Hill30.BooProject.Project;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Hill30.BooProject.Project;
-using System;
 
 namespace Hill30.BooProject.LanguageService
 {

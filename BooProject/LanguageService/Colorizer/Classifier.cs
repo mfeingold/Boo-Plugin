@@ -15,10 +15,9 @@
 
 using System;
 using System.Collections.Generic;
+using Hill30.Boo.ASTMapper;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
-using Microsoft.VisualStudio.TextManager.Interop;
-using Hill30.BooProject.Project;
 
 namespace Hill30.BooProject.LanguageService.Colorizer
 {

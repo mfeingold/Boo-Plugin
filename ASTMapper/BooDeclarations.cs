@@ -20,7 +20,7 @@ using Microsoft.VisualStudio.Package;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.Ast;
 
-namespace Hill30.BooProject.LanguageService
+namespace Hill30.Boo.ASTMapper
 {
     /// <summary>
     /// Represents a collection of items to be shown in member selection dropdowns

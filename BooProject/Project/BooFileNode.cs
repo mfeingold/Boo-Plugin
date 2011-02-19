@@ -16,19 +16,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.TypeSystem;
-using Hill30.BooProject.AST;
-using Hill30.BooProject.AST.Nodes;
-using Hill30.BooProject.Compilation;
+using Hill30.Boo.ASTMapper;
+using Hill30.Boo.ASTMapper.AST;
+using Hill30.Boo.ASTMapper.AST.Nodes;
+using Hill30.BooProject.LanguageService;
 using Microsoft.VisualStudio.Project;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio.Shell;
-using Hill30.BooProject.LanguageService;
 
 namespace Hill30.BooProject.Project
 {
@@ -41,7 +38,7 @@ namespace Hill30.BooProject.Project
         private bool hidden;
         private BooLanguageService languageService;
 
-        private CompileResults GetResults()
+        public CompileResults GetCompileResults()
         {
             return results;
         }
@@ -49,7 +46,7 @@ namespace Hill30.BooProject.Project
         public BooFileNode(ProjectNode root, ProjectElement e)
 			: base(root, e)
 		{
-            results = new CompileResults();
+            results = new CompileResults(()=>Url, GetCompilerInput);
             languageService = (BooLanguageService)GetService(typeof(BooLanguageService));
             hidden = true;
         }
@@ -63,13 +60,19 @@ namespace Hill30.BooProject.Project
                 originalSnapshot = buffer.CurrentSnapshot;
         }
 
-        public ICompilerInput GetCompilerInput(CompileResults results)
+        public string GetCompilerInput(CompileResults results)
         {
+            string source;
             if (textBuffer == null)
-                return results.Initialize(Url, File.ReadAllText(Url), GlobalServices.LanguageService.GetLanguagePreferences().TabSize);
-            hidden = false;
-            originalSnapshot = textBuffer.CurrentSnapshot;
-            return results.Initialize(Url, originalSnapshot.GetText(), GlobalServices.LanguageService.GetLanguagePreferences().TabSize);
+                source = File.ReadAllText(Url);
+            else
+            {
+                hidden = false;
+                originalSnapshot = textBuffer.CurrentSnapshot;
+                source = originalSnapshot.GetText();
+            }
+            results.Initialize(Url, source, GlobalServices.LanguageService.GetLanguagePreferences().TabSize);
+            return source;
         }
 
         public void SetCompilerResults(CompileResults newResults)
@@ -121,7 +124,7 @@ namespace Hill30.BooProject.Project
         
         #endregion
 
-        public ICompileUnit CompileUnit { get { return GetResults().CompileUnit; } }
+        //public ICompileUnit CompileUnit { get { return GetResults().CompileUnit; } }
 
         private SnapshotSpan SnapshotCreator(TextSpan textspan)
         {
@@ -140,24 +143,24 @@ namespace Hill30.BooProject.Project
 
         public event EventHandler Recompiled;
 
-        public MappedToken GetMappedToken(int line, int col) { return GetResults().GetMappedToken(line, col); }
+        public MappedToken GetMappedToken(int line, int col) { return GetCompileResults().GetMappedToken(line, col); }
 
-        public MappedToken GetAdjacentMappedToken(int line, int col) { return GetResults().GetAdjacentMappedToken(line, col); }
+        public MappedToken GetAdjacentMappedToken(int line, int col) { return GetCompileResults().GetAdjacentMappedToken(line, col); }
 
-        public IEnumerable<MappedTypeDefinition> Types { get { return GetResults().Types; } }
+        public IEnumerable<MappedTypeDefinition> Types { get { return GetCompileResults().Types; } }
 
-        public CompileResults.BufferPoint MapPosition(int line, int column) { return GetResults().LocationToPoint(line, column); }
+        public CompileResults.BufferPoint MapPosition(int line, int column) { return GetCompileResults().LocationToPoint(line, column); }
 
         public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span) 
         {
-            return GetResults().GetClassificationSpans(languageService.ClassificationTypeRegistry, span, SnapshotCreator); 
+            return GetCompileResults().GetClassificationSpans(languageService.ClassificationTypeRegistry, span, SnapshotCreator); 
         }
 
-        public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans) { return GetResults().GetTags(spans, SnapshotCreator); }
+        public IEnumerable<ITagSpan<ErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans) { return GetCompileResults().GetTags(spans, SnapshotCreator); }
 
-        public void HideMessages() { GetResults().HideMessages(((BooProjectNode)ProjectMgr).RemoveTask); }
+        public void HideMessages() { GetCompileResults().HideMessages(((BooProjectNode)ProjectMgr).RemoveTask); }
 
-        public void ShowMessages() { GetResults().ShowMessages(((BooProjectNode)ProjectMgr).AddTask, Navigate); }
+        public void ShowMessages() { GetCompileResults().ShowMessages(((BooProjectNode)ProjectMgr).AddTask, Navigate); }
 
         public void SubmitForCompile() { ((BooProjectNode) ProjectMgr).SubmitForCompile(this); }
 

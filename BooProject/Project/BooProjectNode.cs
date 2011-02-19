@@ -15,20 +15,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Hill30.BooProject.Compilation;
-using Microsoft.VisualStudio.Project;
 using System.Windows.Forms;
-using System.Drawing;
 using EnvDTE;
-using Microsoft.VisualStudio.TextManager.Interop;
-using VSLangProj;
-using Microsoft.VisualStudio.Project.Automation;
-using Microsoft.VisualStudio.Shell;
+using Hill30.Boo.ASTMapper;
+using Hill30.BooProject.Compilation;
 using Hill30.BooProject.LanguageService;
 using Hill30.BooProject.Project.ProjectProperties;
+using Microsoft.VisualStudio.Project;
+using Microsoft.VisualStudio.Project.Automation;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TextManager.Interop;
+using VSLangProj;
+using CompilerManager = Hill30.BooProject.Compilation.CompilerManager;
 
 namespace Hill30.BooProject.Project
 {
