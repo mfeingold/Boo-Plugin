@@ -22,7 +22,7 @@ using Microsoft.VisualStudio.Package;
 
 namespace Hill30.Boo.ASTMapper
 {
-    class Formats
+    public class Formats
     {
 
         internal const string BooKeyword = "Boo Keyword";
@@ -67,7 +67,7 @@ namespace Hill30.Boo.ASTMapper
             }
         }
 
-        internal const string BooType = "Boo Type";
+        public const string BooType = "Boo Type";
         [Export]
         [Name(BooType)]
 #pragma warning disable 649
@@ -88,7 +88,7 @@ namespace Hill30.Boo.ASTMapper
             }
         }
 
-        internal const string BooMacro = "Boo Macro";
+        public const string BooMacro = "Boo Macro";
         [Export]
         [Name(BooMacro)]
 #pragma warning disable 649

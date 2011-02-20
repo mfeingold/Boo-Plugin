@@ -9,7 +9,7 @@ namespace MapperTests
 {
 
     [TestFixture]
-    public class QuickInfoTips
+    public class Tests
     {
         private static CompileResults RunCompiler(string source)
         {
@@ -18,7 +18,7 @@ namespace MapperTests
                 () => source,
                 () => 4
                 );
-            CompilerManager.Compile(new Assembly[] { }, new[] { results });
+            CompilerManager.Compile(new Assembly[] { typeof(SerializableAttribute).Assembly }, new[] { results });
             return results;
         }
 
@@ -33,6 +33,7 @@ namespace MapperTests
             Assert.NotNull(mToken);
             Assert.AreEqual(2, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
+            Assert.AreEqual(Formats.BooType, mToken.Nodes[1].Format);
             Assert.AreEqual("struct int", mToken.Nodes[1].QuickInfoTip);
         }
 
@@ -77,11 +78,7 @@ print a"
             Assert.NotNull(mToken);
             Assert.AreEqual(2, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedMacroReference), (mToken.Nodes[1]));
-            Assert.AreEqual("macro print", mToken.Nodes[1].QuickInfoTip);
-            mToken = results.GetMappedToken(1, 4);
-            Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
-            Assert.IsInstanceOf(typeof(MappedMacroReference), (mToken.Nodes[1]));
+            Assert.AreEqual(Formats.BooMacro, mToken.Nodes[1].Format);
             Assert.AreEqual("macro print", mToken.Nodes[1].QuickInfoTip);
         }
 
@@ -97,6 +94,39 @@ print a"
             Assert.AreEqual(2, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
             Assert.AreEqual("class string", mToken.Nodes[1].QuickInfoTip);
+        }
+
+        [Test]
+        public void ClassMemberReference()
+        {
+            var results = RunCompiler(
+@"a as string
+print a.Length"
+                );
+
+            var mToken = results.GetMappedToken(1, 8);
+            Assert.NotNull(mToken);
+            Assert.AreEqual(2, mToken.Nodes.Count);
+            Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
+            Assert.AreEqual("Length as int", mToken.Nodes[1].QuickInfoTip);
+        }
+
+        [Test]
+        public void Attribute()
+        {
+            var results = RunCompiler(
+@"[System.Serializable]
+class Class:
+	def constructor():
+		pass"
+                );
+
+            var mToken = results.GetMappedToken(0, 1);
+            Assert.NotNull(mToken);
+            Assert.AreEqual(2, mToken.Nodes.Count);
+            Assert.IsInstanceOf(typeof(MappedAttribute), (mToken.Nodes[1]));
+            Assert.AreEqual(Formats.BooType, mToken.Nodes[1].Format);
+//            Assert.AreEqual("class System.Serializable", mToken.Nodes[1].QuickInfoTip);
         }
     }
 }
