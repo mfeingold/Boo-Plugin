@@ -20,7 +20,7 @@ using System.Windows.Media;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Package;
 
-namespace Hill30.BooProject.LanguageService.Colorizer
+namespace Hill30.Boo.ASTMapper
 {
     class Formats
     {
@@ -28,7 +28,9 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         internal const string BooKeyword = "Boo Keyword";
         [Export]
         [Name(BooKeyword)]
+#pragma warning disable 649
         private static ClassificationTypeDefinition booKeyword;
+#pragma warning restore 649
 
         [Export(typeof(EditorFormatDefinition))]
         [Name(BooKeyword)]
@@ -47,7 +49,9 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         internal const string BooBlockComment = "Boo Comment";
         [Export]
         [Name(BooBlockComment)]
+#pragma warning disable 649
         private static ClassificationTypeDefinition booBlockComment;
+#pragma warning restore 649
 
         [Export(typeof(EditorFormatDefinition))]
         [Name(BooBlockComment)]
@@ -66,7 +70,9 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         internal const string BooType = "Boo Type";
         [Export]
         [Name(BooType)]
+#pragma warning disable 649
         private static ClassificationTypeDefinition booType;
+#pragma warning restore 649
 
         [Export(typeof(EditorFormatDefinition))]
         [Name(BooType)]
@@ -85,7 +91,9 @@ namespace Hill30.BooProject.LanguageService.Colorizer
         internal const string BooMacro = "Boo Macro";
         [Export]
         [Name(BooMacro)]
+#pragma warning disable 649
         private static ClassificationTypeDefinition booMacro;
+#pragma warning restore 649
 
         [Export(typeof(EditorFormatDefinition))]
         [Name(BooMacro)]

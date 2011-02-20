@@ -76,16 +76,16 @@ namespace Hill30.BooProject.LanguageService
         {
             var service = container.GetService(typeof(BooLanguageService))
                                       as BooLanguageService;
-            if (service == null || service.mComponentID == 0)
+            if (service == null || service.mComponentId == 0)
                 return;
 
             var mgr = container.GetService(typeof(SOleComponentManager))
                                        as IOleComponentManager;
             if (mgr != null)
             {
-                mgr.FRevokeComponent(service.mComponentID);
+                mgr.FRevokeComponent(service.mComponentId);
             }
-            service.mComponentID = 0;
+            service.mComponentId = 0;
         }
 
         public override string GetFormatFilterList()
@@ -107,7 +107,7 @@ namespace Hill30.BooProject.LanguageService
 
         public override IScanner GetScanner(IVsTextLines buffer)
         {
-            return new Hill30.Boo.ASTMapper.Scanner.Scanner(() => GetLanguagePreferences().TabSize);
+            return new Boo.ASTMapper.Scanner.Scanner(() => GetLanguagePreferences().TabSize);
         }
 
         public override string Name
@@ -156,7 +156,7 @@ namespace Hill30.BooProject.LanguageService
             // idle periods.
             var mgr = Site.GetService(typeof(SOleComponentManager)) as IOleComponentManager;
 
-            if (mComponentID == 0 && mgr != null)
+            if (mComponentId == 0 && mgr != null)
             {
                 var crinfo = new OLECRINFO[1];
                 crinfo[0].cbSize = (uint)Marshal.SizeOf(typeof(OLECRINFO));
@@ -166,11 +166,11 @@ namespace Hill30.BooProject.LanguageService
                                               (uint)_OLECADVF.olecadvfRedrawOff |
                                               (uint)_OLECADVF.olecadvfWarningsOff;
                 crinfo[0].uIdleTimeInterval = 100;
-                mgr.FRegisterComponent(this, crinfo, out mComponentID);
+                mgr.FRegisterComponent(this, crinfo, out mComponentId);
             }
         }
 
-        private uint mComponentID;
+        private uint mComponentId;
 
         #region IOleComponent Members
 
@@ -227,11 +227,11 @@ namespace Hill30.BooProject.LanguageService
         {
         }
 
-        public void OnAppActivate(int fActive, uint dwOtherThreadID)
+        public void OnAppActivate(int fActive, uint dwOtherThreadId)
         {
         }
 
-        public void OnEnterState(uint uStateID, int fEnter)
+        public void OnEnterState(uint uStateId, int fEnter)
         {
         }
 

@@ -36,7 +36,7 @@ namespace Hill30.BooProject.Project
         private ITextBuffer textBuffer;
         private ITextSnapshot originalSnapshot;
         private bool hidden;
-        private BooLanguageService languageService;
+        private readonly BooLanguageService languageService;
 
         public CompileResults GetCompileResults()
         {
@@ -46,7 +46,7 @@ namespace Hill30.BooProject.Project
         public BooFileNode(ProjectNode root, ProjectElement e)
 			: base(root, e)
 		{
-            results = new CompileResults(()=>Url, GetCompilerInput);
+            results = new CompileResults(() => Url, GetCompilerInput, ()=>GlobalServices.LanguageService.GetLanguagePreferences().TabSize);
             languageService = (BooLanguageService)GetService(typeof(BooLanguageService));
             hidden = true;
         }
@@ -60,7 +60,7 @@ namespace Hill30.BooProject.Project
                 originalSnapshot = buffer.CurrentSnapshot;
         }
 
-        public string GetCompilerInput(CompileResults results)
+        public string GetCompilerInput(CompileResults currentResults)
         {
             string source;
             if (textBuffer == null)
@@ -71,7 +71,7 @@ namespace Hill30.BooProject.Project
                 originalSnapshot = textBuffer.CurrentSnapshot;
                 source = originalSnapshot.GetText();
             }
-            results.Initialize(Url, source, GlobalServices.LanguageService.GetLanguagePreferences().TabSize);
+            currentResults.Initialize();
             return source;
         }
 

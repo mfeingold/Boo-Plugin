@@ -63,26 +63,26 @@ namespace Hill30.Boo.ASTMapper
         public static void MapParsedNodes(Dictionary<string, CompileResults> results, CompilerContext compilerContext)
         {
             foreach (var module in compilerContext.CompileUnit.Modules)
-                results[module.LexicalInfo.FullPath].MapParsedNodes(module);
+                results[module.LexicalInfo.FileName].MapParsedNodes(module);
 
             foreach (var error in compilerContext.Errors)
-                results[error.LexicalInfo.FullPath].MapParsingMessage(error);
+                results[error.LexicalInfo.FileName].MapParsingMessage(error);
 
             foreach (var warning in compilerContext.Warnings)
-                results[warning.LexicalInfo.FullPath].MapParsingMessage(warning);
+                results[warning.LexicalInfo.FileName].MapParsingMessage(warning);
         }
 
         public static void MapCompleted(Dictionary<string, CompileResults> results, CompilerContext compilerContext)
         {
             foreach (var module in compilerContext.CompileUnit.Modules)
                 if (module.LexicalInfo.FullPath != null)
-                    results[module.LexicalInfo.FullPath].MapCompletedNodes(module);
+                    results[module.LexicalInfo.FileName].MapCompletedNodes(module);
 
             foreach (var error in compilerContext.Errors)
-                results[error.LexicalInfo.FullPath].MapMessage(error);
+                results[error.LexicalInfo.FileName].MapMessage(error);
 
             foreach (var warning in compilerContext.Warnings)
-                results[warning.LexicalInfo.FullPath].MapMessage(warning);
+                results[warning.LexicalInfo.FileName].MapMessage(warning);
         }
 
     }

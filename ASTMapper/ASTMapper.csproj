@@ -102,12 +102,6 @@
     <Compile Include="TextSpanExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MPFProject\Microsoft.VisualStudio.Project.csproj">
-      <Project>{CACB60A9-1E76-4F92-8831-B134A658C695}</Project>
-      <Name>Microsoft.VisualStudio.Project</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Key.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -15,7 +15,6 @@
 
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
-using Hill30.BooProject.LanguageService.Colorizer;
 
 namespace Hill30.Boo.ASTMapper.AST.Nodes
 {

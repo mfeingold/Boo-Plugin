@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Hill30.Boo.ASTMapper.AST.Nodes;
@@ -36,7 +37,7 @@ namespace Hill30.Boo.ASTMapper
             this.file = file;
         }
 
-        private void ProcessMembers(TypeDefinition type, Action<TypeMember> process)
+        private static void ProcessMembers(TypeDefinition type, Action<TypeMember> process)
         {
             foreach (var member in type.Members)
             {
@@ -56,26 +57,22 @@ namespace Hill30.Boo.ASTMapper
             }
         }
 
-        public enum MemberHighlighting { plain, bold, gray };
-
         public class DropDownItem
         {
-            public DropDownItem(TypeMember member, TextSpan textSpan, MemberHighlighting highlighting)
+            public DropDownItem(TypeMember member, TextSpan textSpan)
             {
                 Name = member.FullName;
                 TextSpan = textSpan;
                 IconId = BooDeclarations.GetIconForNode(member);
-                Highlighting = highlighting;
             }
 
-            public DropDownItem(MappedTypeDefinition type, MemberHighlighting highlighting)
+            public DropDownItem(MappedTypeDefinition type)
             {
                 Name = type.Node.NodeType == NodeType.Module
                             ? "<Module>"
                             : type.TypeNode.FullName;
                 TextSpan = type.TextSpan;
                 IconId = BooDeclarations.GetIconForNode(type.TypeNode);
-                Highlighting = highlighting;
             }
 
             public string Name { get; private set; }
@@ -83,17 +80,11 @@ namespace Hill30.Boo.ASTMapper
             public TextSpan TextSpan { get; private set; }
 
             public int IconId { get; private set; }
-
-            public MemberHighlighting Highlighting { get; private set; }
         }
 
         public List<DropDownItem> GetTypesDropdown()
         {
-            var result = new List<DropDownItem>();
-            foreach (var node in file.Types)
-                result.Add(new DropDownItem(node, MemberHighlighting.plain));
-
-            return result;
+            return file.Types.Select(node => new DropDownItem(node)).ToList();
         }
 
         public List<DropDownItem> GetMembersDropdown()
@@ -101,7 +92,7 @@ namespace Hill30.Boo.ASTMapper
             var result = new List<DropDownItem>();
             foreach (var node in file.Types)
                 ProcessMembers(node.TypeNode,
-                    member => result.Add(new DropDownItem(member, member.GetTextSpan(file), MemberHighlighting.gray)));
+                    member => result.Add(new DropDownItem(member, member.GetTextSpan(file))));
 
             return result;
         }
@@ -131,7 +122,9 @@ namespace Hill30.Boo.ASTMapper
                 ProcessMembers(type.TypeNode,
                     member =>
                     {
+// ReSharper disable AccessToModifiedClosure
                         mIndex++;
+// ReSharper restore AccessToModifiedClosure
                         if (member.GetTextSpan(file).Contains(line, col))
                             sm = mIndex;
                     }
@@ -145,7 +138,9 @@ namespace Hill30.Boo.ASTMapper
                 ProcessMembers(type.TypeNode,
                     member =>
                     {
+// ReSharper disable AccessToModifiedClosure
                         mIndex++;
+// ReSharper restore AccessToModifiedClosure
                         memberHighlight(mIndex, DROPDOWNFONTATTR.FONTATTR_GRAY);
                         if (member.ParentNode == selectedTypeNode)
                             memberHighlight(mIndex, DROPDOWNFONTATTR.FONTATTR_PLAIN);

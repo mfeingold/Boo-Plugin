@@ -14,7 +14,6 @@
 //   limitations under the License.
 
 using Boo.Lang.Compiler.Ast;
-using Hill30.BooProject.LanguageService.Colorizer;
 
 namespace Hill30.Boo.ASTMapper.AST.Nodes
 {

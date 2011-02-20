@@ -38,16 +38,14 @@ namespace Hill30.BooProject.LanguageService
     
     public class BooTypeAndMemberDropdownBars : TypeAndMemberDropdownBars
     {
-        private BooLanguageService service;
+        private readonly BooLanguageService service;
         private bool isDirty;
-        private IFileNode fileNode;
-        private DropdownBarsManager barManager;
+        private readonly DropdownBarsManager barManager;
 
         public BooTypeAndMemberDropdownBars(BooLanguageService service, IFileNode fileNode)
             : base(service)
         {
             this.service = service;
-            this.fileNode = fileNode;
             isDirty = true;
             fileNode.Recompiled += SourceRecompiled;
             barManager = new DropdownBarsManager(fileNode);

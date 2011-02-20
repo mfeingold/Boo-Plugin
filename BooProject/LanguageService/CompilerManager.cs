@@ -192,12 +192,12 @@ namespace Hill30.BooProject.Compilation
                     // the file reference. Without it they share the same copy decalred in the loop statemenet
                     // essentially all of them will point to the last element in the loop
                     var localfile = file;
-                    results.Add(file, new CompileResults(() => localfile.Url, localfile.GetCompilerInput));
+                    results.Add(file, new CompileResults(() => localfile.Url, localfile.GetCompilerInput, ()=>GlobalServices.LanguageService.GetLanguagePreferences().TabSize));
                 }
                 else
                     results.Add(file, file.GetCompileResults());
 
-            Hill30.Boo.ASTMapper.CompilerManager.Compile(references.Values.Select(ae => ae.GetAssembly(typeResolver.GetAssembly)).Where(a => a != null), results.Values);
+            Boo.ASTMapper.CompilerManager.Compile(references.Values.Select(ae => ae.GetAssembly(typeResolver.GetAssembly)).Where(a => a != null), results.Values);
 
             foreach (var result in results)
                 result.Key.SetCompilerResults(result.Value);

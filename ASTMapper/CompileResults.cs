@@ -26,7 +26,6 @@ using Boo.Lang.Parser;
 using Hill30.Boo.ASTMapper.AST;
 using Hill30.Boo.ASTMapper.AST.Nodes;
 using Hill30.Boo.ASTMapper.AST.Walkers;
-using Hill30.BooProject.LanguageService.Colorizer;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
@@ -49,11 +48,13 @@ namespace Hill30.Boo.ASTMapper
         private readonly List<TextSpan> whitespaces = new List<TextSpan>();
         private readonly Func<string> urlGetter;
         private readonly Func<CompileResults, string> sourceGetter;
+        private readonly Func<int> tabsizeGetter;
 
-        public CompileResults(Func<string> urlGetter, Func<CompileResults, string> sourceGetter)
+        public CompileResults(Func<string> urlGetter, Func<CompileResults, string> sourceGetter, Func<int> tabsizeGetter)
         {
             this.urlGetter = urlGetter;
             this.sourceGetter = sourceGetter;
+            this.tabsizeGetter = tabsizeGetter;
         }
 
         private static antlr.IToken NextToken(antlr.TokenStream tokens)
@@ -96,8 +97,10 @@ namespace Hill30.Boo.ASTMapper
             positionMap = mappings.ToArray();
         }
 
-        public void Initialize(string sourceUrl, string source, int tabSize)
+        public void Initialize()
         {
+            var source = sourceGetter(this);
+            var tabSize = tabsizeGetter();
             ExpandTabs(source, tabSize);
             whitespaces.Clear();
             tokenMap.Clear();
@@ -147,8 +150,7 @@ namespace Hill30.Boo.ASTMapper
 
                 var cluster = new MappedToken(
                     startLine * lineSize + startIndex,
-                    endIndex - startIndex,
-                    token);
+                    endIndex - startIndex);
 
                 if (tokenMap.Count > 0
                     && tokenMap[tokenMap.Count() - 1].Index >= cluster.Index)
@@ -248,7 +250,9 @@ namespace Hill30.Boo.ASTMapper
         {
             new CompletedModuleWalker(this).Visit(module);
             foreach (var token in tokenMap)
+// ReSharper disable AccessToModifiedClosure
                 token.Nodes.ForEach(n => n.Resolve(token));
+// ReSharper restore AccessToModifiedClosure
             var compileUnit = new CompileUnit();
             compileUnit.Modules.Add(module);
             CompileUnit = new InternalCompileUnit(compileUnit);

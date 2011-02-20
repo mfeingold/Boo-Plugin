@@ -16,28 +16,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Package;
-using Hill30.BooProject.LanguageService;
 
 namespace Hill30.Boo.ASTMapper.AST
 {
     public class MappedToken : IComparable<MappedToken>
     {
         private readonly List<MappedNode> nodes = new List<MappedNode>();
-        private antlr.IToken token;
 
         public MappedToken(int index)
         {
             Index = index;
         }
 
-        public MappedToken(int index, int length, antlr.IToken token)
+        public MappedToken(int index, int length)
         {
             Index = index;
             Length = length;
-            this.token = token;
         }
 
         public int Index { get; private set; }

@@ -26,7 +26,7 @@ namespace Hill30.Boo.ASTMapper.Scanner
         int offset;
         int current;
         int endIndex;
-        Func<int> getTabsize;
+        readonly Func<int> getTabsize;
 
         public Scanner(Func<int> getTabsize)
         {
@@ -42,7 +42,7 @@ namespace Hill30.Boo.ASTMapper.Scanner
             if (token == null)
                 try
                 {
-                    token = lexer.nextToken();
+                    token = lexer.NextToken();
                 }
                 catch (Exception)
                 {
@@ -55,10 +55,10 @@ namespace Hill30.Boo.ASTMapper.Scanner
                     return true;
                 }
 
-            if (current < token.getMappedColumn()-1)
+            if (current < token.GetMappedColumn()-1)
             {
                 tokenInfo.StartIndex = current;
-                tokenInfo.EndIndex = Math.Min(endIndex, offset + token.getMappedColumn() - 2);
+                tokenInfo.EndIndex = Math.Min(endIndex, offset + token.GetMappedColumn() - 2);
                 tokenInfo.Type = TokenType.Text;  // it has to be Text rather than Comment, otherwise there will be no notification for the typing inside the token
                 tokenInfo.Color = TokenColor.Comment;
                 current = tokenInfo.EndIndex + 2;
@@ -111,8 +111,8 @@ namespace Hill30.Boo.ASTMapper.Scanner
                     break;
             }
 
-            tokenInfo.StartIndex = offset + token.getMappedColumn() - 1;
-            tokenInfo.EndIndex = Math.Min(endIndex, offset + quotes + token.getMappedColumn() - 1 + token.getText().Length - 1);
+            tokenInfo.StartIndex = offset + token.GetMappedColumn() - 1;
+            tokenInfo.EndIndex = Math.Min(endIndex, offset + quotes + token.GetMappedColumn() - 1 + token.getText().Length - 1);
 
             current = tokenInfo.EndIndex + 1;
             return true;

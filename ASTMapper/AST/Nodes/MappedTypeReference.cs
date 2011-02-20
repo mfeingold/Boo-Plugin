@@ -17,7 +17,6 @@ using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
-using Hill30.BooProject.LanguageService.Colorizer;
 
 namespace Hill30.Boo.ASTMapper.AST.Nodes
 {
@@ -26,7 +25,6 @@ namespace Hill30.Boo.ASTMapper.AST.Nodes
         private string format;
         private string quickInfoTip;
         private MappedNode declaringNode;
-        private IType type;
 
         public MappedTypeReference(CompileResults results, SimpleTypeReference node)
             : base(results, node, node.Name.Length)
@@ -45,8 +43,6 @@ namespace Hill30.Boo.ASTMapper.AST.Nodes
                 var type = TypeSystemServices.GetType(Node);
                 if (type is Error)
                     return;
-
-                this.type = type;
 
                 format = Formats.BooType;
                 var prefix = "struct ";
