@@ -60,7 +60,7 @@ namespace Hill30.BooProject.Project
                 originalSnapshot = buffer.CurrentSnapshot;
         }
 
-        public string GetCompilerInput(CompileResults currentResults)
+        public string GetCompilerInput()
         {
             string source;
             if (textBuffer == null)
@@ -71,7 +71,6 @@ namespace Hill30.BooProject.Project
                 originalSnapshot = textBuffer.CurrentSnapshot;
                 source = originalSnapshot.GetText();
             }
-            currentResults.Initialize();
             return source;
         }
 

@@ -47,10 +47,10 @@ namespace Hill30.Boo.ASTMapper
         private readonly List<CompilerMessage> messages = new List<CompilerMessage>();
         private readonly List<TextSpan> whitespaces = new List<TextSpan>();
         private readonly Func<string> urlGetter;
-        private readonly Func<CompileResults, string> sourceGetter;
+        private readonly Func<string> sourceGetter;
         private readonly Func<int> tabsizeGetter;
 
-        public CompileResults(Func<string> urlGetter, Func<CompileResults, string> sourceGetter, Func<int> tabsizeGetter)
+        public CompileResults(Func<string> urlGetter, Func<string> sourceGetter, Func<int> tabsizeGetter)
         {
             this.urlGetter = urlGetter;
             this.sourceGetter = sourceGetter;
@@ -97,9 +97,9 @@ namespace Hill30.Boo.ASTMapper
             positionMap = mappings.ToArray();
         }
 
-        public void Initialize()
+        private void Initialize()
         {
-            var source = sourceGetter(this);
+            var source = sourceGetter();
             var tabSize = tabsizeGetter();
             ExpandTabs(source, tabSize);
             whitespaces.Clear();
@@ -387,9 +387,10 @@ namespace Hill30.Boo.ASTMapper
         public void SetupForCompilation(CompilerParameters compilerParameters)
         {
                 if (CompileUnit == null)
-                    compilerParameters.Input.Add(new StringInput(urlGetter(), sourceGetter(this)));
+                    compilerParameters.Input.Add(new StringInput(urlGetter(), sourceGetter()));
                 else
                     compilerParameters.References.Add(CompileUnit);
+            Initialize();
         }
     }
 
