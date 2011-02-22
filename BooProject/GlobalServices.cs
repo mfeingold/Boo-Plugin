@@ -15,17 +15,18 @@
 
 using System;
 using System.ComponentModel.Composition;
-using Hill30.BooProject.LanguageService;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Editor;
-using Microsoft.VisualStudio.ComponentModelHost;
-using Hill30.BooProject.Project;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio;
 using System.Runtime.InteropServices;
-using Microsoft.VisualStudio.TextManager.Interop;
+using Hill30.Boo.ASTMapper;
+using Hill30.BooProject.LanguageService;
+using Hill30.BooProject.Project;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Editor;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Design;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Hill30.BooProject
 {

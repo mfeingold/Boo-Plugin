@@ -15,10 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using Boo.Lang.Parser;
 using System.IO;
+using Boo.Lang.Parser;
 
-namespace Hill30.BooProject.LanguageService.Scanner
+namespace Hill30.Boo.ASTMapper.Scanner
 {
     class ScanningLexer
     {
@@ -47,23 +47,23 @@ namespace Hill30.BooProject.LanguageService.Scanner
             positionMap = positionList.ToArray();
         }
 
-        internal MappedToken nextToken()
+        internal MappedToken NextToken()
         {
             return new MappedToken(this, lexer.nextToken());
         }
 
         internal class MappedToken : antlr.IToken
         {
-            private antlr.IToken iToken;
-            private ScanningLexer lexer;
+            private readonly antlr.IToken iToken;
+            private readonly ScanningLexer lexer;
 
             public MappedToken(ScanningLexer scanningLexer, antlr.IToken iToken)
             {
-                this.lexer = scanningLexer;
+                lexer = scanningLexer;
                 this.iToken = iToken;
             }
 
-            public int getMappedColumn()
+            public int GetMappedColumn()
             {
                 return lexer.positionMap[iToken.getColumn()-1]+1;
             }

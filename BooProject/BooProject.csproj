@@ -34,18 +34,6 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Boo.Lang, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Boo_files\Boo.Lang.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Boo_files\Boo.Lang.Compiler.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Boo_files\Boo.Lang.Parser.dll</HintPath>
-    </Reference>
     <Reference Include="Boo.Microsoft.Build.Tasks, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Boo_files\Boo.Microsoft.Build.Tasks.dll</HintPath>
@@ -109,7 +97,7 @@
     </Compile>
     <Compile Include="BooISh\BooIShWrapper.cs" />
     <Compile Include="BooISh\Window.cs" />
-    <Compile Include="Compilation\CompilerManager.cs">
+    <Compile Include="LanguageService\CompilerManager.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Constants.cs" />
@@ -124,8 +112,6 @@
     <Compile Include="LanguageService\Colorizer\Formats.cs" />
     <Compile Include="LanguageService\Colorizer\Tagger.cs" />
     <Compile Include="LanguageService\Colorizer\TaggerProvider.cs" />
-    <Compile Include="LanguageService\Scanner\Scanner.cs" />
-    <Compile Include="LanguageService\Scanner\ScanningLexer.cs" />
     <Compile Include="LanguageService\BooLanguageService.cs" />
     <Compile Include="Project\Attributes\LocDisplayNameAttribute.cs" />
     <Compile Include="Project\Attributes\ResourcesCategoryAttribute.cs" />
@@ -151,7 +137,7 @@
     <EmbeddedResource Include="Resources.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <Resource Include="Resources\BooProjectNode.bmp" />
+    <EmbeddedResource Include="Resources\BooProjectNode.bmp" />
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
       <ManifestResourceName>VSPackage</ManifestResourceName>

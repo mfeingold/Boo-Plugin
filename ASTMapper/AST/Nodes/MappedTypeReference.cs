@@ -16,18 +16,15 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
-using Hill30.BooProject.Compilation;
-using Hill30.BooProject.LanguageService.Colorizer;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
-namespace Hill30.BooProject.AST.Nodes
+namespace Hill30.Boo.ASTMapper.AST.Nodes
 {
     public class MappedTypeReference : MappedNode
     {
         private string format;
         private string quickInfoTip;
         private MappedNode declaringNode;
-        private IType type;
 
         public MappedTypeReference(CompileResults results, SimpleTypeReference node)
             : base(results, node, node.Name.Length)
@@ -46,8 +43,6 @@ namespace Hill30.BooProject.AST.Nodes
                 var type = TypeSystemServices.GetType(Node);
                 if (type is Error)
                     return;
-
-                this.type = type;
 
                 format = Formats.BooType;
                 var prefix = "struct ";

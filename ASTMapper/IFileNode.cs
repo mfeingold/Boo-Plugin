@@ -16,14 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Hill30.BooProject.AST;
-using Hill30.BooProject.AST.Nodes;
-using Hill30.BooProject.Compilation;
+using Hill30.Boo.ASTMapper.AST;
+using Hill30.Boo.ASTMapper.AST.Nodes;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Tagging;
 
-namespace Hill30.BooProject.Project
+namespace Hill30.Boo.ASTMapper
 {
     [ComVisible(true)]
     public interface IFileNode

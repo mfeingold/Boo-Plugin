@@ -20,7 +20,7 @@ using Microsoft.VisualStudio.Package;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.Ast;
 
-namespace Hill30.BooProject.LanguageService
+namespace Hill30.Boo.ASTMapper
 {
     /// <summary>
     /// Represents a collection of items to be shown in member selection dropdowns
@@ -303,8 +303,8 @@ namespace Hill30.BooProject.LanguageService
         // ReSharper disable InconsistentNaming
 
         const int CLASS_ICONS = 0;
-        const int CONST_ICONS = 6;
-        const int DELEGATE_ICONS = 12;
+        //const int CONST_ICONS = 6;
+        //const int DELEGATE_ICONS = 12;
         const int ENUM_ICONS = 18;
         const int ENUM_MEMBER_ICONS = 24;
         const int EVENT_ICONS = 30;
@@ -317,10 +317,10 @@ namespace Hill30.BooProject.LanguageService
 
         const int ICON_PUBLIC = 0;
         const int ICON_INTERNAL = 1;
-        const int ICON_DIAMOND = 2;
+        //const int ICON_DIAMOND = 2;
         const int ICON_PROTECTED = 3;
         const int ICON_PRIVATE = 4;
-        const int ICON_REFERENCE = 5;
+        //const int ICON_REFERENCE = 5;
 
         // ReSharper restore InconsistentNaming
 

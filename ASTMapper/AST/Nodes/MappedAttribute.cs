@@ -14,11 +14,9 @@
 //   limitations under the License.
 
 using Boo.Lang.Compiler.Ast;
-using Hill30.BooProject.Compilation;
-using Hill30.BooProject.LanguageService.Colorizer;
 using Boo.Lang.Compiler.TypeSystem;
 
-namespace Hill30.BooProject.AST.Nodes
+namespace Hill30.Boo.ASTMapper.AST.Nodes
 {
     public class MappedAttribute : MappedNode
     {
@@ -52,7 +50,7 @@ namespace Hill30.BooProject.AST.Nodes
                 var type = TypeSystemServices.GetType(Node);
                 if (type is Error)
                     return;
-                quickInfoTip = "class " + type.FullName;
+//                quickInfoTip = "class " + type.FullName;
                 format = Formats.BooType;
             }
             catch

@@ -15,11 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.VisualStudio.TextManager.Interop;
+using Hill30.Boo.ASTMapper;
 using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Adornments;
-using Hill30.BooProject.Project;
+using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Hill30.BooProject.LanguageService.Colorizer
 {

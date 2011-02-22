@@ -14,13 +14,11 @@
 //   limitations under the License.
 
 using System;
-using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio.Text;
 using Boo.Lang.Compiler.Ast;
-using Hill30.BooProject.AST;
-using Hill30.BooProject.Project;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.TextManager.Interop;
 
-namespace Hill30.BooProject.LanguageService
+namespace Hill30.Boo.ASTMapper
 {
     public static class TextSpanExtensions
     {

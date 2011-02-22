@@ -23,20 +23,17 @@ using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Parser;
-using Hill30.BooProject.AST;
-using Hill30.BooProject.AST.Nodes;
-using Hill30.BooProject.AST.Walkers;
-using Hill30.BooProject.LanguageService;
-using Hill30.BooProject.LanguageService.Colorizer;
+using Hill30.Boo.ASTMapper.AST;
+using Hill30.Boo.ASTMapper.AST.Nodes;
+using Hill30.Boo.ASTMapper.AST.Walkers;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio.Project;
 
-namespace Hill30.BooProject.Compilation
+namespace Hill30.Boo.ASTMapper
 {
     /// <summary>
     /// The cached AST for a Boo source file
@@ -49,6 +46,16 @@ namespace Hill30.BooProject.Compilation
         private readonly List<MappedTypeDefinition> types = new List<MappedTypeDefinition>();
         private readonly List<CompilerMessage> messages = new List<CompilerMessage>();
         private readonly List<TextSpan> whitespaces = new List<TextSpan>();
+        private readonly Func<string> urlGetter;
+        private readonly Func<string> sourceGetter;
+        private readonly Func<int> tabsizeGetter;
+
+        public CompileResults(Func<string> urlGetter, Func<string> sourceGetter, Func<int> tabsizeGetter)
+        {
+            this.urlGetter = urlGetter;
+            this.sourceGetter = sourceGetter;
+            this.tabsizeGetter = tabsizeGetter;
+        }
 
         private static antlr.IToken NextToken(antlr.TokenStream tokens)
         {
@@ -90,12 +97,15 @@ namespace Hill30.BooProject.Compilation
             positionMap = mappings.ToArray();
         }
 
-        public ICompilerInput Initialize(string sourceUrl, string source, int tabSize)
+        private void Initialize()
         {
+            var source = sourceGetter();
+            var tabSize = tabsizeGetter();
             ExpandTabs(source, tabSize);
+            whitespaces.Clear();
             tokenMap.Clear();
-            MapTokens(tabSize, source);
-            return new StringInput(sourceUrl, source);
+            if (source.Trim().Length > 0)
+                MapTokens(tabSize, source);
         }
 
         private void MapTokens(int tabSize, string source)
@@ -140,8 +150,7 @@ namespace Hill30.BooProject.Compilation
 
                 var cluster = new MappedToken(
                     startLine * lineSize + startIndex,
-                    endIndex - startIndex,
-                    token);
+                    endIndex - startIndex);
 
                 if (tokenMap.Count > 0
                     && tokenMap[tokenMap.Count() - 1].Index >= cluster.Index)
@@ -178,31 +187,6 @@ namespace Hill30.BooProject.Compilation
 
         public bool IsDirty { get { return true; } }
 
-        public static void MapParsedNodes(Dictionary<string, Tuple<FileNode, CompileResults>> results, CompilerContext compilerContext)
-        {
-            foreach (var module in compilerContext.CompileUnit.Modules)
-                results[module.LexicalInfo.FullPath].Item2.MapParsedNodes(module);
-
-            foreach (var error in compilerContext.Errors)
-                results[error.LexicalInfo.FullPath].Item2.MapParsingMessage(error);
-
-            foreach (var warning in compilerContext.Warnings)
-                results[warning.LexicalInfo.FullPath].Item2.MapParsingMessage(warning);
-        }
-
-        public static void MapCompleted(Dictionary<string, Tuple<FileNode, CompileResults>> results, CompilerContext compilerContext)
-        {
-            foreach (var module in compilerContext.CompileUnit.Modules)
-                if (module.LexicalInfo.FullPath != null)
-                    results[module.LexicalInfo.FullPath].Item2.MapCompletedNodes(module);
-
-            foreach (var error in compilerContext.Errors)
-                results[error.LexicalInfo.FullPath].Item2.MapMessage(error);
-
-            foreach (var warning in compilerContext.Warnings)
-                results[warning.LexicalInfo.FullPath].Item2.MapMessage(warning);
-        }
-
         private int Lookup(int index)
         {
             var i = tokenMap.BinarySearch(new MappedToken(index));
@@ -224,7 +208,7 @@ namespace Hill30.BooProject.Compilation
                 action(tokenMap[i]);
         }
 
-        private void MapParsedNodes(Module module)
+        public void MapParsedNodes(Module module)
         {
             new ParsedModuleWalker(this).Visit(module);
         }
@@ -241,17 +225,17 @@ namespace Hill30.BooProject.Compilation
             TokensForNode(node, token => node.Record(stage, token));
         }
 
-        private void MapParsingMessage(CompilerWarning warning)
+        public void MapParsingMessage(CompilerWarning warning)
         {
             MapParsingMessage(warning.LexicalInfo);
         }
 
-        private void MapParsingMessage(CompilerError error)
+        public void MapParsingMessage(CompilerError error)
         {
             MapParsingMessage(error.LexicalInfo);
         }
 
-        private void MapParsingMessage(LexicalInfo location)
+        public void MapParsingMessage(LexicalInfo location)
         {
             var token = GetMappedToken(location);
             if (token != null && token.Nodes
@@ -262,17 +246,19 @@ namespace Hill30.BooProject.Compilation
                 MapParsedNode(new ParsingError(this, location, token.Length));
         }
 
-        private void MapCompletedNodes(Module module)
+        public void MapCompletedNodes(Module module)
         {
             new CompletedModuleWalker(this).Visit(module);
             foreach (var token in tokenMap)
+// ReSharper disable AccessToModifiedClosure
                 token.Nodes.ForEach(n => n.Resolve(token));
+// ReSharper restore AccessToModifiedClosure
             var compileUnit = new CompileUnit();
             compileUnit.Modules.Add(module);
             CompileUnit = new InternalCompileUnit(compileUnit);
         }
 
-        private void MapMessage(CompilerError error)
+        public void MapMessage(CompilerError error)
         {
             if (error.Code == "BCE0055")
                 // I do not care about internal compiler errors here
@@ -281,7 +267,7 @@ namespace Hill30.BooProject.Compilation
             messages.Add(new CompilerMessage(error.LexicalInfo, error.Code, error.Message, TaskErrorCategory.Error));
         }
 
-        private void MapMessage(CompilerWarning warning)
+        public void MapMessage(CompilerWarning warning)
         {
             messages.Add(new CompilerMessage(warning.LexicalInfo, warning.Code, warning.Message, TaskErrorCategory.Warning));
         }
@@ -395,6 +381,17 @@ namespace Hill30.BooProject.Compilation
         }
 
         public ICompileUnit CompileUnit { get; private set; }
+
+        public string Url { get { return urlGetter(); } }
+
+        public void SetupForCompilation(CompilerParameters compilerParameters)
+        {
+                if (CompileUnit == null)
+                    compilerParameters.Input.Add(new StringInput(urlGetter(), sourceGetter()));
+                else
+                    compilerParameters.References.Add(CompileUnit);
+            Initialize();
+        }
     }
 
 }

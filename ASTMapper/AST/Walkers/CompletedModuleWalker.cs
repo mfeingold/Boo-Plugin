@@ -1,8 +1,6 @@
 ﻿using Boo.Lang.Compiler.Ast;
-using Hill30.BooProject.AST.Nodes;
-using Hill30.BooProject.Compilation;
 
-namespace Hill30.BooProject.AST.Walkers
+namespace Hill30.Boo.ASTMapper.AST.Walkers
 {
     public class CompletedModuleWalker : DepthFirstVisitor
     {

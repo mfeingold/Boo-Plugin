@@ -90,18 +90,16 @@
     <Compile Include="AST\Walkers\CompletedModuleWalker.cs" />
     <Compile Include="AST\Walkers\ParsedModuleWalker.cs" />
     <Compile Include="BooDeclarations.cs" />
+    <Compile Include="CompilerManager.cs" />
     <Compile Include="CompilerMessage.cs" />
+    <Compile Include="DropdownBarsManager.cs" />
     <Compile Include="IFileNode.cs" />
     <Compile Include="CompileResults.cs" />
     <Compile Include="Formats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scanner\Scanner.cs" />
+    <Compile Include="Scanner\ScanningLexer.cs" />
     <Compile Include="TextSpanExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MPFProject\Microsoft.VisualStudio.Project.csproj">
-      <Project>{CACB60A9-1E76-4F92-8831-B134A658C695}</Project>
-      <Name>Microsoft.VisualStudio.Project</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />

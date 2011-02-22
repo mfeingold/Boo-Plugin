@@ -15,15 +15,9 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Internal;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
-using System.Diagnostics;
-using Hill30.BooProject.Project;
+using Hill30.Boo.ASTMapper;
 
 namespace Hill30.BooProject.LanguageService
 {
@@ -42,51 +36,25 @@ namespace Hill30.BooProject.LanguageService
     /// that the nested types are listed with outer type first
     /// </remarks>
     
-    // TODO: module members
-    // TODO: double check what's to be included in the type list (delegates?)
-    // TODO: double check the filtering of the member list
-    // TODO: double check the nested type order
-    // TODO: method siganture does not include parameter definitions
-
     public class BooTypeAndMemberDropdownBars : TypeAndMemberDropdownBars
     {
-        private BooLanguageService service;
+        private readonly BooLanguageService service;
         private bool isDirty;
-        private IFileNode fileNode;
+        private readonly DropdownBarsManager barManager;
 
         public BooTypeAndMemberDropdownBars(BooLanguageService service, IFileNode fileNode)
             : base(service)
         {
             this.service = service;
-            this.fileNode = fileNode;
             isDirty = true;
             fileNode.Recompiled += SourceRecompiled;
+            barManager = new DropdownBarsManager(fileNode);
         }
 
         void SourceRecompiled(object sender, EventArgs e)
         {
             isDirty = true;
             service.Invoke(new Action(service.SynchronizeDropdowns), new object[]{});
-        }
-
-        private void ProcessMembers(TypeDefinition type, Action<TypeMember> process)
-        {
-            foreach (var member in type.Members)
-            {
-                switch (member.NodeType)
-                {
-                    case NodeType.Event:
-                    case NodeType.Field:
-                    case NodeType.Property:
-                    case NodeType.Method:
-                    case NodeType.Constructor:
-                    case NodeType.Destructor:
-                        break;
-                    default:
-                        continue;
-                }
-                process(member);
-            }
         }
 
         public override bool OnSynchronizeDropdowns(
@@ -104,73 +72,32 @@ namespace Hill30.BooProject.LanguageService
                 isDirty = false;
                 dropDownTypes.Clear();
                 dropDownMembers.Clear();
-                foreach (var node in fileNode.Types)
-                {
-                    var type = node.TypeNode;
-                    var name = node.TypeNode.FullName;
-                    ProcessMembers(type,
-                        member => dropDownMembers.Add(new DropDownMember(
-                                                          member.FullName,
-                                                          member.GetTextSpan(fileNode),
-                                                          BooDeclarations.GetIconForNode(member),
+                foreach (var member in barManager.GetMembersDropdown())
+                    dropDownMembers.Add(new DropDownMember(
+                                                          member.Name,
+                                                          member.TextSpan,
+                                                          member.IconId,
                                                           DROPDOWNFONTATTR.FONTATTR_GRAY
-                                                          )));
+                                                          ));
 
+                foreach (var type in barManager.GetTypesDropdown())
                     dropDownTypes.Add(
                         new DropDownMember(
-                            node.Node.NodeType == NodeType.Module
-                                ? "<Module>"
-                                : name,
-                            node.TextSpan,
-                            BooDeclarations.GetIconForNode(type),
+                            type.Name,
+                            type.TextSpan,
+                            type.IconId,
                             DROPDOWNFONTATTR.FONTATTR_PLAIN));
 
-                }
             }
 
-            var sType = -1;
-            var mIndex = -1;
-            var sm = -1;
-            TypeDefinition selectedTypeNode = null;
-            foreach (var type in fileNode.Types)
-            {
-                    
-                sType++;
-                if (type.TextSpan.Contains(line, col))
-                {
-                    selectedTypeNode = type.TypeNode;
-                    selectedType = sType;
-                }
-                ProcessMembers(type.TypeNode, 
-                    member => 
-                        {
-                            mIndex++;
-                            if (member.GetTextSpan(fileNode).Contains(line, col))
-                                sm = mIndex;
-                        }
-                    );
-            }
-            selectedMember = sm;
-
-            if (dropDownMembers.Count == 0)
-                return true;
-
-            mIndex = -1;
-            foreach (var type in fileNode.Types)
-            {
-                ProcessMembers(type.TypeNode,
-                    member =>
-                        {
-                            mIndex++;
-                            ((DropDownMember)dropDownMembers[mIndex]).FontAttr = DROPDOWNFONTATTR.FONTATTR_GRAY;
-                            if (member.ParentNode == selectedTypeNode)
-                                ((DropDownMember)dropDownMembers[mIndex]).FontAttr = DROPDOWNFONTATTR.FONTATTR_PLAIN;
-                            if (mIndex == sm)
-                                ((DropDownMember)dropDownMembers[mIndex]).FontAttr = DROPDOWNFONTATTR.FONTATTR_BOLD;
-                        }
-                    );
-            }
-
+            barManager.SelectCurrent(
+                line,
+                col,
+                ref selectedType,
+                ref selectedMember,
+                (mIndex, attr) =>
+                    ((DropDownMember)dropDownMembers[mIndex]).FontAttr = attr);
+           
             return true;
         }
     }

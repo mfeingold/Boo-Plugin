@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.VisualStudio.Proj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASTMapper", "ASTMapper\ASTMapper.csproj", "{BDFA48AF-B8D8-4802-96C5-EF65BC1A2F00}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapperTests", "MapperTests\MapperTests.csproj", "{9AA3B553-4197-4190-879B-AAE665A08D99}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = BooProject.vsmdi
@@ -48,6 +50,10 @@ Global
 		{BDFA48AF-B8D8-4802-96C5-EF65BC1A2F00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDFA48AF-B8D8-4802-96C5-EF65BC1A2F00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDFA48AF-B8D8-4802-96C5-EF65BC1A2F00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AA3B553-4197-4190-879B-AAE665A08D99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AA3B553-4197-4190-879B-AAE665A08D99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AA3B553-4197-4190-879B-AAE665A08D99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AA3B553-4197-4190-879B-AAE665A08D99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

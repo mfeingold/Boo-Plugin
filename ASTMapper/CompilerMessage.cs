@@ -15,11 +15,10 @@
 
 using System;
 using Boo.Lang.Compiler.Ast;
-using Hill30.BooProject.Project;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace Hill30.BooProject.Compilation
+namespace Hill30.Boo.ASTMapper
 {
     public class CompilerMessage
     {
