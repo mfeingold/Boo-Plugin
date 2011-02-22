@@ -219,6 +219,9 @@
   <data name="TargetFrameworkMonikerDescription" xml:space="preserve">
     <value>The version of the Common Language Runtime to use for output assembly.</value>
   </data>
+  <data name="ToolWindowTitle" xml:space="preserve">
+    <value>Boo Interactive</value>
+  </data>
   <data name="UseDuckTyping" xml:space="preserve">
     <value>Use duck typing by default</value>
   </data>

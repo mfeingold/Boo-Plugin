@@ -26,4 +26,9 @@ namespace Hill30.BooProject
 
         public static readonly Guid GuidBooProjectCmdSet = new Guid(GuidBooProjectCmdSetString);
     };
+
+    public static class PkgCmdIDList
+    {
+        public const uint cmdidBooISh = 0x100;
+    };
 }

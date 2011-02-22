@@ -44,12 +44,10 @@
          must be a menu. -->
     <Groups>
 
-      <Group guid="guidBooProjectCmdSet" id="MyMenuGroup" priority="0x0600">
+      <!--<Group guid="guidBooProjectCmdSet" id="MyMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
-      </Group>
+      </Group>-->
       
-
-
     </Groups>
     
     <!--Buttons section. -->
@@ -64,7 +62,7 @@
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node or set it to <Icon guid="guidOfficeIcon" id="msotcidNoIcon" /> -->
 
-      <Button guid="guidBooProjectCmdSet" id="cmdidMyCommand" priority="0x0100" type="Button">
+      <!--<Button guid="guidBooProjectCmdSet" id="cmdidMyCommand" priority="0x0100" type="Button">
         <Parent guid="guidBooProjectCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -72,8 +70,16 @@
           <CommandName>cmdidMyCommand</CommandName>
           <ButtonText>Open Reflector</ButtonText>
         </Strings>
-      </Button>
+      </Button>-->
 
+      <Button guid="guidBooProjectCmdSet" id="cmdidBooISh" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
+        <Icon guid="guidProjectImage" id="pic" />
+        <Strings>
+          <CommandName>cmdidBooISh</CommandName>
+          <ButtonText>Boo Interactive</ButtonText>
+        </Strings>
+      </Button>
 
 
     </Buttons>
@@ -86,6 +92,7 @@
             inside a button definition. An important aspect of this declaration is that the element id 
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
       <Bitmap guid="guidImages" href="Resources\Images_32bit.bmp" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows"/>
+      <Bitmap guid="guidProjectImage" href="Resources\BooISh.bmp" usedList="pic"/>
 
     </Bitmaps>
  
@@ -102,12 +109,15 @@
     <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidBooProjectCmdSet" value="{ec06ff5c-8707-4572-9d77-348e88d3eebf}">
 
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
-      <IDSymbol name="cmdidMyCommand" value="0x0100" />
+      <!--<IDSymbol name="MyMenuGroup" value="0x1020" />-->
+      <IDSymbol name="cmdidBooISh" value="0x0100" />
     </GuidSymbol>
-    
-    
-    
+
+    <GuidSymbol name="guidProjectImage" value="{2b64b4ed-abdb-4203-b350-ea871fb630bd}" >
+      <IDSymbol name="pic" value="1" />
+    </GuidSymbol>
+
+
     <GuidSymbol name="guidImages" value="{2b64b4ed-abdb-4203-b35f-ea871fb630bd}" >
       <IDSymbol name="bmpPic1" value="1" />
       <IDSymbol name="bmpPic2" value="2" />

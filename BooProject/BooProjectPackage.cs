@@ -14,12 +14,11 @@
 //   limitations under the License.
 
 using System;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Project;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Hill30.BooProject
 {
@@ -63,6 +62,8 @@ namespace Hill30.BooProject
                              EnableAsyncCompletion = true   // Supports background parsing
                              
                              )]
+    // This attribute registers a tool window exposed by this package.
+    [ProvideToolWindow(typeof(BooISh.Window))]
 
     [Guid(Constants.GuidBooProjectPkgString)]
     public sealed class BooProjectPackage : ProjectPackage
@@ -89,8 +90,8 @@ namespace Hill30.BooProject
             if ( null != mcs )
             {
                 // Create the command for the menu item.
-                var menuCommandID = new CommandID(Constants.GuidBooProjectCmdSet, (int)PkgCmdIDList.cmdidMyCommand);
-                var menuItem = new MenuCommand(MenuItemCallback, menuCommandID );
+                var menuCommandID = new CommandID(Constants.GuidBooProjectCmdSet, (int)PkgCmdIDList.cmdidBooISh);
+                var menuItem = new MenuCommand(ShowBooIShWindow, menuCommandID );
                 mcs.AddCommand( menuItem );
             }
         }
@@ -106,28 +107,22 @@ namespace Hill30.BooProject
         #endregion
 
         /// <summary>
-        /// This function is the callback used to execute a command when the a menu item is clicked.
-        /// See the Initialize method to see how the menu item is associated to this function using
-        /// the OleMenuCommandService service and the MenuCommand class.
+        /// This function is called when the user clicks the menu item that shows the 
+        /// tool window. See the Initialize method to see how the menu item is associated to 
+        /// this function using the OleMenuCommandService service and the MenuCommand class.
         /// </summary>
-        private void MenuItemCallback(object sender, EventArgs e)
+        private void ShowBooIShWindow(object sender, EventArgs e)
         {
-            // Show a Message Box to prove we were here
-            //var uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
-            //Guid clsid = Guid.Empty;
-            //int result;
-            //Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
-            //           0,
-            //           ref clsid,
-            //           "BooProject",
-            //           string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", ToString()),
-            //           string.Empty,
-            //           0,
-            //           OLEMSGBUTTON.OLEMSGBUTTON_OK,
-            //           OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-            //           OLEMSGICON.OLEMSGICON_INFO,
-            //           0,        // false
-            //           out result));
+            // Get the instance number 0 of this tool window. This window is single instance so this instance
+            // is actually the only one.
+            // The last flag is set to true so that if the tool window does not exists it will be created.
+            var window = FindToolWindow(typeof(BooISh.Window), 0, true);
+            if ((null == window) || (null == window.Frame))
+            {
+                throw new NotSupportedException(Resources.CanNotCreateWindow);
+            }
+            var windowFrame = (IVsWindowFrame)window.Frame;
+            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
 
         public override string ProductUserContext

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.ComponentModel.Design;
+using Hill30.BooProject;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -42,7 +43,7 @@ namespace BooProject_IntegrationTests
         {
             UIThreadInvoker.Invoke((ThreadInvoker)delegate()
             {
-                CommandID menuItemCmd = new CommandID(Hill30.BooProject.Constants.GuidBooProjectCmdSet, (int)Hill30.BooProject.PkgCmdIDList.cmdidMyCommand);
+                CommandID menuItemCmd = new CommandID(Hill30.BooProject.Constants.GuidBooProjectCmdSet, (int)PkgCmdIDList.cmdidBooISh);
 
                 // Create the DialogBoxListener Thread.
                 string expectedDialogBoxText = string.Format(CultureInfo.CurrentCulture, "{0}\n\nInside {1}.MenuItemCallback()", "BooProject", "Hill30.BooProject.BooProjectPackage");

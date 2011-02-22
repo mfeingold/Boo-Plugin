@@ -12,6 +12,7 @@ namespace Hill30.BooProject
 	internal sealed class Resources
 	{
 		#region Constants
+// ReSharper disable InconsistentNaming
 		internal const string Application = "Application";
 		internal const string ApplicationCaption = "ApplicationCaption";
         internal const string BuildCaption = "BuildCaption";
@@ -49,13 +50,16 @@ namespace Hill30.BooProject
         internal const string OutputCaption = "Output";
         internal const string OutputPath = "OutputPath";
         internal const string OutputPathDescription = "OutputPathDescription";
+	    internal const string ToolWindowTitle = "ToolWindowTitle";
+        internal const string CanNotCreateWindow = "CanNotCreateWindow";
+// ReSharper restore InconsistentNaming
 
         //internal const string MsgFailedToLoadTemplateFile = "Failed to add template file to project";
 		#endregion Constants
 
         #region Fields
         private static Resources loader;
-        private ResourceManager resourceManager;
+        private readonly ResourceManager resourceManager;
         private static Object internalSyncObjectInstance;
         #endregion Fields
 
