@@ -15,6 +15,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Runtime.InteropServices;
 using Hill30.Boo.ASTMapper;
 using Hill30.BooProject.LanguageService;
@@ -46,6 +47,15 @@ namespace Hill30.BooProject
         public static IFileNode GetFileNodeForView(IVsTextView view) { return handler.GetFileNodeForViewImpl(view);}
 
         public static ITextBuffer GetBufferForVsBuffer(IVsTextBuffer buffer) { return handler.GetBufferForVsBufferImpl(buffer); }
+
+        public static string BinPath
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable("BooBinPath", EnvironmentVariableTarget.User) 
+                    ?? Path.GetDirectoryName(typeof(GlobalServices).Assembly.Location) + @"\Boo_files";
+            }
+        }
 
         private static readonly GlobalServices handler = new GlobalServices();
 

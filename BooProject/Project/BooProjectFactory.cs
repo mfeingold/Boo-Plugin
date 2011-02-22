@@ -27,7 +27,7 @@ namespace Hill30.BooProject.Project
             : base(package)
         {
             if (Environment.GetEnvironmentVariable("BooBinPath", EnvironmentVariableTarget.User) == null)
-                BuildEngine.SetGlobalProperty("BooBinPath", Path.GetDirectoryName(GetType().Assembly.Location) + @"\Boo_files");
+                BuildEngine.SetGlobalProperty("BooBinPath", GlobalServices.BinPath);
             this.package = package;
         }
 

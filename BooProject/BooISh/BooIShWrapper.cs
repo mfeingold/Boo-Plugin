@@ -18,17 +18,20 @@ namespace Hill30.BooProject.BooISh
                             {
                                 UseShellExecute = false,
                                 FileName =
-                                    @"C:\Users\mfeingol\Documents\Projects\Boo Plugin\BooProject\Boo_files\booi.exe",
+                                    GlobalServices.BinPath + @"\booish.exe",
                                 CreateNoWindow = true,
                                 RedirectStandardOutput = true,
                                 RedirectStandardError = true,
-                                RedirectStandardInput = true
+                                RedirectStandardInput = true,
+                                WindowStyle = ProcessWindowStyle.Hidden
                             }
                     };
-            booInterpreter.Start();
             booInterpreter.OutputDataReceived += booInterpreter_OutputDataReceived;
             booInterpreter.ErrorDataReceived += booInterpreter_OutputDataReceived;
+            booInterpreter.EnableRaisingEvents = true;
+            booInterpreter.Start();
             booInterpreter.BeginOutputReadLine();
+            booInterpreter.BeginErrorReadLine();
         }
 
         private void booInterpreter_OutputDataReceived(object sender, DataReceivedEventArgs e)
