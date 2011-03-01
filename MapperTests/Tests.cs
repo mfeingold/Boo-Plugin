@@ -240,10 +240,10 @@ doc = XmlDocument()"
         public void IntStaicVariableDeclaration()
         {
             var results = RunCompiler(
-@"static final x = 3"
+@"final x = 3"
                 );
 
-            var mToken = results.GetMappedToken(0, 13);
+            var mToken = results.GetMappedToken(0, 6);
             Assert.NotNull(mToken);
             Assert.AreEqual(2, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));

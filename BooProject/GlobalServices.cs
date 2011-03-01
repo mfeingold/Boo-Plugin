@@ -34,19 +34,21 @@ namespace Hill30.BooProject
     public class GlobalServices
     {
 
+// ReSharper disable InconsistentNaming
         public static readonly IVsRunningDocumentTable RDT = (IVsRunningDocumentTable)Package.GetGlobalService(typeof(SVsRunningDocumentTable));
+// ReSharper restore InconsistentNaming
 
         public static readonly BooLanguageService LanguageService = (BooLanguageService)Package.GetGlobalService(typeof (BooLanguageService));
 
         public static readonly DynamicTypeService TypeService = (DynamicTypeService)Package.GetGlobalService(typeof(DynamicTypeService));
 
-        public static IFileNode GetFileNodeForBuffer(ITextBuffer buffer) { return handler.GetFileNodeForBufferImpl(buffer); }
+        public static IFileNode GetFileNodeForBuffer(ITextBuffer buffer) { return Handler.GetFileNodeForBufferImpl(buffer); }
 
-        public static IProjectManager GetProjectManagerForFile(string filePath) { return handler.GetProjectManagerForFileImpl(filePath); }
+        public static IProjectManager GetProjectManagerForFile(string filePath) { return Handler.GetProjectManagerForFileImpl(filePath); }
 
-        public static IFileNode GetFileNodeForView(IVsTextView view) { return handler.GetFileNodeForViewImpl(view);}
+        public static IFileNode GetFileNodeForView(IVsTextView view) { return Handler.GetFileNodeForViewImpl(view);}
 
-        public static ITextBuffer GetBufferForVsBuffer(IVsTextBuffer buffer) { return handler.GetBufferForVsBufferImpl(buffer); }
+        public static ITextBuffer GetBufferForVsBuffer(IVsTextBuffer buffer) { return Handler.GetBufferForVsBufferImpl(buffer); }
 
         public static string BinPath
         {
@@ -57,7 +59,7 @@ namespace Hill30.BooProject
             }
         }
 
-        private static readonly GlobalServices handler = new GlobalServices();
+        private static readonly GlobalServices Handler = new GlobalServices();
 
         private GlobalServices()
         {
