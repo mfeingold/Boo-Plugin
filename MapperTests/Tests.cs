@@ -5,6 +5,7 @@ using Hill30.Boo.ASTMapper;
 using Hill30.Boo.ASTMapper.AST.Nodes;
 using NUnit.Framework;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Package;
 
 namespace MapperTests
 {
@@ -158,6 +159,12 @@ print a"
             Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
             Assert.AreEqual("struct bool", mToken.GetDataTiptext(out ts));
             Assert.AreEqual(ts, expected);
+
+            mToken.Goto(out ts);
+            TokenInfo ti = new TokenInfo();
+            ParseReason pr = new ParseReason();
+            mToken.GetDeclarations(ti, pr);
+
         }
 
         [Test]
@@ -180,6 +187,11 @@ print a"
             Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
             Assert.AreEqual("(local variable) c as char", mToken.GetDataTiptext(out ts));
             Assert.AreEqual(ts, expected);
+
+            mToken.Goto(out ts);
+            TokenInfo ti = new TokenInfo();
+            ParseReason pr = new ParseReason();
+            mToken.GetDeclarations(ti, pr);
         }
 
         [Test]
@@ -203,6 +215,11 @@ print a"
             Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
             Assert.AreEqual("(local variable) f as single", mToken.GetDataTiptext(out ts));
             Assert.AreEqual(ts, expected);
+
+            mToken.Goto(out ts);
+            TokenInfo ti = new TokenInfo();
+            ParseReason pr = new ParseReason();
+            mToken.GetDeclarations(ti, pr);
         }
 
 
@@ -245,6 +262,12 @@ class Class:
             Assert.IsInstanceOf(typeof(MappedAttribute), (mToken.Nodes[1]));
             Assert.AreEqual(Formats.BooType, mToken.Nodes[1].Format);
 //            Assert.AreEqual("class System.Serializable", mToken.Nodes[1].QuickInfoTip);
+            TextSpan ts = new TextSpan();
+
+            mToken.Goto(out ts);
+            TokenInfo ti = new TokenInfo();
+            ParseReason pr = new ParseReason();
+            mToken.GetDeclarations(ti, pr);
         }
 
         [Test]
