@@ -81,9 +81,9 @@ namespace Hill30.BooProject
         {
             base.Initialize();
 
-            RegisterProjectFactory(new Project.BooProjectFactory(this));
-
             LanguageService.BooLanguageService.Register(this);
+
+            RegisterProjectFactory(new Project.BooProjectFactory(this));
 
             // Add our command handlers for menu (commands must exist in the .vsct file)
             var mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
