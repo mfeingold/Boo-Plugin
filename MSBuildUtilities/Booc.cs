@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -161,77 +163,126 @@ namespace Hill30.Boo.MSBuildUtilities
             commandLine.AppendSwitchIfNotNull("-warn:", OptionalWarnings);
             commandLine.AppendSwitchIfNotNull("-platform:", Platform);
 		
-		if (TreatWarningsAsErrors)
-			commandLine.AppendSwitch("-warnaserror"); // all warnings are errors
-		else
-			commandLine.AppendSwitchIfNotNull("-warnaserror:", WarningsAsErrors); // only specific warnings are errors
+		    if (TreatWarningsAsErrors)
+			    commandLine.AppendSwitch("-warnaserror"); // all warnings are errors
+		    else
+			    commandLine.AppendSwitchIfNotNull("-warnaserror:", WarningsAsErrors); // only specific warnings are errors
 		
-		if (NoLogo)
-		    commandLine.AppendSwitch("-nologo");
+		    if (NoLogo)
+		        commandLine.AppendSwitch("-nologo");
 
-		if (NoConfig)
-		    commandLine.AppendSwitch("-noconfig");
+		    if (NoConfig)
+		        commandLine.AppendSwitch("-noconfig");
 
-		if (NoStandardLib)
-		    commandLine.AppendSwitch("-nostdlib");
+		    if (NoStandardLib)
+		        commandLine.AppendSwitch("-nostdlib");
 
-		if (DelaySign)
-		    commandLine.AppendSwitch("-delaysign");
+		    if (DelaySign)
+		        commandLine.AppendSwitch("-delaysign");
 
-		if (WhiteSpaceAgnostic)
-		    commandLine.AppendSwitch("-wsa");
+		    if (WhiteSpaceAgnostic)
+		        commandLine.AppendSwitch("-wsa");
 
-		if (Ducky)
-		    commandLine.AppendSwitch("-ducky");
+		    if (Ducky)
+		        commandLine.AppendSwitch("-ducky");
 
-		if (Utf8Output)
-		    commandLine.AppendSwitch("-utf8");
+		    if (Utf8Output)
+		        commandLine.AppendSwitch("-utf8");
 
-		if (Strict)
-		    commandLine.AppendSwitch("-strict");
+		    if (Strict)
+		        commandLine.AppendSwitch("-strict");
 
-		if (AllowUnsafeBlocks)
-		    commandLine.AppendSwitch("-unsafe");
+		    if (AllowUnsafeBlocks)
+		        commandLine.AppendSwitch("-unsafe");
 
-        commandLine.AppendSwitch(EmitDebugInformation ? "-debug+" : "-debug-");
+            commandLine.AppendSwitch(EmitDebugInformation ? "-debug+" : "-debug-");
 
-        commandLine.AppendSwitch(CheckForOverflowUnderflow ? "-checked+" : "-checked-");
+            commandLine.AppendSwitch(CheckForOverflowUnderflow ? "-checked+" : "-checked-");
 
-		foreach (var rsp in ResponseFiles)
-			commandLine.AppendSwitchIfNotNull("@", rsp.ItemSpec);				
+		    foreach (var rsp in ResponseFiles)
+			    commandLine.AppendSwitchIfNotNull("@", rsp.ItemSpec);				
 
-		foreach (var reference in References)
-			commandLine.AppendSwitchIfNotNull("-r:", reference.ItemSpec);
+		    foreach (var reference in References)
+			    commandLine.AppendSwitchIfNotNull("-r:", reference.ItemSpec);
 				
-		foreach (var resource in Resources)
-			commandLine.AppendSwitchIfNotNull("-resource:", resource.ItemSpec);
+		    foreach (var resource in Resources)
+			    commandLine.AppendSwitchIfNotNull("-resource:", resource.ItemSpec);
 		
-		if (!String.IsNullOrEmpty(Verbosity) )
-            switch (Verbosity.ToLower())
-            {
-                case "normal":
-                    break;
-                case "warning":
-                    commandLine.AppendSwitch("-v");
-                    break;
-                case "info":
-                    commandLine.AppendSwitch("-vv");
-                    break;
-                case "verbose":
-                    commandLine.AppendSwitch("-vvv");
-                    break;
-                default:
-                    Log.LogErrorWithCodeFromResources(
-                        "Vbc.EnumParameterHasInvalidValue",
-                        "Verbosity",
-                        Verbosity,
-                        "Normal, Warning, Info, Verbose");
-                    break;
-            }
+		    if (!String.IsNullOrEmpty(Verbosity) )
+                switch (Verbosity.ToLower())
+                {
+                    case "normal":
+                        break;
+                    case "warning":
+                        commandLine.AppendSwitch("-v");
+                        break;
+                    case "info":
+                        commandLine.AppendSwitch("-vv");
+                        break;
+                    case "verbose":
+                        commandLine.AppendSwitch("-vvv");
+                        break;
+                    default:
+                        Log.LogErrorWithCodeFromResources(
+                            "Vbc.EnumParameterHasInvalidValue",
+                            "Verbosity",
+                            Verbosity,
+                            "Normal, Warning, Info, Verbose");
+                        break;
+                }
 
             commandLine.AppendFileNamesIfNotNull(Sources, " ");
 
             return commandLine.ToString();
         }
+
+        private Regex errorPattern =
+            new Regex(
+                "^(((?<file>.*?)\\((?<line>\\d+),(?<column>\\d+)\\): )?" +
+                "(?<code>BCE\\d{4})|(?<errorType>Fatal) error):" +
+                "( Boo.Lang.Compiler.CompilerError:)?" +
+                " (?<message>.*?)($| --->)",
+                RegexOptions.Compiled |
+                RegexOptions.ExplicitCapture |
+                RegexOptions.Multiline);
+
+        protected override void LogEventsFromTextOutput(string singleLine, MessageImportance messageImportance)
+        {
+            switch (messageImportance)
+            {
+                case MessageImportance.Normal:
+                    var errorPatternMatch = errorPattern.Match(singleLine);
+                    if (errorPatternMatch.Success)
+                    {
+                        var code = errorPatternMatch.Groups["code"].Value;
+                        if (string.IsNullOrEmpty(code))
+                            code = "BCE0000";
+                        var file = errorPatternMatch.Groups["file"].Value;
+                        if (string.IsNullOrEmpty(file))
+                            file = "BOOC";
+                        int lineNumber;
+                        if (!int.TryParse(errorPatternMatch.Groups["line"].Value, out lineNumber))
+                            lineNumber = 0;
+                        int columnNumber;
+                        if (!int.TryParse(errorPatternMatch.Groups["column"].Value, out columnNumber))
+                            columnNumber = 0;
+                        Log.LogError(
+                            errorPatternMatch.Groups["errorType"].Value.ToLower(),
+                            code,
+                            null,
+                            file,
+                            lineNumber,
+                            columnNumber,
+                            0,
+                            0,
+                            errorPatternMatch.Groups["message"].Value
+                            );
+                    }
+                    break;
+            }
+            base.LogEventsFromTextOutput(singleLine, messageImportance);
+        }
+
+        //override 
     }
 }

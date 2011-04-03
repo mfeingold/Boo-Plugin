@@ -215,6 +215,10 @@
     <Resource Include="Resources\BooISh.bmp" />
     <Resource Include="Resources\imagelis.bmp" />
     <None Include="Resources\301.bmp" />
+    <Content Include="Boo_files\booc.exe">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Boo_files\boocNET35.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

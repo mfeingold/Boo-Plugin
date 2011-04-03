@@ -37,17 +37,14 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Boo.Lang, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\BooProject\Boo_files\Boo.Lang.dll</HintPath>
+    <Reference Include="Boo.Lang">
+      <HintPath>..\VSPackage\Boo_files\Boo.Lang.dll</HintPath>
     </Reference>
-    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\BooProject\Boo_files\Boo.Lang.Compiler.dll</HintPath>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>..\VSPackage\Boo_files\Boo.Lang.Compiler.dll</HintPath>
     </Reference>
-    <Reference Include="Boo.Lang.Parser, Version=2.0.9.3, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\BooProject\Boo_files\Boo.Lang.Parser.dll</HintPath>
+    <Reference Include="Boo.Lang.Parser">
+      <HintPath>..\VSPackage\Boo_files\Boo.Lang.Parser.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.CoreUtility, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
