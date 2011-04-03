@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSPackage_UnitTests", "VSPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoocNET35", "BoocNET35\BoocNET35.csproj", "{1C2A9894-0085-4C4D-8BA8-999EF7FD9A51}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoocNET40", "BoocNET40\BoocNET40.csproj", "{279A77C4-C249-4C5F-9C20-CBA176F23B8F}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = VSPackage.vsmdi
@@ -118,6 +120,16 @@ Global
 		{1C2A9894-0085-4C4D-8BA8-999EF7FD9A51}.Release|Mixed Platforms.Build.0 = Release|x86
 		{1C2A9894-0085-4C4D-8BA8-999EF7FD9A51}.Release|x86.ActiveCfg = Release|x86
 		{1C2A9894-0085-4C4D-8BA8-999EF7FD9A51}.Release|x86.Build.0 = Release|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Debug|x86.ActiveCfg = Debug|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Debug|x86.Build.0 = Debug|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Release|Any CPU.ActiveCfg = Release|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Release|Mixed Platforms.Build.0 = Release|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Release|x86.ActiveCfg = Release|x86
+		{279A77C4-C249-4C5F-9C20-CBA176F23B8F}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
