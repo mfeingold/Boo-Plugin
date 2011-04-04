@@ -6,7 +6,7 @@
 	
 	<UsingTask
 		TaskName="Hill30.Boo.MSBuildUtilities.Booc"
-		AssemblyFile="MSBuildUtilities.dll"/>
+		AssemblyFile="Boo.MSBuildUtilities.dll"/>
 	
 	<UsingTask
 		TaskName="Boo.Microsoft.Build.Tasks.ExecBoo"

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using booc;
+﻿using booc;
 
-namespace BoocNET35
+namespace boocNET40
 {
     class Program
     {

@@ -6,6 +6,6 @@
 *.user
 _ReSharper.BooProject/*
 TestResults/*
-VSPackage/Boo_files/MSBuildUtilities.*
-VSPackage/Boo_files/BoocNET35.*
-VSPackage/Boo_files/BoocNET40.*
+VSPackage/Boo_files/Boo.MSBuildUtilities.*
+VSPackage/Boo_files/boocNET35.*
+VSPackage/Boo_files/boocNET40.*

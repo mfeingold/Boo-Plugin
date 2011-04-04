@@ -225,7 +225,7 @@
     <Content Include="Boo_files\boocNET40.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Boo_files\MSBuildUtilities.dll">
+    <Content Include="Boo_files\Boo.MSBuildUtilities.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Resources\Package.ico" />

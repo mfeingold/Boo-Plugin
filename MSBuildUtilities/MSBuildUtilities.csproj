@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Hill30.Boo.MSBuildUtilities</RootNamespace>
-    <AssemblyName>MSBuildUtilities</AssemblyName>
+    <AssemblyName>Boo.MSBuildUtilities</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

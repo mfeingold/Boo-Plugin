@@ -78,11 +78,20 @@ namespace Hill30.Boo.MSBuildUtilities
 
         [Output]
         public ITaskItem OutputAssembly { get; set; }
-        
+
+        private string pipeline;
+
         /// <summary>
         /// Gets/sets a specific pipeline to add to the compiler process.
         /// </summary>
-        public string Pipeline { get; set; }
+        public string Pipeline
+        {
+            get 
+            { 
+                return pipeline ?? AssemblyName + ".PipeLine" + ", " + AssemblyName + ", Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"; 
+            }
+            set { pipeline = value; }
+        }
 
         /// <summary>
         ///Specifies target platform.
@@ -143,7 +152,12 @@ namespace Hill30.Boo.MSBuildUtilities
 
         protected override string ToolName
         {
-            get { return TargetFrameworkVersion == "v4.0" ? "boocNET40.exe" : "boocNET35.exe"; }
+            get { return AssemblyName + ".exe"; }
+        }
+
+        private string AssemblyName
+        {
+            get { return TargetFrameworkVersion == "v4.0" ? "boocNET40" : "boocNET35"; }
         }
 
         protected override string GenerateCommandLineCommands()
