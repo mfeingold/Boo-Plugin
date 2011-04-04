@@ -113,7 +113,7 @@ namespace Hill30.Boo.MSBuildUtilities
 
         public string TargetType { get; set; }
 
-        public string TargetFramework { get; set; }
+        public string TargetFrameworkVersion { get; set; }
 
         public bool TreatWarningsAsErrors { get; set; }
 
@@ -143,7 +143,7 @@ namespace Hill30.Boo.MSBuildUtilities
 
         protected override string ToolName
         {
-            get { return "boocNET35.exe"; }
+            get { return TargetFrameworkVersion == "v4.0" ? "boocNET40.exe" : "boocNET35.exe"; }
         }
 
         protected override string GenerateCommandLineCommands()
@@ -236,7 +236,35 @@ namespace Hill30.Boo.MSBuildUtilities
             return commandLine.ToString();
         }
 
-        private Regex errorPattern =
+        /// <summary>
+        /// Captures the file, line, column, code, and message from a BOO warning
+        /// in the form of: Program.boo(1,1): BCW0000: WARNING: This is a warning.
+        /// </summary>
+        private Regex warningPattern = 
+            new Regex(
+                "^(?<file>.*?)(\\((?<line>\\d+),(?<column>\\d+)\\):)?" +
+                "(\\s?)(?<code>BCW\\d{4}):(\\s)WARNING:(\\s)(?<message>.*)$",
+                RegexOptions.Compiled);
+
+        /// <summary>
+        /// Captures the file, line, column, code, error type, and message from a
+        /// BOO error of the form of:
+        /// 1. Program.boo(1,1): BCE0000: This is an error.
+        /// 2. Program.boo(1,1): BCE0000: Boo.Lang.Compiler.CompilerError:
+        ///            This is an error. ---> Program.boo:4:19: This is an error
+        /// 3. BCE0000: This is an error.
+        /// 4. Fatal error: This is an error.
+        ///
+        ///  The second line of the following error format is not cought because 
+        /// .NET does not support if|then|else in regular expressions,
+        ///  and the regex will be horrible complicated.  
+        ///  The second line is as worthless as the first line.
+        ///  Therefore, it is not worth implementing it.
+        ///
+        ///            Fatal error: This is an error.
+        ///            Parameter name: format.
+        /// </summary>
+        private readonly Regex errorPattern =
             new Regex(
                 "^(((?<file>.*?)\\((?<line>\\d+),(?<column>\\d+)\\): )?" +
                 "(?<code>BCE\\d{4})|(?<errorType>Fatal) error):" +
@@ -251,8 +279,29 @@ namespace Hill30.Boo.MSBuildUtilities
             switch (messageImportance)
             {
                 case MessageImportance.Normal:
+                    var warningPatternMatch = warningPattern.Match(singleLine);
                     var errorPatternMatch = errorPattern.Match(singleLine);
-                    if (errorPatternMatch.Success)
+                    if (warningPatternMatch.Success)
+                    {
+                        int lineNumber;
+                        if (!int.TryParse(warningPatternMatch.Groups["line"].Value, out lineNumber))
+                            lineNumber = 0;
+                        int columnNumber;
+                        if (!int.TryParse(warningPatternMatch.Groups["column"].Value, out columnNumber))
+                            columnNumber = 0;
+                        Log.LogWarning(
+                            null,
+                            warningPatternMatch.Groups["code"].Value,
+                            null,
+                            warningPatternMatch.Groups["file"].Value,
+                            lineNumber,
+                            columnNumber,
+                            0,
+                            0,
+                            warningPatternMatch.Groups["message"].Value
+                            );
+                    }
+                    else if (errorPatternMatch.Success)
                     {
                         var code = errorPatternMatch.Groups["code"].Value;
                         if (string.IsNullOrEmpty(code))

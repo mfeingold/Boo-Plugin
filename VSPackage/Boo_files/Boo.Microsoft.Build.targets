@@ -243,6 +243,7 @@
 			SourceDirectory="$(SourceDirectory)"
 			Sources="@(Compile)"
 			Strict="$(Strict)"
+      TargetFrameworkVersion="$(TargetFrameworkVersion)"
 			TargetType="$(OutputType)"
 			ToolPath="$(BoocToolPath)"
 			TreatWarningsAsErrors="$(TreatWarningsAsErrors)"

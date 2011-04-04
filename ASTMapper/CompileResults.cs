@@ -269,7 +269,10 @@ namespace Hill30.Boo.ASTMapper
 
         public void MapMessage(CompilerWarning warning)
         {
-            messages.Add(new CompilerMessage(warning.LexicalInfo, warning.Code, warning.Message, TaskErrorCategory.Warning));
+            var message = warning.Message;
+            if (message.StartsWith("WARNING: "))
+                message = message.Substring("WARNING: ".Length);
+            messages.Add(new CompilerMessage(warning.LexicalInfo, warning.Code, message, TaskErrorCategory.Warning));
         }
 
         public MappedToken GetAdjacentMappedToken(int line, int column)
