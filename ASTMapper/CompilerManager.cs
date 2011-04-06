@@ -13,24 +13,32 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Boo.Lang.Compiler;
+using Boo.Lang.Environments;
+using Boo.Lang.Parser;
 
 namespace Hill30.Boo.ASTMapper
 {
     public static class CompilerManager
     {
-        public static void Compile(IEnumerable<Assembly> assemblies, IEnumerable<CompileResults> codeFiles)
+        public static void Compile(int tabSize, IEnumerable<Assembly> assemblies, IEnumerable<CompileResults> codeFiles)
         {
 
             var pipeline = CompilerPipeline.GetPipeline("compile");
             pipeline.BreakOnErrors = false;
             var compiler = new BooCompiler(new CompilerParameters(false) { Pipeline = pipeline });
 
-            //            ((BooParsingStep)compiler.Parameters.Pipeline[0]).TabSize = GlobalServices.LanguageService.GetLanguagePreferences().TabSize;
+            //            ((BooParsingStep)compiler.Parameters.Pipeline[0]).TabSize = 
 
+            compiler.Parameters.Environment =
+                 new ClosedEnvironment(
+                     new ParserSettings
+                         {
+                             TabSize= tabSize
+                         });            
+            
             compiler.Parameters.Input.Clear();
             compiler.Parameters.References.Clear();
 

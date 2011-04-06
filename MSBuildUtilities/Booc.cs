@@ -220,7 +220,15 @@ namespace Hill30.Boo.MSBuildUtilities
 			    commandLine.AppendSwitchIfNotNull("-r:", reference.ItemSpec);
 				
 		    foreach (var resource in Resources)
-			    commandLine.AppendSwitchIfNotNull("-resource:", resource.ItemSpec);
+                switch (resource.GetMetadata("Type"))
+                {
+                    case "Resx":
+                        commandLine.AppendSwitchIfNotNull("-resource:", resource.ItemSpec + "," + resource.GetMetadata("LogicalName"));
+                        break;
+                    case "Non-Resx":
+                        commandLine.AppendSwitchIfNotNull("-embedres:", resource.ItemSpec + "," + resource.GetMetadata("LogicalName"));
+                        break;
+                }
 		
 		    if (!String.IsNullOrEmpty(Verbosity) )
                 switch (Verbosity.ToLower())

@@ -155,30 +155,48 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Boo_files\boo.exe">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Boo_files\Boo.Lang.CodeDom.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Boo_files\Boo.Lang.Compiler.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Boo_files\Boo.Lang.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Boo_files\Boo.Lang.Extensions.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Boo_files\Boo.Lang.Interpreter.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Boo_files\Boo.Lang.Parser.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Boo_files\Boo.Microsoft.Build.Tasks.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="Boo_files\Boo.Lang.PatternMatching.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Boo_files\Boo.Lang.Useful.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Boo_files\Boo.Microsoft.Build.targets">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
       <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Boo_files\booc.exe.config">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Boo_files\booc.rsp">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Boo_files\booi.exe.config">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Boo_files\booish.exe.config">
+      <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
@@ -215,9 +233,11 @@
     <Resource Include="Resources\BooISh.bmp" />
     <Resource Include="Resources\imagelis.bmp" />
     <None Include="Resources\301.bmp" />
+    <Content Include="Boo_files\Boo.NAnt.Tasks.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Boo_files\booc.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Boo_files\boocNET35.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -226,6 +246,12 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Boo_files\Boo.MSBuildUtilities.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Boo_files\booi.exe">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Boo_files\booish.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Resources\Package.ico" />

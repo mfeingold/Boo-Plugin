@@ -197,7 +197,10 @@ namespace Hill30.BooProject.Compilation
                 else
                     results.Add(file, file.GetCompileResults());
 
-            Boo.ASTMapper.CompilerManager.Compile(references.Values.Select(ae => ae.GetAssembly(typeResolver.GetAssembly)).Where(a => a != null), results.Values);
+            Boo.ASTMapper.CompilerManager.Compile(            
+                GlobalServices.LanguageService.GetLanguagePreferences().TabSize,
+                references.Values.Select(ae => ae.GetAssembly(typeResolver.GetAssembly)).Where(a => a != null), 
+                results.Values);
 
             foreach (var result in results)
                 result.Key.SetCompilerResults(result.Value);

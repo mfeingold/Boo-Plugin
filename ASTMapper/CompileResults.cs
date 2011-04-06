@@ -119,8 +119,7 @@ namespace Hill30.Boo.ASTMapper
             antlr.IToken token;
             while ((token = NextToken(tokens)).Type != BooLexer.EOF)
             {
-                int length;
-
+                Tuple<int, int> endPoint;
                 switch (token.Type)
                 {
                     case BooLexer.INDENT:
@@ -129,33 +128,18 @@ namespace Hill30.Boo.ASTMapper
                         continue;
                     case BooLexer.SINGLE_QUOTED_STRING:
                     case BooLexer.DOUBLE_QUOTED_STRING:
-                        length = token.getText().Length + 2;
+                        endPoint = CalculateEndpoint(token, endLine, endIndex, 1);
                         break;
                     case BooLexer.TRIPLE_QUOTED_STRING:
-                        length = token.getText().Length + 6;
+                        endPoint = CalculateEndpoint(token, endLine, endIndex, 3);
                         break;
                     default:
-                        length = token.getText().Length;
+                        endPoint = CalculateEndpoint(token, endLine, endIndex, 0);
                         break;
                 }
 
-                var startIndex = positionMap[token.getLine() - 1][token.getColumn() - 1];
-                var startLine = token.getLine() - 1;
-
-                if (startLine > endLine || startLine == endLine && startIndex > endIndex)
-                    whitespaces.Add(new TextSpan { iStartLine = endLine, iStartIndex = endIndex, iEndLine = startLine, iEndIndex = startIndex });
-
-                endIndex = positionMap[token.getLine() - 1][token.getColumn() - 1 + length];
-                endLine = startLine;
-
-                var cluster = new MappedToken(
-                    startLine * lineSize + startIndex,
-                    endIndex - startIndex);
-
-                if (tokenMap.Count > 0
-                    && tokenMap[tokenMap.Count() - 1].Index >= cluster.Index)
-                    throw new ArgumentException("Token Mapping order");
-                tokenMap.Add(cluster);
+                endLine = endPoint.Item1;
+                endIndex = endPoint.Item2;
             }
 
             var sIndex = positionMap[token.getLine() - 1][token.getColumn() - 1];
@@ -163,6 +147,40 @@ namespace Hill30.Boo.ASTMapper
 
             if (sLine > endLine || sLine == endLine && sIndex > endIndex)
                 whitespaces.Add(new TextSpan { iStartLine = endLine, iStartIndex = endIndex, iEndLine = sLine, iEndIndex = sIndex });
+        }
+
+        private Tuple<int, int> CalculateEndpoint(antlr.IToken token, int endLine, int endIndex, int delimiterLength)
+        {
+            var startIndex = positionMap[token.getLine() - 1][token.getColumn() - 1];
+            var startLine = token.getLine() - 1;
+
+            if (startLine > endLine || startLine == endLine && startIndex > endIndex)
+                whitespaces.Add(new TextSpan { iStartLine = endLine, iStartIndex = endIndex, iEndLine = startLine, iEndIndex = startIndex });
+
+            endLine = startLine - 1;
+            endIndex = 0; 
+
+            var runningIndex = startIndex + delimiterLength;
+            foreach (var part in token.getText().Split(new[] { "\r\n" }, StringSplitOptions.None)) 
+            {
+                endLine++;
+                endIndex = runningIndex + part.Length;
+                runningIndex = 0;
+            }
+            endIndex += delimiterLength;
+
+            //endIndex = positionMap[endLine][endIndex];
+
+            var cluster = new MappedToken(
+                startLine * lineSize + startIndex,
+                endIndex - startIndex);
+
+            if (tokenMap.Count > 0
+                && tokenMap[tokenMap.Count() - 1].Index >= cluster.Index)
+                throw new ArgumentException("Token Mapping order");
+
+            tokenMap.Add(cluster);
+            return new Tuple<int, int>(endLine, endIndex);
         }
 
         public struct BufferPoint
@@ -389,11 +407,13 @@ namespace Hill30.Boo.ASTMapper
 
         public void SetupForCompilation(CompilerParameters compilerParameters)
         {
-                if (CompileUnit == null)
-                    compilerParameters.Input.Add(new StringInput(urlGetter(), sourceGetter()));
-                else
-                    compilerParameters.References.Add(CompileUnit);
-            Initialize();
+            if (CompileUnit != null)
+                compilerParameters.References.Add(CompileUnit);
+            else
+            {
+                compilerParameters.Input.Add(new StringInput(urlGetter(), sourceGetter()));
+                Initialize();
+            }
         }
     }
 

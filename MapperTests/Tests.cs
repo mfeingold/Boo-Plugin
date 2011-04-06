@@ -18,7 +18,7 @@ namespace MapperTests
                 () => source,
                 () => 4
                 );
-            CompilerManager.Compile(new[] { typeof(SerializableAttribute).Assembly }, new[] { results });
+            CompilerManager.Compile(4, new[] { typeof(SerializableAttribute).Assembly }, new[] { results });
             return results;
         }
 
