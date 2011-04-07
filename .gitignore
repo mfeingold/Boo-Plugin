@@ -4,7 +4,7 @@
 */*/bin
 */*/obj
 *.user
-_ReSharper.BooProject/*
+_ReSharper.VisualBoo/*
 TestResults/*
 VSPackage/Boo_files/Boo.MSBuildUtilities.*
 VSPackage/Boo_files/boocNET35.*
