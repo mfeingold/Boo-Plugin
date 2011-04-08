@@ -117,7 +117,10 @@ namespace Hill30.BooProject.LanguageService
 
         public override Source CreateSource(IVsTextLines buffer)
         {
-            return new BooSource(this, buffer, GetColorizer(buffer)) {LastParseTime = 0};
+            var filePath = FilePathUtilities.GetFilePath(buffer);
+            if (GlobalServices.GetProjectManagerForFile(filePath) == null)
+                return base.CreateSource(buffer);
+            return new BooSource(this, filePath, buffer, GetColorizer(buffer)) {LastParseTime = 0};
         }
 
         public override AuthoringScope ParseSource(ParseRequest req)

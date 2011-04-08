@@ -26,11 +26,11 @@ namespace Hill30.BooProject.LanguageService
         private readonly IFileNode fileNode;
         private readonly IProjectManager projectManager;
 
-        public BooSource(BooLanguageService service, IVsTextLines buffer, Microsoft.VisualStudio.Package.Colorizer colorizer)
+        public BooSource(BooLanguageService service, string filePath, IVsTextLines buffer, Microsoft.VisualStudio.Package.Colorizer colorizer)
             : base(service, buffer, colorizer)
         {
-            projectManager = GlobalServices.GetProjectManagerForFile(GetFilePath());
-            fileNode = projectManager.GetFileNode(GetFilePath());
+            projectManager = GlobalServices.GetProjectManagerForFile(filePath);
+            fileNode = projectManager.GetFileNode(filePath);
             fileNode.ShowMessages();
             fileNode.Recompiled +=
                 (sender, eventArgs) => service.Invoke(

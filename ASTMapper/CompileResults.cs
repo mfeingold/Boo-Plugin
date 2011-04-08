@@ -125,6 +125,7 @@ namespace Hill30.Boo.ASTMapper
                     case BooLexer.INDENT:
                     case BooLexer.DEDENT:
                     case BooLexer.EOL:
+                    case BooLexer.ESEPARATOR:
                         continue;
                     case BooLexer.SINGLE_QUOTED_STRING:
                     case BooLexer.DOUBLE_QUOTED_STRING:
