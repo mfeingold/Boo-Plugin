@@ -20,13 +20,6 @@ namespace Hill30.Boo.ASTMapper.AST.Walkers
             base.OnParameterDeclaration(node);
         }
 
-        public override void OnLocal(Local node)
-        {
-            if (node.LexicalInfo != null)
-                results.MapParsedNode(new MappedVariableDefinition(results, node));
-            base.OnLocal(node);
-        }
-
         public override void OnField(Field node)
         {
             if (node.LexicalInfo != null)

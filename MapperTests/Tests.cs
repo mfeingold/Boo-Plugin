@@ -53,7 +53,7 @@ namespace MapperTests
             var expected = new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 0, iEndIndex = 1};
 
             Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
+            Assert.AreEqual(3, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
             Assert.AreEqual("(local variable) a as int", mToken.GetDataTiptext(out ts));
             Assert.AreEqual(ts, expected);
@@ -107,13 +107,12 @@ print a"
 
             var mToken = results.GetMappedToken(0, 5);
             TextSpan ts;
-            var expected = new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 11};
 
             Assert.NotNull(mToken);
             Assert.AreEqual(2, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
             Assert.AreEqual("class string", mToken.GetDataTiptext(out ts));
-            Assert.AreEqual(ts, expected);
+            Assert.AreEqual(new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 11}, ts);
         }
 
         [Test]
@@ -125,23 +124,33 @@ print a"
 
             var mToken = results.GetMappedToken(0, 5);
             TextSpan ts;
-            var expected = new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 9};
 
             Assert.NotNull(mToken);
             Assert.AreEqual(2, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
             Assert.AreEqual("struct bool", mToken.GetDataTiptext(out ts));
-            Assert.AreEqual(ts, expected);
-
-            mToken.Goto(out ts);
-            var ti = new TokenInfo();
-            ParseReason pr = new ParseReason();
-            mToken.GetDeclarations(ti, pr);
-
+            Assert.AreEqual(new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 9}, ts);
         }
 
         [Test]
-        public void CharVariableDeclaration()
+        public void CharTypeReference()
+        {
+            var results = RunCompiler(
+@"a as char"
+                );
+
+            var mToken = results.GetMappedToken(0, 5);
+            TextSpan ts;
+
+            Assert.NotNull(mToken);
+            Assert.AreEqual(2, mToken.Nodes.Count);
+            Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
+            Assert.AreEqual("struct char", mToken.GetDataTiptext(out ts));
+            Assert.AreEqual(new TextSpan { iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 9 }, ts);
+        }
+
+        [Test]
+        public void CharImplicitVariableDeclaration()
         {
             var results = RunCompiler(
 @"c = char('a')"
@@ -149,18 +158,40 @@ print a"
 
             var mToken = results.GetMappedToken(0, 0);
             TextSpan ts;
-            var expected = new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 0, iEndIndex = 1};
+            char c;
+            
+            Assert.NotNull(mToken);
+            Assert.AreEqual(3, mToken.Nodes.Count);
+            Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
+            Assert.AreEqual("(local variable) c as char", mToken.GetDataTiptext(out ts));
+            Assert.AreEqual(new TextSpan { iStartLine = 0, iEndLine = 0, iStartIndex = 0, iEndIndex = 1 }, ts);
+
+            Assert.AreEqual(@"C:\Hill30\Boo Plugin\MapperTests\bin\Debug\Test", mToken.Goto(out ts));
+            Assert.AreEqual(new TextSpan { iStartLine = 0, iEndLine = 0, iStartIndex = 0, iEndIndex = 1 }, ts);
+            var declarations = mToken.GetDeclarations(new TokenInfo(), new ParseReason());
+            Assert.AreEqual(6, declarations.GetCount());
+        }
+
+        [Test]
+        public void CharExplicitVariableDeclaration()
+        {
+            var results = RunCompiler(
+@"c as char
+c = char('a')"
+                );
+
+            var mToken = results.GetMappedToken(1, 0);
 
             Assert.NotNull(mToken);
             Assert.AreEqual(2, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
+            TextSpan ts;
             Assert.AreEqual("(local variable) c as char", mToken.GetDataTiptext(out ts));
-            Assert.AreEqual(ts, expected);
+            Assert.AreEqual(new TextSpan { iStartLine = 1, iEndLine = 1, iStartIndex = 0, iEndIndex = 1 }, ts);
 
-            mToken.Goto(out ts);
-            TokenInfo ti = new TokenInfo();
-            ParseReason pr = new ParseReason();
-            mToken.GetDeclarations(ti, pr);
+            Assert.AreEqual(@"C:\Hill30\Boo Plugin\MapperTests\bin\Debug\Test", mToken.Goto(out ts));
+            Assert.AreEqual(new TextSpan { iStartLine = 0, iEndLine = 0, iStartIndex = 0, iEndIndex = 1 }, ts);
+            var declarations = mToken.GetDeclarations(new TokenInfo(), new ParseReason());
         }
 
         [Test]
@@ -176,7 +207,7 @@ print a"
             var expected = new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 0, iEndIndex = 1};
 
             Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
+            Assert.AreEqual(3, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
             Assert.AreEqual("(local variable) f as single", mToken.GetDataTiptext(out ts));
             Assert.AreEqual(ts, expected);
@@ -291,7 +322,7 @@ x = SWF.Form()"
             var expected = new TextSpan {iStartLine = 3, iEndLine = 3, iStartIndex = 0, iEndIndex = 1};
 
             Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
+            Assert.AreEqual(3, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
             Assert.AreEqual("(local variable) x as System.Windows.Forms.Form", mToken.GetDataTiptext(out ts));
             Assert.AreEqual(ts, expected);
@@ -312,7 +343,7 @@ doc = XmlDocument()"
             var expected = new TextSpan {iStartLine = 3, iEndLine = 3, iStartIndex = 0, iEndIndex = 3};
 
             Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
+            Assert.AreEqual(3, mToken.Nodes.Count);
             Assert.IsInstanceOf(typeof(MappedReferenceExpression), (mToken.Nodes[1]));
             Assert.AreEqual("(local variable) doc as System.Xml.XmlDocument", mToken.GetDataTiptext(out ts));
             Assert.AreEqual(ts, expected);
@@ -324,10 +355,10 @@ doc = XmlDocument()"
         {
             var results = RunCompiler(
 @"class Foo:
-    static final x = 3"
+    x = 3"
                 );
 
-            var mToken = results.GetMappedToken(1, 17);
+            var mToken = results.GetMappedToken(1, 4);
             TextSpan ts;
             var expected = new TextSpan {iStartLine = 1, iEndLine = 1, iStartIndex = 17, iEndIndex = 18};
             Assert.NotNull(mToken);
