@@ -60,26 +60,34 @@ namespace Hill30.Boo.ASTMapper
         public BooDeclarations(Node context, IType varType, bool instance)
         {
             if (varType != null)
+            {
                 foreach (var member in varType.GetMembers())
                 {
                     switch (member.EntityType)
                     {
                         case EntityType.Method:
-                            FormatMethod(context, (IMethod)member, instance);
+                            FormatMethod(context, (IMethod) member, instance);
                             break;
                         case EntityType.Property:
-                            FormatProperty(context, (IProperty)member, instance);
+                            FormatProperty(context, (IProperty) member, instance);
                             break;
                         case EntityType.Event:
-                            FormatEvent(context, (IEvent)member, instance);
+                            FormatEvent(context, (IEvent) member, instance);
                             break;
                         case EntityType.Field:
-                            FormatField(context, (IField)member, instance);
+                            FormatField(context, (IField) member, instance);
                             break;
                     }
                 }
-            //for (var i = 1000; i < 1300; i += 6)
-            //    list.Add("a" + i, new Declaration { DisplayText = "a" + i, ImageIndex = i - 1000 });
+                if (varType.BaseType != null)
+                {
+                    var nested = new BooDeclarations(context, varType.BaseType, instance);
+                    foreach (var declaration in nested.list.Where(declaration => !list.ContainsKey(declaration.Key)))
+                    {
+                        list.Add(declaration.Key, declaration.Value);
+                    }
+                }
+            }
         }
 
         private static bool IsContextPrivate(Node context, IType type)
@@ -204,7 +212,7 @@ namespace Hill30.Boo.ASTMapper
                     return;
                 }
 
-                var description = name + " as " + method.ReturnType;
+                var description = name + " as " + method.Name;
                 if (method.IsExtension)
                     description = "(extension) " + description;
 

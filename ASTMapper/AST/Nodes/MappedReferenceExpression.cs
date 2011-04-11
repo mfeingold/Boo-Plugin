@@ -139,7 +139,12 @@ namespace Hill30.Boo.ASTMapper.AST.Nodes
 
         protected internal override MappedNode DeclarationNode { get { return declarationNode; } }
 
-        public override BooDeclarations Declarations { get { return new BooDeclarations(Node, varType, !isTypeReference); } }
+        private BooDeclarations declarations;
+        
+        public override BooDeclarations Declarations
+        {
+            get { return declarations ?? (declarations = new BooDeclarations(Node, varType, !isTypeReference)); }
+        }
 
         internal override void Record(RecordingStage stage, MappedToken token)
         {
