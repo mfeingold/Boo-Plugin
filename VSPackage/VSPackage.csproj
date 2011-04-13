@@ -198,6 +198,9 @@
     <Content Include="Boo_files\booish.exe.config">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Boo_files\Boo.LanguageSetup.targets">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
