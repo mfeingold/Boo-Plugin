@@ -1,4 +1,5 @@
 ﻿using System;
+using Boo.Lang.Compiler.Ast;
 using Hill30.Boo.ASTMapper;
 using Hill30.Boo.ASTMapper.AST.Nodes;
 using NUnit.Framework;
@@ -20,25 +21,6 @@ namespace MapperTests
                 );
             CompilerManager.Compile(4, new[] { typeof(SerializableAttribute).Assembly }, new[] { results });
             return results;
-        }
-
-        [Test]
-        public void IntTypeReference()
-        {
-            var results = RunCompiler(
-@"a as int"
-                );
-
-            var mToken = results.GetMappedToken(0, 5);
-            TextSpan ts;
-            var expected = new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 8};
-
-            Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
-            Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
-            Assert.AreEqual(Formats.BooType, mToken.Nodes[1].Format);
-            Assert.AreEqual("struct int", mToken.GetDataTiptext(out ts));
-            Assert.AreEqual(ts, expected);
         }
 
         [Test]
@@ -96,57 +78,6 @@ print a"
             Assert.AreEqual(Formats.BooMacro, mToken.Nodes[1].Format);
             Assert.AreEqual("macro print", mToken.GetDataTiptext(out ts));
             Assert.AreEqual(ts, expected);
-        }
-
-        [Test]
-        public void StringTypeReference()
-        {
-            var results = RunCompiler(
-@"a as string"
-                );
-
-            var mToken = results.GetMappedToken(0, 5);
-            TextSpan ts;
-
-            Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
-            Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
-            Assert.AreEqual("class string", mToken.GetDataTiptext(out ts));
-            Assert.AreEqual(new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 11}, ts);
-        }
-
-        [Test]
-        public void BoolTypeReference()
-        {
-            var results = RunCompiler(
-@"a as bool"
-                );
-
-            var mToken = results.GetMappedToken(0, 5);
-            TextSpan ts;
-
-            Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
-            Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
-            Assert.AreEqual("struct bool", mToken.GetDataTiptext(out ts));
-            Assert.AreEqual(new TextSpan {iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 9}, ts);
-        }
-
-        [Test]
-        public void CharTypeReference()
-        {
-            var results = RunCompiler(
-@"a as char"
-                );
-
-            var mToken = results.GetMappedToken(0, 5);
-            TextSpan ts;
-
-            Assert.NotNull(mToken);
-            Assert.AreEqual(2, mToken.Nodes.Count);
-            Assert.IsInstanceOf(typeof(MappedTypeReference), (mToken.Nodes[1]));
-            Assert.AreEqual("struct char", mToken.GetDataTiptext(out ts));
-            Assert.AreEqual(new TextSpan { iStartLine = 0, iEndLine = 0, iStartIndex = 5, iEndIndex = 9 }, ts);
         }
 
         [Test]

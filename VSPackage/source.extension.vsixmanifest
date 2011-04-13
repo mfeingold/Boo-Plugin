@@ -3,7 +3,7 @@
   <Identifier Id="3ed37b82-3194-4ca8-96b4-d4e3feb8a35d">
     <Name>Visual Boo</Name>
     <Author>Hill30</Author>
-    <Version>0.5.0.3</Version>
+    <Version>0.6.0.0</Version>
     <Description xml:space="preserve">Allows using Visual Studio as an IDE for programming in Boo. 
 </Description>
     <Locale>1033</Locale>
