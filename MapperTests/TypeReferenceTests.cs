@@ -1,5 +1,4 @@
-﻿using System;
-using Boo.Lang.Compiler.Ast;
+﻿using Boo.Lang.Compiler.Ast;
 using Hill30.Boo.ASTMapper;
 using Microsoft.VisualStudio.TextManager.Interop;
 using NUnit.Framework;
@@ -7,60 +6,13 @@ using NUnit.Framework;
 namespace MapperTests
 {
     [TestFixture]
-    public class TypeReferenceTests
+    public class TypeReferenceTests : TestBase
     {
-        private static CompileResults RunCompiler(string source)
-        {
-            var results = new CompileResults(
-                () => "Test",
-                () => source,
-                () => 4
-                );
-            CompilerManager.Compile(4, new[] { typeof(SerializableAttribute).Assembly }, new[] { results });
-            return results;
-        }
-
-        // ReSharper disable InconsistentNaming
-        struct TypeReferenceTestData
-        {
-            public string source;
-            public SourceLocation location;
-            public string expectedFormat;
-            public string expectedDatatip;
-            public TextSpan expectedSpan;
-        }
-        // ReSharper restore InconsistentNaming
-
-        struct TestTextSpan
-        {
-// ReSharper disable InconsistentNaming
-            public TextSpan span;
-// ReSharper restore InconsistentNaming
-            public override string ToString()
-            {
-                return string.Format("start=({0},{1}) end=({2},{3})", span.iStartLine, span.iStartIndex, span.iEndLine, span.iEndIndex);
-            }
-        }
-
-
-        private static void TypeReferenceTest(TypeReferenceTestData testData)
-        {
-            var results = RunCompiler(testData.source);
-
-            var mToken = results.GetMappedToken(testData.location);
-            TextSpan ts;
-            Assert.NotNull(mToken);
-            Assert.Contains(testData.expectedFormat, mToken.Nodes.ConvertAll(n=>n.Format));
-            Assert.AreEqual(testData.expectedDatatip, mToken.GetDataTiptext(out ts));
-            Assert.AreEqual(testData.expectedSpan, ts, 
-                "Expected " + (new TestTextSpan{span = testData.expectedSpan}) + " but was " + (new TestTextSpan{span=ts}));
-        }
-
         [Test]
         public void IntTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "a as int",
                     location = new SourceLocation(1, 6),
@@ -74,8 +26,8 @@ namespace MapperTests
         [Test]
         public void StringTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "a as string",
                     location = new SourceLocation(1, 6),
@@ -89,8 +41,8 @@ namespace MapperTests
         [Test]
         public void BoolTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "a as bool",
                     location = new SourceLocation(1, 6),
@@ -104,8 +56,8 @@ namespace MapperTests
         [Test]
         public void CharTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "a as char",
                     location = new SourceLocation(1, 6),
@@ -119,8 +71,8 @@ namespace MapperTests
         [Test]
         public void RegularTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "a as System.Collections.ArrayList",
                     location = new SourceLocation(1, 6),
@@ -135,8 +87,8 @@ namespace MapperTests
         [Test]
         public void RegularTypeReferenceAbbreviated()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "import System.Collections\na as ArrayList",
                     location = new SourceLocation(2, 6),
@@ -150,8 +102,8 @@ namespace MapperTests
         [Test]
         public void GenericTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "import System.Collections.Generic\na as List[of int]",
                     location = new SourceLocation(2, 6),
@@ -166,8 +118,8 @@ namespace MapperTests
         [Test]
         public void GenericTypeParameterReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "import System.Collections.Generic\na as List[of int]",
                     location = new SourceLocation(2, 14),
@@ -181,8 +133,8 @@ namespace MapperTests
         [Test]
         public void BaseTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "class a(System.Exception)",
                     location = new SourceLocation(1, 10),
@@ -196,8 +148,8 @@ namespace MapperTests
         [Test]
         public void LocalTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "class aClass\na as aClass",
                     location = new SourceLocation(2, 6),
@@ -211,8 +163,8 @@ namespace MapperTests
         [Test]
         public void CastTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "i as int\no as object\ni=cast(int, o)",
                     location = new SourceLocation(3, 8),
@@ -226,14 +178,46 @@ namespace MapperTests
         [Test]
         public void AsTypeReference()
         {
-            TypeReferenceTest(
-                new TypeReferenceTestData
+            RunTest(
+                new TestData
                 {
                     source = "o as object\ni=(o as int)",
                     location = new SourceLocation(2, 9),
                     expectedDatatip = "struct int",
                     expectedFormat = Formats.BooType,
                     expectedSpan = new TextSpan { iStartLine = 1, iEndLine = 1, iStartIndex = 8, iEndIndex = 11 }
+                }
+                );
+        }
+
+        [Test]
+        public void AttributeShort()
+        {
+            RunTest(
+                new TestData
+                {
+                    source = "[System.Serializable]\nclass c:\n\tdef constructor():\n\t\tpass",
+                    location = new SourceLocation(1, 8),
+                    expectedDatatip = "class System.SerializableAttribute",
+                    expectedFormat = Formats.BooType,
+                    // TODO: it should actually hihghlight only the class name - excluding the namespaces
+                    expectedSpan = new TextSpan { iStartLine = 0, iEndLine = 0, iStartIndex = 1, iEndIndex = 20 }
+                }
+                );
+        }
+
+        [Test]
+        public void AttributeFull()
+        {
+            RunTest(
+                new TestData
+                {
+                    source = "[System.SerializableAttribute]\nclass c:\n\tdef constructor():\n\t\tpass",
+                    location = new SourceLocation(1, 8),
+                    expectedDatatip = "class System.SerializableAttribute",
+                    expectedFormat = Formats.BooType,
+                    // TODO: it should actually hihghlight only the class name - excluding the namespaces
+                    expectedSpan = new TextSpan { iStartLine = 0, iEndLine = 0, iStartIndex = 1, iEndIndex = 29 }
                 }
                 );
         }

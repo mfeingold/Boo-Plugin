@@ -30,8 +30,6 @@ namespace Hill30.Boo.ASTMapper
             pipeline.BreakOnErrors = false;
             var compiler = new BooCompiler(new CompilerParameters(false) { Pipeline = pipeline });
 
-            //            ((BooParsingStep)compiler.Parameters.Pipeline[0]).TabSize = 
-
             compiler.Parameters.Environment =
                  new ClosedEnvironment(
                      new ParserSettings

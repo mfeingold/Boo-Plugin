@@ -50,7 +50,10 @@ namespace Hill30.Boo.ASTMapper.AST.Nodes
                 var type = TypeSystemServices.GetType(Node);
                 if (type is Error)
                     return;
-//                quickInfoTip = "class " + type.FullName;
+                var a = Node as Attribute;
+                if (a == null)
+                    return;
+                quickInfoTip = "class " + a.Name;
                 format = Formats.BooType;
             }
             catch

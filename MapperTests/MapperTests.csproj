@@ -56,8 +56,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tests.cs" />
+    <Compile Include="TestBase.cs" />
+    <Compile Include="MiscellaneousTests.cs" />
     <Compile Include="TypeReferenceTests.cs" />
+    <Compile Include="VariableReferencesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ASTMapper\ASTMapper.csproj">

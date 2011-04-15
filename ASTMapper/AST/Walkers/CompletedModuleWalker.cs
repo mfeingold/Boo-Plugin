@@ -21,6 +21,13 @@ namespace Hill30.Boo.ASTMapper.AST.Walkers
         //public override void OnReferenceExpression(ReferenceExpression node)
         //{
         //    if (node.LexicalInfo != null)
+        //        results.MapParsedNode(new MappedReferenceExpression(results, node));
+        //    base.OnReferenceExpression(node);
+        //}
+
+        //public override void OnReferenceExpression(ReferenceExpression node)
+        //{
+        //    if (node.LexicalInfo != null)
         //        result.MapNode(RecordingStage.Completed, new MappedReferenceExpression(result, node));
         //    base.OnReferenceExpression(node);
         //}
