@@ -25,6 +25,7 @@ namespace Hill30.Boo.ASTMapper.AST.Nodes
     {
         private string quickInfoTip;
         private MappedNode declarationNode;
+        private IType declaringType;
         private IType varType;
         private string format;
         private bool isTypeReference;
@@ -93,24 +94,27 @@ namespace Hill30.Boo.ASTMapper.AST.Nodes
                     if (entity is InternalField)
                     {
                         varType = TypeSystemServices.GetType(Node);
+                        declaringType = ((InternalField) entity).DeclaringType; 
                         declarationNode = CompileResults.GetMappedNode(((InternalField)entity).Field);
                     }
                     if (entity is InternalMethod)
                     {
-                        var declaration = ((InternalMethod)entity).Method;
-                        declarationNode = CompileResults.GetMappedNode(declaration);
+                        declaringType = ((InternalMethod)entity).DeclaringType;
+                        declarationNode = CompileResults.GetMappedNode(((InternalMethod)entity).Method);
                         if (entity is InternalConstructor)
                             varType = ((InternalConstructor) entity).DeclaringType;
                         else
-                            varType = TypeSystemServices.GetType(declaration.ReturnType);
+                            varType = ((InternalMethod)entity).ReturnType;
                     }
                     if (entity is InternalProperty)
                     {
+                        declaringType = ((InternalProperty)entity).DeclaringType;
                         varType = TypeSystemServices.GetType(Node);
                         declarationNode = CompileResults.GetMappedNode(((InternalProperty)entity).Property);
                     }
                     if (entity is InternalEvent)
                     {
+                        declaringType = ((InternalEvent)entity).DeclaringType;
                         varType = TypeSystemServices.GetType(Node);
                         declarationNode = CompileResults.GetMappedNode(((InternalEvent)entity).Event);
                     }
@@ -127,8 +131,39 @@ namespace Hill30.Boo.ASTMapper.AST.Nodes
                         isTypeReference = true;
                         declarationNode = CompileResults.GetMappedNode(((AbstractInternalType)entity).TypeDefinition);
                     }
+                    if (entity is ExternalField)
+                    {
+                        varType = TypeSystemServices.GetType(Node);
+                        declaringType = ((ExternalField)entity).DeclaringType;
+//                        declarationNode = CompileResults.GetMappedNode(((ExternalField)entity).Field);
+                    }
+                    if (entity is ExternalMethod)
+                    {
+                        declaringType = ((ExternalMethod)entity).DeclaringType;
+//                        declarationNode = CompileResults.GetMappedNode(declaration);
+                        if (entity is ExternalConstructor)
+                            varType = ((ExternalConstructor)entity).DeclaringType;
+                        else
+                            varType = ((ExternalMethod)entity).ReturnType;
+                    }
+                    if (entity is ExternalProperty)
+                    {
+                        declaringType = ((ExternalProperty)entity).DeclaringType;
+                        varType = TypeSystemServices.GetType(Node);
+//                        declarationNode = CompileResults.GetMappedNode(((ExternalProperty)entity).Property);
+                    }
+                    if (entity is ExternalEvent)
+                    {
+                        declaringType = ((ExternalEvent)entity).DeclaringType;
+                        varType = TypeSystemServices.GetType(Node);
+//                        declarationNode = CompileResults.GetMappedNode(((ExternalEvent)entity).Event);
+                    }
                     if (expression.ExpressionType != null)
+                    {
+                        if (declaringType != null)
+                            prefix += declaringType.FullName + '.';
                         quickInfoTip = prefix + expression.Name + " as " + expression.ExpressionType.FullName;
+                    }
                     break;
                 default:
                     break;
@@ -151,17 +186,20 @@ namespace Hill30.Boo.ASTMapper.AST.Nodes
             switch (stage)
             {
                 case RecordingStage.Completed:
-                    var macro = token.Nodes.Where(
-                        node => (node.Node is MacroStatement &&
-                                    ((MacroStatement)node.Node).Name == ((ReferenceExpression)Node).Name)
+                    var oldref = token.Nodes.Where(
+                        node => (node.Node.NodeType == NodeType.ReferenceExpression &&
+                                    ((ReferenceExpression)node.Node).Name == ((ReferenceExpression)Node).Name)
                         ).FirstOrDefault();
-                    if (macro != null)
-                        token.Nodes.Remove(macro);
+                    if (oldref != null)
+                    {
+                        token.Nodes.Remove(oldref);
+                        base.Record(stage, token);
+                    }
                     break;
                 default:
+                    base.Record(stage, token);
                     break;
             }
-            base.Record(stage, token);
         }
     }
 }

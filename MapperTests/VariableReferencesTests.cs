@@ -137,7 +137,7 @@ namespace MapperTests
                 {
                     source = "class c:\n\tb as int\n\tdef foo(a as int):\n\t\tself.b = a",
                     location = new SourceLocation(4, 14),
-                    expectedDatatip = "b as int",
+                    expectedDatatip = "c.b as int",
                     expectedSpan = new TextSpan { iStartLine = 3, iEndLine = 3, iStartIndex = 7, iEndIndex = 8 },
                     expectedDefinition = new TextSpan { iStartLine = 1, iEndLine = 1, iStartIndex = 1, iEndIndex = 2 }
                 }
@@ -152,7 +152,7 @@ namespace MapperTests
                 {
                     source = "s as string\nl = s.Length",
                     location = new SourceLocation(2, 7),
-                    expectedDatatip = "Length as int",
+                    expectedDatatip = "string.Length as int",
                     expectedSpan = new TextSpan { iStartLine = 1, iEndLine = 1, iStartIndex = 6, iEndIndex = 12 }
                 }
                 );
@@ -166,7 +166,7 @@ namespace MapperTests
                 {
                     source = "class c:\n\tb = 1\n\tdef foo():\n\t\ta=self.b",
                     location = new SourceLocation(4, 16),
-                    expectedDatatip = "b as int",
+                    expectedDatatip = "c.b as int",
                     expectedSpan = new TextSpan { iStartLine = 3, iEndLine = 3, iStartIndex = 9, iEndIndex = 10 },
                     expectedDefinition = new TextSpan { iStartLine = 1, iEndLine = 1, iStartIndex = 1, iEndIndex = 2 }
                 }
@@ -181,8 +181,8 @@ namespace MapperTests
                 {
                     source = "class c:\n\tb as int\n\tdef foo(a as int):\n\t\tb = a",
                     location = new SourceLocation(4, 9),
-                    expectedDatatip = "b as int",
-                    expectedSpan = new TextSpan { iStartLine = 3, iEndLine = 3, iStartIndex = 7, iEndIndex = 8 }
+                    expectedDatatip = "c.b as int",
+                    expectedSpan = new TextSpan { iStartLine = 3, iEndLine = 3, iStartIndex = 2, iEndIndex = 3 }
                 }
                 );
         }

@@ -13,6 +13,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Microsoft.VisualStudio.TextManager.Interop;
 
@@ -100,6 +101,9 @@ namespace Hill30.Boo.ASTMapper.AST
 
         internal virtual void Record(RecordingStage stage, MappedToken token)
         {
+            if (token.Nodes.Any(node => node.Node == Node))
+                return;
+
             token.Nodes.Add(this);
         }
     }
