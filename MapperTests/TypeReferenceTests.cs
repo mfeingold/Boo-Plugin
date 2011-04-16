@@ -155,7 +155,8 @@ namespace MapperTests
                     location = new SourceLocation(2, 6),
                     expectedDatatip = "class aClass",
                     expectedFormat = Formats.BooType,
-                    expectedSpan = new TextSpan { iStartLine = 1, iEndLine = 1, iStartIndex = 5, iEndIndex = 11 }
+                    expectedSpan = new TextSpan { iStartLine = 1, iEndLine = 1, iStartIndex = 5, iEndIndex = 11 },
+                    expectedDefinition = new TextSpan { iStartLine = 0, iEndLine = 1, iStartIndex = 6, iEndIndex = 11 }
                 }
                 );
         }

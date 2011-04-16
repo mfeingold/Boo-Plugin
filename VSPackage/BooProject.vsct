@@ -62,25 +62,14 @@
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node or set it to <Icon guid="guidOfficeIcon" id="msotcidNoIcon" /> -->
 
-      <!--<Button guid="guidBooProjectCmdSet" id="cmdidMyCommand" priority="0x0100" type="Button">
-        <Parent guid="guidBooProjectCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic1" />
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <CommandName>cmdidMyCommand</CommandName>
-          <ButtonText>Open Reflector</ButtonText>
-        </Strings>
-      </Button>-->
-
-      <Button guid="guidBooProjectCmdSet" id="cmdidBooISh" priority="0x0100" type="Button">
+      <!--<Button guid="guidBooProjectCmdSet" id="cmdidBooISh" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
         <Icon guid="guidProjectImage" id="pic" />
         <Strings>
           <CommandName>cmdidBooISh</CommandName>
           <ButtonText>Boo Interactive</ButtonText>
         </Strings>
-      </Button>
-
+      </Button>-->
 
     </Buttons>
    
